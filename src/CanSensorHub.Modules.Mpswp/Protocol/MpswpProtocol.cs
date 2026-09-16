@@ -35,10 +35,10 @@ public static class MpswpNodes
 public static class MpswpInfo
 {
     public const byte FwVersionMajor = 3;
-    public const byte FwVersionMinor = 0;
+    public const byte FwVersionMinor = 1;
     public const byte HwVersionMajor = 1;
     public const byte HwVersionMinor = 2;
-    public const ushort BuildRevision = 8;
+    public const ushort BuildRevision = 9;
 
     /// <summary>Wersja układu 29-bitowego identyfikatora. Zmieniana wyłącznie przy zmianie znaczenia pól identyfikatora, niezależnie od wersji firmware.</summary>
     public const byte ProtocolVersion = 1;

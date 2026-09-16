@@ -1,3 +1,4 @@
+using System.Linq;
 using CanSensorHub.Core.Can;
 
 namespace CanSensorHub.Core.Protocol;
@@ -113,10 +114,14 @@ public static class StreamHeaderBits
     public static byte Build(int index, bool last) => (byte)(((index & IndexMask) & 0xFF) | (last ? LastBit : 0));
 }
 
-/// <summary>Reassembles segmented FUNC=STREAM transfers keyed by (node, obj, arg).</summary>
+/// <summary>
+/// Składa transfery segmentowane (FUNC=STREAM), grupując je po (węzeł, obiekt, argument).
+/// Znosi odbiór segmentów w kolejności innej niż nadana — patrz komentarz w <see cref="Push"/>.
+/// </summary>
 public sealed class StreamAssembler
 {
     private readonly Dictionary<(byte Node, byte Obj, byte Arg), Dictionary<int, byte[]>> _buffers = new();
+    private readonly Dictionary<(byte Node, byte Obj, byte Arg), int> _expected = new();
 
     /// <summary>Feeds one segment; returns the concatenated payload once the "last" segment arrives, else null.</summary>
     public byte[]? Push(StreamSegment segment)
@@ -129,21 +134,52 @@ public sealed class StreamAssembler
         }
         segs[segment.Index] = segment.Payload;
 
-        if (!segment.Last) return null;
+        // Segment końcowy wyznacza liczbę segmentów, ale NIE kończy transferu.
+        // Kolejność odbioru nie musi odpowiadać kolejności nadania: kontroler CAN
+        // nadaje z kilku skrzynek, a przy jednakowych identyfikatorach — takich jak
+        // w jednym transferze — o kolejności decyduje numer skrzynki, nie moment
+        // zgłoszenia. Zaobserwowano odbiór segmentów w kolejności 0, 1, 3, 2.
+        if (segment.Last)
+            _expected[key] = segment.Index + 1;
+
+        if (!_expected.TryGetValue(key, out var expected) || segs.Count < expected)
+            return null;
 
         _buffers.Remove(key);
+        _expected.Remove(key);
+
         var total = 0;
-        for (int i = 0; i <= segment.Index; i++)
-            total += segs.TryGetValue(i, out var p) ? p.Length : 0;
+        for (int i = 0; i < expected; i++)
+            total += segs[i].Length;
         var result = new byte[total];
         var offset = 0;
-        for (int i = 0; i <= segment.Index; i++)
+        for (int i = 0; i < expected; i++)
         {
-            if (!segs.TryGetValue(i, out var p)) continue;
-            p.CopyTo(result, offset);
-            offset += p.Length;
+            segs[i].CopyTo(result, offset);
+            offset += segs[i].Length;
         }
         return result;
+    }
+
+    /// <summary>
+    /// Porzuca nieukończony transfer i zwraca indeksy segmentów, których zabrakło;
+    /// null, jeśli takiego transferu nie ma. Wywoływane przez warstwę żądania po
+    /// upływie limitu oczekiwania.
+    ///
+    /// Do tego momentu transfer nie jest odrzucany, ponieważ brakujący segment może
+    /// jeszcze nadejść. Sklejenie tego, co dotarło, byłoby groźniejsze niż brak
+    /// danych: odbiorca otrzymałby krótszy bufor bez żadnego sygnału błędu, a przy
+    /// ramce identyfikacyjnej — bufor nieodróżnialny od starszego profilu protokołu.
+    /// </summary>
+    public int[]? Expire(byte node, byte obj, byte arg)
+    {
+        var key = (node, obj, arg);
+        if (!_buffers.TryGetValue(key, out var segs)) return null;
+        _buffers.Remove(key);
+
+        var known = _expected.TryGetValue(key, out var e) ? e : segs.Keys.Max() + 1;
+        _expected.Remove(key);
+        return Enumerable.Range(0, known).Where(i => !segs.ContainsKey(i)).ToArray();
     }
 }
 
