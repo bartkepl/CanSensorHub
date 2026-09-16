@@ -1,0 +1,65 @@
+<Window x:Class="CanSensorHub.App.Views.BootloaderToolWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:CanSensorHub.App.ViewModels"
+        d:DataContext="{d:DesignInstance vm:BootloaderToolViewModel}"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Bootloader — aktualizacja firmware" Width="620" Height="620" MinWidth="560" MinHeight="480"
+        WindowStartupLocation="CenterOwner" Background="{DynamicResource Brush.Bg}">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Baner informacyjny, jak w referencyjnej aplikacji PySide6 -->
+        <TextBlock Grid.Row="0" TextWrapping="Wrap" Opacity="0.7" Margin="0,0,0,12">
+            <Run Text="Programowanie aplikacji przez bootloader CAN — gdy SWD niedostępne (lakier/żywica)." /><LineBreak />
+            <Run Text="• Protokół identyczny dla MPCC_BL i MPSWP_BL — wybierz tylko typ modułu poniżej." /><LineBreak />
+            <Run Text="• CAN wymaga połączenia slcan (WeAct) z paska w oknie głównym." /><LineBreak />
+            <Run Text="• Plik = .bin lub .hex aplikacji zrelokowanej pod adres startowy aplikacji." />
+        </TextBlock>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,4">
+            <TextBlock Text="Typ modułu:" VerticalAlignment="Center" Width="120" />
+            <ComboBox ItemsSource="{Binding Modules}" SelectedItem="{Binding SelectedModule}" DisplayMemberPath="DisplayName" Width="380" />
+        </StackPanel>
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,12">
+            <TextBlock Text="Węzeł aplikacji:" VerticalAlignment="Center" Width="120"
+                       ToolTip="Adres NODE_ID DZIAŁAJĄCEJ aplikacji — używany tylko do wysłania ENTER_BOOTLOADER. Sam bootloader ma własny, stały adres, niezależny od tego." />
+            <TextBox Text="{Binding AppNodeIdText, UpdateSourceTrigger=PropertyChanged}" Width="100" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,0,0,12">
+            <TextBlock Text="Firmware:" VerticalAlignment="Center" Width="120" />
+            <TextBox Text="{Binding FirmwareFilePath}" Width="330" IsReadOnly="True" />
+            <Button Content="Przeglądaj…" Command="{Binding BrowseFirmwareFileCommand}" Padding="10,4" Margin="8,0,0,0" />
+        </StackPanel>
+
+        <CheckBox Grid.Row="4" Content="Wejdź w bootloader (ENTER_BOOTLOADER po CAN)" IsChecked="{Binding EnterBootloader}" Margin="0,2" />
+        <CheckBox Grid.Row="5" Content="Skasuj slot aplikacji (ERASE)" IsChecked="{Binding EraseBeforeProgram}" Margin="0,2" />
+        <CheckBox Grid.Row="6" Content="Uruchom aplikację po wgraniu (GO)" IsChecked="{Binding GoAfterProgram}" Margin="0,2,0,12" />
+
+        <StackPanel Grid.Row="7" Orientation="Horizontal" Margin="0,0,0,4">
+            <Button Content="Programuj (CAN)" Command="{Binding ProgramViaCanCommand}" Padding="14,6" FontWeight="Bold"
+                    IsEnabled="{Binding IsFlashing, Converter={StaticResource InverseBool}}" />
+        </StackPanel>
+
+        <ProgressBar Grid.Row="8" Value="{Binding FlashProgress, Mode=OneWay}" Minimum="0" Maximum="100" Height="18" Margin="0,8,0,8" />
+
+        <GroupBox Grid.Row="9" Header="Log">
+            <ListBox x:Name="LogListBox" ItemsSource="{Binding LogLines}" Background="{DynamicResource Brush.Panel}"
+                     FontFamily="Consolas" FontSize="12" BorderThickness="0" />
+        </GroupBox>
+    </Grid>
+</Window>

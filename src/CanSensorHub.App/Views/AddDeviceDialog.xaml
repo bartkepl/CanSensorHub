@@ -1,0 +1,43 @@
+<Window x:Class="CanSensorHub.App.Views.AddDeviceDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:CanSensorHub.App.ViewModels"
+        d:DataContext="{d:DesignInstance vm:AddDeviceDialogViewModel}"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Dodaj urządzenie" Width="460" SizeToContent="Height" WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize" Background="{DynamicResource Brush.Bg}">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="Typ modułu" FontWeight="Bold" Margin="0,0,0,4" />
+        <ComboBox Grid.Row="1" ItemsSource="{Binding Modules}" SelectedItem="{Binding SelectedModule}"
+                  DisplayMemberPath="DisplayName" Margin="0,0,0,4" />
+        <TextBlock Grid.Row="2" Text="{Binding SelectedModule.Summary}" Opacity="0.7" Margin="0,2,0,0" TextWrapping="Wrap" />
+
+        <TextBlock Grid.Row="3" Text="Nazwa instancji (dowolna, do rozróżnienia kilku urządzeń tego samego typu)" Margin="0,16,0,4" TextWrapping="Wrap" />
+        <TextBox Grid.Row="4" Text="{Binding InstanceName, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,4" />
+
+        <StackPanel Grid.Row="5" Margin="0,12,0,0">
+            <TextBlock Text="Adres węzła CAN (NODE_ID) — hex (0x10) lub dziesiętnie (16), 1..254" TextWrapping="Wrap" />
+            <TextBox Text="{Binding NodeIdText, UpdateSourceTrigger=PropertyChanged}" Width="140" HorizontalAlignment="Left" Margin="0,4,0,0" />
+        </StackPanel>
+
+        <TextBlock Grid.Row="6" Text="{Binding ValidationError}" Foreground="{DynamicResource Brush.Danger}" TextWrapping="Wrap" Margin="0,8,0,0" />
+
+        <StackPanel Grid.Row="7" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
+            <Button Content="Anuluj" Width="90" Margin="4,0" Click="OnCancel" />
+            <Button Content="Dodaj" Width="90" Margin="4,0" Click="OnAdd" IsDefault="True" />
+        </StackPanel>
+    </Grid>
+</Window>

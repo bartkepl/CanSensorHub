@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/CanSensorHub.App/CanSensorHub.App.csproj" />
+    <Project Path="src/CanSensorHub.Core/CanSensorHub.Core.csproj" />
+    <Project Path="src/CanSensorHub.Modules.Mpcc/CanSensorHub.Modules.Mpcc.csproj" />
+    <Project Path="src/CanSensorHub.Modules.Mpswp/CanSensorHub.Modules.Mpswp.csproj" />
+  </Folder>
+</Solution>

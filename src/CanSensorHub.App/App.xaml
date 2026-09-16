@@ -1,0 +1,36 @@
+<Application x:Class="CanSensorHub.App.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:CanSensorHub.App"
+             xmlns:conv="clr-namespace:CanSensorHub.App.Converters">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- Replaced at runtime by ThemeService to match the Windows light/dark setting. -->
+                <ResourceDictionary Source="Themes/Dark.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <conv:BoolToVisibilityConverter x:Key="BoolToVis" />
+            <conv:InverseBooleanConverter x:Key="InverseBool" />
+            <conv:ConnectionDotConverter x:Key="ConnectionDotConverter" />
+
+            <Style TargetType="TabControl">
+                <Setter Property="Background" Value="{DynamicResource Brush.Bg}" />
+                <Setter Property="Foreground" Value="{DynamicResource Brush.Fg}" />
+            </Style>
+            <Style TargetType="TabItem">
+                <Setter Property="Padding" Value="10,6" />
+            </Style>
+            <Style TargetType="DataGrid">
+                <Setter Property="Background" Value="{DynamicResource Brush.Panel}" />
+                <Setter Property="Foreground" Value="{DynamicResource Brush.Fg}" />
+                <Setter Property="RowBackground" Value="{DynamicResource Brush.Panel}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}" />
+                <Setter Property="GridLinesVisibility" Value="Horizontal" />
+                <Setter Property="HorizontalGridLinesBrush" Value="{DynamicResource Brush.Border}" />
+                <Setter Property="AutoGenerateColumns" Value="False" />
+                <Setter Property="CanUserAddRows" Value="False" />
+            </Style>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

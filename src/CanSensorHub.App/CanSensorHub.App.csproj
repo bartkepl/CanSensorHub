@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\CanSensorHub.Core\CanSensorHub.Core.csproj" />
+    <ProjectReference Include="..\CanSensorHub.Modules.Mpcc\CanSensorHub.Modules.Mpcc.csproj" />
+    <ProjectReference Include="..\CanSensorHub.Modules.Mpswp\CanSensorHub.Modules.Mpswp.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+</Project>

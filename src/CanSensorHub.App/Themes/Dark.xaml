@@ -1,0 +1,23 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+    <sys:String x:Key="ThemeMarker">Dark</sys:String>
+
+    <Color x:Key="Color.Bg">#FF1E1F22</Color>
+    <Color x:Key="Color.Panel">#FF2B2D30</Color>
+    <Color x:Key="Color.Border">#FF3F4144</Color>
+    <Color x:Key="Color.Fg">#FFE6E6E6</Color>
+    <Color x:Key="Color.Accent">#FF4FA3FF</Color>
+    <Color x:Key="Color.Danger">#FFE05252</Color>
+    <Color x:Key="Color.Success">#FF4CBB6C</Color>
+    <Color x:Key="Color.Warning">#FFE0A030</Color>
+
+    <SolidColorBrush x:Key="Brush.Bg" Color="{StaticResource Color.Bg}" />
+    <SolidColorBrush x:Key="Brush.Panel" Color="{StaticResource Color.Panel}" />
+    <SolidColorBrush x:Key="Brush.Border" Color="{StaticResource Color.Border}" />
+    <SolidColorBrush x:Key="Brush.Fg" Color="{StaticResource Color.Fg}" />
+    <SolidColorBrush x:Key="Brush.Accent" Color="{StaticResource Color.Accent}" />
+    <SolidColorBrush x:Key="Brush.Danger" Color="{StaticResource Color.Danger}" />
+    <SolidColorBrush x:Key="Brush.Success" Color="{StaticResource Color.Success}" />
+    <SolidColorBrush x:Key="Brush.Warning" Color="{StaticResource Color.Warning}" />
+</ResourceDictionary>
