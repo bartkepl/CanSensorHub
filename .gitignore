@@ -7,3 +7,6 @@ build/
 *.suo
 *.userosscache
 *.sln.docstates
+
+# katalog wynikowy MkDocs
+site/

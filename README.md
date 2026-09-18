@@ -115,3 +115,13 @@ dostarcza tylko to, co u niego rzeczywiście inne.
 - Symulator nie implementuje bootloadera — zakładka Bootloader w trybie symulatora pozwoli
   wysłać `ENTER_BOOTLOADER`, ale dalszy flash wymaga prawdziwego (lub docelowo osobno
   zasymulowanego) urządzenia w trybie programowania.
+
+## Dokumentacja
+
+Strona dokumentacji w katalogu `docs/` (MkDocs Material):
+
+```bash
+pip install mkdocs-material
+mkdocs serve     # podglad lokalny
+mkdocs build     # statyczna strona w site/
+```

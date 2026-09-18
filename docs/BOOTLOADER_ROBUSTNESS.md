@@ -1,5 +1,13 @@
 # Bootloader CAN — plan wzmocnienia niezawodności
 
+> **Aktualizacja 2026-09-16.** Od czasu spisania tego dokumentu narzędzie
+> wgrało przez CAN dwa obrazy stacji pogodowej (3.0 build 8 oraz 3.1 build 9),
+> oba zakończone weryfikacją i startem aplikacji. Objaw opisany poniżej nie
+> wystąpił ponownie. Nie przesądza to, że przyczyna została usunięta: poprawki
+> 1 i 2 mogły ją usunąć, mogła też pozostać utajona. Propozycje z dalszej części
+> dokumentu pozostają aktualne jako wzmocnienie, a nie jako naprawa awarii
+> bieżącej.
+
 Status: **propozycja, nie zaimplementowana.** Spisane po nieudanej próbie flashowania
 MPSWP przez CAN na prawdziwym sprzęcie (`BŁĄD: Brak odpowiedzi PROG_END.` przy pierwszym
 bloku), gdy referencyjna aplikacja Pythonowa (`MPSWP/app`) na tym samym sprzęcie działa
