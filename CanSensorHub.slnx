@@ -5,4 +5,7 @@
     <Project Path="src/CanSensorHub.Modules.Mpcc/CanSensorHub.Modules.Mpcc.csproj" />
     <Project Path="src/CanSensorHub.Modules.Mpswp/CanSensorHub.Modules.Mpswp.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/CanSensorHub.Core.Tests/CanSensorHub.Core.Tests.csproj" />
+  </Folder>
 </Solution>
