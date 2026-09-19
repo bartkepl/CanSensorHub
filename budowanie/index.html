@@ -1,0 +1,1024 @@
+
+<!doctype html>
+<html lang="pl" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Modularna aplikacja PC (.NET 10 / WPF) do obsługi węzłów CAN: monitor magistrali, zakładki urządzeń, narzędzie bootloadera, rejestracja danych.">
+      
+      
+        <meta name="author" content="bartkepl">
+      
+      
+        <link rel="canonical" href="https://bartkepl.github.io/CanSensorHub/budowanie/">
+      
+      
+        <link rel="prev" href="../moduly/">
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Budowanie i uruchamianie - CanSensorHub — stanowisko obsługi magistrali CAN</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="deep-orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#budowanie-i-uruchamianie" class="md-skip">
+          Przejdź do treści
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Nagłówek">
+    <a href=".." title="CanSensorHub — stanowisko obsługi magistrali CAN" class="md-header__button md-logo" aria-label="CanSensorHub — stanowisko obsługi magistrali CAN" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            CanSensorHub — stanowisko obsługi magistrali CAN
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Budowanie i uruchamianie
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="deep-orange"  aria-label="Tryb ciemny"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Tryb ciemny" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="deep-orange"  aria-label="Tryb jasny"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Tryb jasny" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Szukaj" placeholder="Szukaj" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Szukaj">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Wyczyść" aria-label="Wyczyść" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicjowanie wyszukiwania
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/bartkepl/CanSensorHub" title="Przejdź do repozytorium" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    bartkepl/CanSensorHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Nawigacja" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="CanSensorHub — stanowisko obsługi magistrali CAN" class="md-nav__button md-logo" aria-label="CanSensorHub — stanowisko obsługi magistrali CAN" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    CanSensorHub — stanowisko obsługi magistrali CAN
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/bartkepl/CanSensorHub" title="Przejdź do repozytorium" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    bartkepl/CanSensorHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architektura/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architektura
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../protokol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Warstwa protokołu
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../bootloader/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Narzędzie bootloadera
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../BOOTLOADER_ROBUSTNESS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Niezawodność wgrywania
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../moduly/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dodawanie modułu urządzenia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Budowanie i uruchamianie
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Budowanie i uruchamianie
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Spis treści">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Spis treści
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#instalacja-gotowej-wersji" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Instalacja gotowej wersji
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#wymagania" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Wymagania
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#skrypty" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Skrypty
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#wydania-i-automatyczna-aktualizacja" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Wydania i automatyczna aktualizacja
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Wydania i automatyczna aktualizacja">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#numerowanie-wersji" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Numerowanie wersji
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#co-trafia-do-wydania" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Co trafia do wydania
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#jak-to-dziaa-po-stronie-aplikacji" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Jak to działa po stronie aplikacji
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zbudowanie-instalatora-lokalnie" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Zbudowanie instalatora lokalnie
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#praca-z-aplikacja" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Praca z aplikacją
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kolejnosc-przy-aktualizacji-firmware" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kolejność przy aktualizacji firmware
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Spis treści">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Spis treści
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#instalacja-gotowej-wersji" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Instalacja gotowej wersji
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#wymagania" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Wymagania
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#skrypty" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Skrypty
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#wydania-i-automatyczna-aktualizacja" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Wydania i automatyczna aktualizacja
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Wydania i automatyczna aktualizacja">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#numerowanie-wersji" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Numerowanie wersji
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#co-trafia-do-wydania" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Co trafia do wydania
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#jak-to-dziaa-po-stronie-aplikacji" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Jak to działa po stronie aplikacji
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zbudowanie-instalatora-lokalnie" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Zbudowanie instalatora lokalnie
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#praca-z-aplikacja" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Praca z aplikacją
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kolejnosc-przy-aktualizacji-firmware" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kolejność przy aktualizacji firmware
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="budowanie-i-uruchamianie">Budowanie i uruchamianie<a class="headerlink" href="#budowanie-i-uruchamianie" title="Permanent link">&para;</a></h1>
+<h2 id="instalacja-gotowej-wersji">Instalacja gotowej wersji<a class="headerlink" href="#instalacja-gotowej-wersji" title="Permanent link">&para;</a></h2>
+<p>Do używania aplikacji nie trzeba niczego budować. Instalator jest przy każdym wydaniu:
+<a href="https://github.com/bartkepl/CanSensorHub/releases/latest">Releases</a> →
+<code>CanSensorHub-win-Setup.exe</code>.</p>
+<p>Pakiet niesie własny runtime .NET, więc nie wymaga niczego wcześniej zainstalowanego.
+Instaluje się dla bieżącego użytkownika, bez uprawnień administratora.</p>
+<div class="admonition tip">
+<p class="admonition-title">Aplikacja aktualizuje się sama</p>
+<p>Zainstalowana wersja przy starcie sprawdza, czy w repozytorium jest nowsze wydanie,
+i po zgodzie użytkownika pobiera je oraz uruchamia się ponownie. Szczegóły —
+<a href="#wydania-i-automatyczna-aktualizacja">Wydania i automatyczna aktualizacja</a>.</p>
+</div>
+<p>Alternatywnie <code>CanSensorHub-win-Portable.zip</code>: rozpakuj i uruchom <code>CanSensorHub.exe</code>.
+Wersja przenośna nie aktualizuje się sama.</p>
+<h2 id="wymagania">Wymagania<a class="headerlink" href="#wymagania" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Element</th>
+<th>Wymóg</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Środowisko</td>
+<td>.NET 10 SDK, Windows</td>
+</tr>
+<tr>
+<td>Sprzęt (opcjonalnie)</td>
+<td>adapter WeActStudio USB2CANFDV1 we firmware <strong>slcan</strong>, podłączony jako port COM</td>
+</tr>
+</tbody>
+</table>
+<p>Bez adaptera aplikacja działa w pełni w <strong>trybie symulatora</strong>: fałszywe węzły
+pracują w procesie aplikacji i generują realistyczną telemetrię.</p>
+<h2 id="skrypty">Skrypty<a class="headerlink" href="#skrypty" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">./</span><span class="n">build</span><span class="p">.</span><span class="n">ps1</span>                          <span class="c"># dotnet build (Debug)</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="p">./</span><span class="n">build</span><span class="p">.</span><span class="n">ps1</span> <span class="n">-Configuration</span> <span class="n">Release</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">./</span><span class="n">build</span><span class="p">.</span><span class="n">ps1</span> <span class="n">-Clean</span>                   <span class="c"># pełne czyszczenie bin/obj przed budową</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="p">./</span><span class="n">build</span><span class="p">.</span><span class="n">ps1</span> <span class="n">-Publish</span>                 <span class="c"># katalog samodzielny (publish/Debug|Release)</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">./</span><span class="n">run</span><span class="p">.</span><span class="n">ps1</span>                            <span class="c"># zbuduj i uruchom</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="p">./</span><span class="n">run</span><span class="p">.</span><span class="n">ps1</span> <span class="n">-NoBuild</span>                   <span class="c"># uruchom bez ponownej budowy</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="p">./</span><span class="n">build_release</span><span class="p">.</span><span class="n">ps1</span>                  <span class="c"># publikacja Release do CanSensorHub\build\</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="p">./</span><span class="n">build_release</span><span class="p">.</span><span class="n">ps1</span> <span class="n">-SelfContained</span>   <span class="c"># z dołączonym środowiskiem uruchomieniowym</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="p">./</span><span class="n">build_release</span><span class="p">.</span><span class="n">ps1</span> <span class="n">-Pack</span>            <span class="c"># jw. + instalator Velopack w artifacts\releases</span>
+</code></pre></div>
+<p>Bezpośrednio przez <code>dotnet</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">dotnet</span> <span class="n">build</span> <span class="n">CanSensorHub</span><span class="p">.</span><span class="n">slnx</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">dotnet</span> <span class="n">run</span> <span class="p">-</span><span class="n">-project</span> <span class="n">src</span><span class="p">/</span><span class="n">CanSensorHub</span><span class="p">.</span><span class="n">App</span><span class="p">/</span><span class="n">CanSensorHub</span><span class="p">.</span><span class="n">App</span><span class="p">.</span><span class="n">csproj</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">dotnet</span> <span class="n">test</span>
+</code></pre></div>
+<h2 id="testy">Testy<a class="headerlink" href="#testy" title="Permanent link">&para;</a></h2>
+<p>Warstwa <code>CanSensorHub.Core</code> jest pokryta testami jednostkowymi w
+<code>tests/CanSensorHub.Core.Tests</code> — układ 29-bitowego identyfikatora, kody FUNC i statusu,
+kodowanie ładunków telemetrii i statusu, składanie transferów segmentowanych, obie sumy
+kontrolne oraz parser obrazu firmware (<code>.bin</code> i Intel HEX).</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">dotnet</span> <span class="n">test</span>
+</code></pre></div>
+<p>Projekt testowy celuje w <code>net10.0</code> bez WPF, więc testy nie wymagają ani sprzętu, ani
+Windows Desktop SDK. Uruchamiają się w CI przy każdym pushu i pull requeście.</p>
+<div class="admonition note">
+<p class="admonition-title">Dlaczego akurat te obszary</p>
+<p>Testy pilnują tego, co musi zgadzać się co do bitu z firmware węzła. Błąd w tej
+warstwie nie objawia się wyjątkiem, tylko wartością, która wygląda poprawnie
+i opisuje co innego — dokładnie jak w przypadku 121 próbek opisanym niżej.</p>
+</div>
+<h2 id="wydania-i-automatyczna-aktualizacja">Wydania i automatyczna aktualizacja<a class="headerlink" href="#wydania-i-automatyczna-aktualizacja" title="Permanent link">&para;</a></h2>
+<p>Każdy push na <code>main</code> uruchamia workflow <code>release.yml</code>, który buduje, testuje, publikuje
+paczkę self-contained dla <code>win-x64</code>, pakuje ją przez <a href="https://velopack.io/">Velopack</a>
+i tworzy wydanie w GitHubie.</p>
+<h3 id="numerowanie-wersji">Numerowanie wersji<a class="headerlink" href="#numerowanie-wersji" title="Permanent link">&para;</a></h3>
+<p>Plik <code>VERSION</code> w katalogu głównym trzyma <code>MAJOR.MINOR</code>. Numer poprawki to numer przebiegu
+GitHub Actions, który rośnie sam przy każdym pushu — dzięki temu wersja nie musi wracać
+commitem do repozytorium i nie powstaje pętla <em>push → build → push</em>.</p>
+<p>Podniesienie wersji głównej albo podrzędnej to edycja pliku <code>VERSION</code>.</p>
+<h3 id="co-trafia-do-wydania">Co trafia do wydania<a class="headerlink" href="#co-trafia-do-wydania" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Plik</th>
+<th>Do czego</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CanSensorHub-win-Setup.exe</code></td>
+<td>instalator dla nowych instalacji</td>
+</tr>
+<tr>
+<td><code>CanSensorHub-win-Portable.zip</code></td>
+<td>wersja przenośna, bez instalacji i bez aktualizacji</td>
+</tr>
+<tr>
+<td><code>CanSensorHub-&lt;wersja&gt;-full.nupkg</code></td>
+<td>paczka, którą pobiera mechanizm aktualizacji</td>
+</tr>
+<tr>
+<td><code>releases.win.json</code>, <code>RELEASES</code></td>
+<td>manifest, po którym klient rozpoznaje nową wersję</td>
+</tr>
+</tbody>
+</table>
+<p>Usunięcie manifestu albo paczki <code>.nupkg</code> z wydania zatrzymuje automatyczne aktualizacje
+dla wszystkich zainstalowanych kopii — wydania nie należy edytować ręcznie.</p>
+<h3 id="jak-to-dziaa-po-stronie-aplikacji">Jak to działa po stronie aplikacji<a class="headerlink" href="#jak-to-dziaa-po-stronie-aplikacji" title="Permanent link">&para;</a></h3>
+<p><code>Program.Main</code> uruchamia <code>VelopackApp.Build().Run()</code> jako pierwszą instrukcję procesu
+(dlatego <code>App.xaml</code> jest w projekcie zwykłą stroną, a nie <code>ApplicationDefinition</code> —
+WPF nie generuje wtedy własnej metody <code>Main</code>). Zaraz potem aplikacja odpytuje wydania
+w repozytorium i przy nowszej wersji pyta użytkownika o zgodę.</p>
+<p>Cały ten etap jest celowo odporny na błędy — to narzędzie do obsługi sprzętu, więc brak
+sieci ani uszkodzone wydanie nie mogą uniemożliwić jego uruchomienia:</p>
+<ul>
+<li>sprawdzanie ma limit <strong>10 sekund</strong>, po którym aplikacja startuje normalnie,</li>
+<li>uruchomienie spoza instalacji (<code>dotnet run</code>, katalog <code>build\</code>) pomija sprawdzanie,</li>
+<li>wersja, której instalacja nie powiedzie się <strong>trzy razy</strong>, przestaje być proponowana,</li>
+<li>przebieg zapisuje się w <code>%AppData%\CanSensorHub\update.log</code>.</li>
+</ul>
+<p>Ustawienia leżą w <code>%AppData%\CanSensorHub</code>, poza katalogiem aplikacji, więc aktualizacja
+ich nie rusza.</p>
+<h3 id="zbudowanie-instalatora-lokalnie">Zbudowanie instalatora lokalnie<a class="headerlink" href="#zbudowanie-instalatora-lokalnie" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">./</span><span class="n">build_release</span><span class="p">.</span><span class="n">ps1</span> <span class="n">-Pack</span>
+</code></pre></div>
+<p>Wynik ląduje w <code>artifacts\releases</code>. Paczka zbudowana lokalnie nadaje się do sprawdzenia
+samego instalatora; aktualizacji z niej nie da się przetestować, bo klient szuka wydań
+w repozytorium GitHub, a nie w katalogu lokalnym.</p>
+<h2 id="praca-z-aplikacja">Praca z aplikacją<a class="headerlink" href="#praca-z-aplikacja" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Pasek połączenia.</strong> Wybór trybu: <em>Symulator</em> albo <em>Adapter WeAct (slcan)</em>
+   z portem COM i przepływnością — domyślnie 500 kbit/s, zgodnie z węzłami.
+   Aktywne jest jedno połączenie, współdzielone przez wszystkie urządzenia.</li>
+<li><strong>Dodanie urządzenia.</strong> Typ modułu z listy zamkniętej oraz adres węzła
+   (zapis szesnastkowy <code>0x10</code> albo dziesiętny <code>16</code>), z podpowiedzią adresu
+   domyślnego. W trybie symulatora uruchamiany jest odpowiadający mu fałszywy
+   węzeł.</li>
+<li><strong>Zakładki urządzeń.</strong> Pulpit z kartami wartości i nagrywaniem CSV, wykresy
+   na żywo, parametry, czujniki, status, czas RTC, log zdarzeń, bootloader.</li>
+<li><strong>Monitor magistrali.</strong> Surowy log ramek, z pauzą, filtrem i eksportem CSV.</li>
+</ol>
+<p>Ustawienia zapisywane są w <code>%AppData%\CanSensorHub\settings.json</code>
+i przywracane przy starcie, po ponownym nawiązaniu połączenia.</p>
+<h2 id="kolejnosc-przy-aktualizacji-firmware">Kolejność przy aktualizacji firmware<a class="headerlink" href="#kolejnosc-przy-aktualizacji-firmware" title="Permanent link">&para;</a></h2>
+<p>Aplikacja jest warunkiem wstępnym aktualizacji węzła: wgrywanie odbywa się
+przez jej narzędzie bootloadera, a po starcie to ona dekoduje ramkę
+identyfikacyjną nowego firmware.</p>
+<div class="admonition warning">
+<p class="admonition-title">Hosty aktualizuje się przed węzłami</p>
+<p>Węzeł pracujący już w nowym profilu, obsługiwany przez hosta w profilu
+starszym, jest dekodowany według nieaktualnych tablic znaczeń. Podczas
+migracji stacji pogodowej powstało w ten sposób 121 próbek zapisanych pod
+niewłaściwą nazwą wielkości — dane wyglądały poprawnie, lecz opisywały co
+innego.</p>
+</div>
+<p>Zalecana kolejność:</p>
+<ol>
+<li>Zbudować i uruchomić aplikację w wersji obsługującej docelowy profil.</li>
+<li>Zarchiwizować obraz dotychczasowy wraz z manifestem.</li>
+<li>Zweryfikować obraz dotychczasowy w węźle (<code>BL_OP_VERIFY</code>) — potwierdza
+   bajtową tożsamość archiwum przed nadpisaniem.</li>
+<li>Wgrać obraz nowy.</li>
+<li>Sprawdzić ramkę identyfikacyjną, status i telemetrię po starcie.</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Powrót do góry
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2026 Bartek — licencja MIT
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.top", "navigation.indexes", "navigation.tracking", "content.code.copy", "content.code.annotate", "toc.follow", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Skopiowano do schowka", "clipboard.copy": "Kopiuj do schowka", "search.result.more.one": "1 wi\u0119cej na tej stronie", "search.result.more.other": "# wi\u0119cej na tej stronie", "search.result.none": "Brak wynik\u00f3w wyszukiwania", "search.result.one": "Wyniki wyszukiwania: 1", "search.result.other": "Wyniki wyszukiwania: #", "search.result.placeholder": "Zacznij pisa\u0107, aby szuka\u0107", "search.result.term.missing": "Brak", "select.version": "Wybierz wersj\u0119"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
