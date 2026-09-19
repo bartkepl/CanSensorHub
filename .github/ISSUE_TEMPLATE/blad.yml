@@ -1,0 +1,61 @@
+name: Zgłoszenie błędu
+description: Coś nie działa — aplikacja, komunikacja z węzłem albo wgrywanie firmware.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Przy problemach z magistralą najbardziej pomaga **log z Monitora magistrali**
+        (dolny panel okna, przycisk eksportu do CSV) obejmujący moment błędu.
+
+  - type: textarea
+    id: opis
+    attributes:
+      label: Co się dzieje
+      description: Co zaobserwowałeś i czego się spodziewałeś zamiast tego.
+    validations:
+      required: true
+
+  - type: textarea
+    id: kroki
+    attributes:
+      label: Kroki do odtworzenia
+      placeholder: |
+        1. Połącz przez adapter WeAct, 500 kbit/s
+        2. Dodaj urządzenie MPSWP, NODE 0x01
+        3. Zakładka Parametry -> zapis parametru X
+    validations:
+      required: true
+
+  - type: dropdown
+    id: tryb
+    attributes:
+      label: Tryb pracy
+      options:
+        - Adapter WeAct (slcan) — prawdziwy sprzęt
+        - Symulator (bez sprzętu)
+    validations:
+      required: true
+
+  - type: input
+    id: wersja
+    attributes:
+      label: Wersja CanSensorHub
+      description: Widoczna w nazwie wydania, z którego instalowałeś (np. 1.0.42).
+    validations:
+      required: true
+
+  - type: input
+    id: firmware
+    attributes:
+      label: Typ węzła i wersja firmware
+      placeholder: "MPSWP 3.1, NODE 0x01"
+
+  - type: textarea
+    id: log
+    attributes:
+      label: Log magistrali / log błędów
+      description: >-
+        Eksport z Monitora magistrali albo zawartość
+        %AppData%\CanSensorHub\crash.log / update.log.
+      render: text

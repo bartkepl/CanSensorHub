@@ -1,0 +1,42 @@
+name: Propozycja zmiany
+description: Nowa funkcja, nowy moduł urządzenia albo zmiana w istniejącym zachowaniu.
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Jaki problem to rozwiązuje
+      description: Opisz sytuację, w której obecne zachowanie przeszkadza.
+    validations:
+      required: true
+
+  - type: textarea
+    id: propozycja
+    attributes:
+      label: Proponowane rozwiązanie
+    validations:
+      required: true
+
+  - type: dropdown
+    id: obszar
+    attributes:
+      label: Czego dotyczy
+      options:
+        - Aplikacja główna (połączenie, zakładki, monitor magistrali)
+        - Moduł MPCC
+        - Moduł MPSWP
+        - Nowy moduł urządzenia
+        - Narzędzie bootloadera
+        - Warstwa protokołu (Core)
+        - Dokumentacja
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: protokol
+    attributes:
+      label: Wpływ na protokół
+      options:
+        - label: >-
+            Ta zmiana wymaga zmiany w firmware węzła (układ ramki, nowy opcode,
+            nowy kod statusu).
