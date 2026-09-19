@@ -1,0 +1,96 @@
+name: Build and Release
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write   # wymagane do utworzenia wydania i tagu
+
+jobs:
+  build:
+    # WPF wymaga Windows, a publikacja celuje w win-x64.
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      # ── Wersja ────────────────────────────────────────────────────────────────
+      # Plik VERSION trzyma "MAJOR.MINOR". Numer poprawki to numer przebiegu
+      # Actions, który rośnie sam przy każdym pushu — bez commitowania wersji
+      # z powrotem do repo, czyli bez pętli push -> build -> push.
+      - name: Compute version
+        id: ver
+        shell: pwsh
+        run: |
+          $base = (Get-Content VERSION -Raw).Trim()
+          $v = "$base.${{ github.run_number }}"
+          "version=$v" | Out-File -Append $env:GITHUB_OUTPUT
+          "tag=v$v"    | Out-File -Append $env:GITHUB_OUTPUT
+          Write-Host "Wersja: $v"
+
+      # ── Testy ─────────────────────────────────────────────────────────────────
+      - name: Run tests
+        run: dotnet test tests/CanSensorHub.Core.Tests --nologo -v q
+
+      # ── Publikacja ────────────────────────────────────────────────────────────
+      # self-contained: pakiet niesie własny runtime .NET, więc instalacja nie
+      # wymaga niczego wcześniej zainstalowanego na maszynie docelowej.
+      # Moduły MPCC/MPSWP są zwykłymi referencjami projektowymi, więc ich DLL-e
+      # trafiają do katalogu wynikowego automatycznie.
+      - name: Publish app
+        run: >
+          dotnet publish src/CanSensorHub.App/CanSensorHub.App.csproj
+          -c Release -r win-x64 --self-contained true
+          -o artifacts/app --nologo -v q
+          -p:Version=${{ steps.ver.outputs.version }}
+
+      - name: Verify published output
+        shell: pwsh
+        run: |
+          $exe = "artifacts/app/CanSensorHub.exe"
+          if (-not (Test-Path $exe)) { throw "Brak $exe - sprawdz AssemblyName w CanSensorHub.App.csproj" }
+          foreach ($dll in @("CanSensorHub.Core.dll", "CanSensorHub.Modules.Mpcc.dll", "CanSensorHub.Modules.Mpswp.dll")) {
+            if (-not (Test-Path "artifacts/app/$dll")) { throw "Brak $dll w katalogu publikacji" }
+          }
+          Write-Host "Katalog publikacji kompletny."
+
+      # ── Pakowanie i wydanie (tylko push na main) ──────────────────────────────
+      - name: Restore local tools (vpk)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: dotnet tool restore
+
+      # Buduje instalator, paczkę pełną (.nupkg) i wersję przenośną, a także
+      # manifest releases.win.json, po którym klient Velopack rozpoznaje nowe
+      # wydanie. Wszystkie te pliki muszą znaleźć się w GitHub Release, inaczej
+      # automatyczna aktualizacja nie zadziała.
+      - name: Pack with Velopack
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: >
+          dotnet vpk pack
+          --packId CanSensorHub
+          --packVersion ${{ steps.ver.outputs.version }}
+          --packDir artifacts/app
+          --mainExe CanSensorHub.exe
+          --packTitle "CanSensorHub"
+          --packAuthors "bartkepl"
+          --icon src/CanSensorHub.App/Resources/CanSensorHub.ico
+          --outputDir artifacts/releases
+
+      - name: Publish GitHub Release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.ver.outputs.tag }}
+          name: CanSensorHub ${{ steps.ver.outputs.version }}
+          generate_release_notes: true
+          files: artifacts/releases/*

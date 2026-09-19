@@ -1,0 +1,23 @@
+<Project>
+  <PropertyGroup>
+    <!-- TargetFramework celowo NIE jest tu ustawiany: Core jest przenosne (net10.0),
+         a App i moduly wymagaja WPF (net10.0-windows10.0.19041.0). Kazdy projekt
+         deklaruje swoja platforme sam. -->
+
+    <!-- Wersja dla buildow lokalnych. CI nadpisuje przez -p:Version=MAJOR.MINOR.PATCH,
+         gdzie MAJOR.MINOR pochodzi z pliku VERSION, a PATCH z numeru przebiegu Actions. -->
+    <Version Condition="'$(Version)' == ''">1.0.0</Version>
+
+    <Company>CanSensorHub</Company>
+    <Product>CanSensorHub</Product>
+    <Authors>bartkepl</Authors>
+    <Copyright>Copyright (c) 2026 Bartek</Copyright>
+    <RepositoryUrl>https://github.com/bartkepl/CanSensorHub</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+
+    <!-- Angielski jest neutralny (wkompilowany w glowne DLL), wiec wystarczy 'pl'.
+         Usuwa kilkanascie zbednych folderow jezykowych frameworka z katalogu wynikowego. -->
+    <SatelliteResourceLanguages>en;pl</SatelliteResourceLanguages>
+  </PropertyGroup>
+</Project>

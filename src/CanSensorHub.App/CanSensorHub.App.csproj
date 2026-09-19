@@ -1,5 +1,30 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <!-- Nazwa pliku wykonywalnego musi zgadzać się z tym, co release.yml podaje
+         w vpk pack jako mainExe (CanSensorHub.exe). -->
+    <AssemblyName>CanSensorHub</AssemblyName>
+    <RootNamespace>CanSensorHub.App</RootNamespace>
+    <ApplicationIcon>Resources\CanSensorHub.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- App.xaml jako Page, a nie ApplicationDefinition: WPF nie generuje wtedy własnej
+         metody Main, dzięki czemu Program.cs może zdefiniować jawny [STAThread] Main,
+         w którym VelopackApp startuje jako pierwszy. -->
+    <ApplicationDefinition Remove="App.xaml" />
+    <Page Include="App.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\CanSensorHub.ico" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\CanSensorHub.Core\CanSensorHub.Core.csproj" />
     <ProjectReference Include="..\CanSensorHub.Modules.Mpcc\CanSensorHub.Modules.Mpcc.csproj" />
@@ -8,14 +33,7 @@
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="Velopack" Version="1.2.0" />
   </ItemGroup>
-
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <UseWPF>true</UseWPF>
-  </PropertyGroup>
 
 </Project>
