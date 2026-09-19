@@ -1,0 +1,14 @@
+# Normalizacja koncow linii - repo trzyma LF, checkout na Windows dostaje CRLF.
+* text=auto
+
+*.cs      text diff=csharp
+*.csproj  text
+*.slnx    text
+*.xaml    text
+*.md      text
+*.yml     text
+*.ps1     text eol=crlf
+
+*.ico     binary
+*.png     binary
+*.bin     binary

@@ -1,12 +1,38 @@
+# Wyniki budowania
 bin/
 obj/
 publish/
 build/
+artifacts/
+
+# Smieci generowane przez WPF/MSBuild przy edycji XAML w IDE.
+# Zawieraja bezwzgledne sciezki z maszyny dewelopera - nigdy nie trafiaja do repo.
+*_wpftmp.csproj
+*.csproj.user
+
+# Visual Studio / Rider
 .vs/
+.idea/
 *.user
 *.suo
 *.userosscache
 *.sln.docstates
+_ReSharper*/
+*.DotSettings.user
 
-# katalog wynikowy MkDocs
+# NuGet
+*.nupkg
+NuGet.Config
+
+# Wyniki testow
+TestResults/
+*.trx
+*.coverage
+
+# Katalog wynikowy MkDocs
 site/
+
+# Windows / macOS
+Thumbs.db
+desktop.ini
+.DS_Store
