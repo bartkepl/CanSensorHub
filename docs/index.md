@@ -28,6 +28,15 @@ log ruchu, a każde urządzenie obsługuje przez osobny, wpinany moduł.
 
 </div>
 
+## Instalacja
+
+[:material-download: Pobierz instalator](https://github.com/bartkepl/CanSensorHub/releases/latest){ .md-button .md-button--primary }
+
+`CanSensorHub-win-Setup.exe` nie wymaga wcześniej zainstalowanego .NET i instaluje się dla
+bieżącego użytkownika, bez uprawnień administratora. Zainstalowana aplikacja przy starcie
+sprawdza, czy jest nowsze wydanie, i po zgodzie użytkownika aktualizuje się sama —
+szczegóły w [Budowanie i uruchamianie](budowanie.md#wydania-i-automatyczna-aktualizacja).
+
 ## Rola w ekosystemie
 
 Aplikacja jest **warunkiem wstępnym aktualizacji firmware** węzłów: wgrywanie
@@ -57,12 +66,16 @@ generowanego z tego samego opisu.
 | Moduł MPCC | w trakcie migracji wraz z firmware węzła |
 | Narzędzie bootloadera | odczyt typu urządzenia z odpowiedzi `HELLO` wersji 1.1, odmowa wgrania obrazu niewłaściwego typu |
 | Składanie transferów segmentowanych | odporne na kolejność, transfer niekompletny porzucany |
+| Testy warstwy Core | protokół, sumy kontrolne, parser obrazu firmware |
+| Wydania | budowane automatycznie, instalator z autoaktualizacją |
 | Kompilacja rozwiązania | 0 błędów, 0 ostrzeżeń |
 
 Aktualizacja firmware 3.1 stacji pogodowej została wykonana tym narzędziem
 i potwierdzona odczytem ramki identyfikacyjnej po starcie.
 
-!!! info "Repozytorium przed ujednoliceniem"
-    Praca nad aplikacją nie była wcześniej objęta kontrolą wersji —
-    repozytorium istniało bez żadnego commita. Stan ten został usunięty wraz
-    z migracją na profil 2.
+## Licencja
+
+Projekt jest udostępniony na licencji
+[MIT](https://github.com/bartkepl/CanSensorHub/blob/main/LICENSE). Wszystkie zależności
+również są na MIT — spis w
+[THIRD-PARTY-NOTICES.md](https://github.com/bartkepl/CanSensorHub/blob/main/THIRD-PARTY-NOTICES.md).

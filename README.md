@@ -1,7 +1,13 @@
 # CanSensorHub
 
+[![Build and Release](https://github.com/bartkepl/CanSensorHub/actions/workflows/release.yml/badge.svg)](https://github.com/bartkepl/CanSensorHub/actions/workflows/release.yml)
+[![Dokumentacja](https://github.com/bartkepl/CanSensorHub/actions/workflows/docs.yml/badge.svg)](https://bartkepl.github.io/CanSensorHub/)
+[![Licencja: MIT](https://img.shields.io/badge/licencja-MIT-blue.svg)](LICENSE)
+[![.NET 10](https://img.shields.io/badge/.NET-10.0-512BD4.svg)](https://dotnet.microsoft.com/)
+
 Modularna aplikacja PC (.NET 10 / WPF) do obsługi czujnikowych węzłów CAN z projektów
-[MPCC](../MPCC) (MIL_PSU_CAN) i [MPSWP](../MPSWP) (WeatherStationCan). Główna aplikacja
+[MPCC](https://github.com/bartkepl/MPCC) (MIL_PSU_CAN) i
+[MPSWP](https://github.com/bartkepl/MPSWP) (WeatherStationCan). Główna aplikacja
 zarządza **jednym połączeniem** z adapterem **WeActStudio USB2CANFDV1** (firmware slcan)
 i pokazuje surowy log ruchu na magistrali; każde urządzenie jest obsługiwane przez osobny,
 wpinany **moduł** — na start MPCC i MPSWP, w przyszłości kolejne (np. GeigerProbe, obecnie
@@ -41,7 +47,36 @@ src/
     Services/                      trwałość ustawień (%AppData%\CanSensorHub)
 ```
 
+## Instalacja
+
+Gotowy instalator jest przy każdym wydaniu:
+**[Releases](https://github.com/bartkepl/CanSensorHub/releases/latest) → `CanSensorHub-win-Setup.exe`**.
+
+Instalator nie wymaga wcześniej zainstalowanego .NET — pakiet niesie własny runtime.
+Aplikacja instaluje się dla bieżącego użytkownika (bez uprawnień administratora) i zakłada
+skrót na pulpicie oraz w menu Start.
+
+Dla instalacji bez instalatora w tym samym wydaniu jest `CanSensorHub-win-Portable.zip` —
+rozpakuj i uruchom `CanSensorHub.exe`. Wersja przenośna **nie aktualizuje się sama**.
+
+### Automatyczna aktualizacja
+
+Zainstalowana aplikacja przy każdym starcie sprawdza, czy w tym repozytorium jest nowsze
+wydanie. Jeśli jest, pyta o zgodę i po pobraniu uruchamia się ponownie w nowej wersji.
+Całość obsługuje [Velopack](https://velopack.io/).
+
+Sprawdzanie ma limit 10 sekund i jest odporne na błędy: brak sieci, prywatne repozytorium
+czy uszkodzone wydanie nie blokują uruchomienia narzędzia. Wersja, której instalacja nie
+powiedzie się trzy razy, przestaje być proponowana. Przebieg zapisuje się w
+`%AppData%\CanSensorHub\update.log`.
+
+Aktualizacja nie rusza ustawień — `settings.json` leży w `%AppData%\CanSensorHub`, poza
+katalogiem aplikacji.
+
 ## Wymagania
+
+Do samego używania aplikacji **nic nie trzeba instalować poza instalatorem**. Poniższe
+dotyczy budowania ze źródeł:
 
 - **.NET 10 SDK** (Windows).
 - Do pracy z prawdziwym sprzętem: adapter **WeActStudio USB2CANFDV1** we firmware **slcan**
@@ -61,6 +96,7 @@ src/
 
 ./build_release.ps1        # publikuj wersję Release do CanSensorHub\build\ (gotowy .exe, bez szukania w bin/obj)
 ./build_release.ps1 -SelfContained   # jw., z dołączonym runtime .NET (nie wymaga .NET na maszynie docelowej)
+./build_release.ps1 -Pack            # jw. + instalator Velopack w artifacts\releases (to samo, co robi CI)
 ```
 
 Albo bezpośrednio przez `dotnet`:
@@ -68,7 +104,17 @@ Albo bezpośrednio przez `dotnet`:
 ```powershell
 dotnet build CanSensorHub.slnx
 dotnet run --project src/CanSensorHub.App/CanSensorHub.App.csproj
+dotnet test
 ```
+
+## Wydania
+
+Każdy push na `main` buduje, testuje i publikuje wydanie — numer wersji to `MAJOR.MINOR`
+z pliku `VERSION` plus numer przebiegu GitHub Actions jako numer poprawki. Zmiana wersji
+głównej lub podrzędnej = edycja pliku `VERSION`; numer poprawki rośnie sam.
+
+Do wydania trafiają instalator, wersja przenośna i paczka aktualizacyjna wraz z manifestem
+`releases.win.json`, po którym zainstalowane aplikacje rozpoznają nową wersję.
 
 ## Jak to działa
 
@@ -118,10 +164,33 @@ dostarcza tylko to, co u niego rzeczywiście inne.
 
 ## Dokumentacja
 
-Strona dokumentacji w katalogu `docs/` (MkDocs Material):
+Pełna dokumentacja: **<https://bartkepl.github.io/CanSensorHub/>** — architektura, warstwa
+protokołu, narzędzie bootloadera, dodawanie modułu urządzenia.
+
+Źródła strony leżą w katalogu `docs/` (MkDocs Material) i publikują się same przy każdej
+zmianie na `main`:
 
 ```bash
-pip install mkdocs-material
+pip install -r requirements-docs.txt
 mkdocs serve     # podglad lokalny
 mkdocs build     # statyczna strona w site/
 ```
+
+## Testy
+
+Warstwa `CanSensorHub.Core` — protokół, sumy kontrolne, składanie transferów
+segmentowanych i parser obrazu firmware — jest pokryta testami jednostkowymi:
+
+```powershell
+dotnet test
+```
+
+Testy nie wymagają sprzętu ani WPF i przechodzą w CI przy każdym pushu i pull requeście.
+Warstwa WPF testów nie ma.
+
+## Licencja
+
+[MIT](LICENSE). Spis zależności wraz z ich licencjami — wszystkie są na MIT —
+w [`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md).
+
+Jak zgłaszać błędy i zmiany: [`CONTRIBUTING.md`](CONTRIBUTING.md).
