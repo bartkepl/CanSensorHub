@@ -45,7 +45,7 @@ public partial class MpccDeviceView : UserControl
 
     private static readonly MpccChannel[] TempChannels = [MpccChannel.Temp, MpccChannel.McuTemp];
     private static readonly MpccChannel[] VoltageChannels =
-        [MpccChannel.Adc0, MpccChannel.Adc1, MpccChannel.Adc2, MpccChannel.Adc3, MpccChannel.Adc4, MpccChannel.Adc5, MpccChannel.Adc6, MpccChannel.Vdda];
+        [MpccChannel.VoltageCh0, MpccChannel.VoltageCh1, MpccChannel.VoltageCh2, MpccChannel.VoltageCh3, MpccChannel.VoltageCh4, MpccChannel.VoltageCh5, MpccChannel.VoltageCh6, MpccChannel.Vdda];
 
     // 16 colors, matching Mpswp's palette — headroom so a plot with many overlaid sensor curves never
     // wraps back to a color already in use on the same plot.

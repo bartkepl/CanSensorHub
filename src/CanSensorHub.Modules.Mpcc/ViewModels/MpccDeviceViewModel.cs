@@ -351,7 +351,10 @@ public partial class MpccDeviceViewModel : ObservableObject, IDeviceModuleInstan
     private static ChartTarget ChartTargetFor(MpccQuantity q) => q switch
     {
         MpccQuantity.Temp or MpccQuantity.McuTemp => ChartTarget.Temp,
-        MpccQuantity.Vdda or MpccQuantity.Vbat or MpccQuantity.AdcV => ChartTarget.Voltage,
+        MpccQuantity.Vdda or MpccQuantity.Vbat
+            or MpccQuantity.VoltageCh0 or MpccQuantity.VoltageCh1 or MpccQuantity.VoltageCh2
+            or MpccQuantity.VoltageCh3 or MpccQuantity.VoltageCh4 or MpccQuantity.VoltageCh5
+            or MpccQuantity.VoltageCh6 => ChartTarget.Voltage,
         _ => ChartTarget.None,
     };
 
@@ -470,7 +473,7 @@ public partial class MpccDeviceViewModel : ObservableObject, IDeviceModuleInstan
     private static string DescribeEvent(string code) => code switch
     {
         nameof(MpccEventCode.Boot) => "Start węzła",
-        nameof(MpccEventCode.Sts31Alert) => "Alert progowy STS31",
+        nameof(MpccEventCode.SensorAlert) => "Alert progowy STS31",
         nameof(MpccEventCode.SensorFault) => "Awaria czujnika",
         nameof(MpccEventCode.SensorBack) => "Czujnik wrócił do sprawności",
         nameof(MpccEventCode.BusRecovered) => "Odzysk magistrali / I2C",

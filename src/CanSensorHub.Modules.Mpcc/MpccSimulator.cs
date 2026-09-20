@@ -43,13 +43,13 @@ public sealed class MpccSimulator : IDisposable
         }
 
         Emit(MpccChannel.Temp, 23.0 + 3.0 * Math.Sin(T / 30.0));
-        Emit(MpccChannel.Adc0, 3.30 + 0.20 * Math.Sin(T / 12.0));
-        Emit(MpccChannel.Adc1, 2.50 + 0.15 * Math.Sin(T / 14.0 + 1));
-        Emit(MpccChannel.Adc2, 4.10 + 0.10 * Math.Sin(T / 16.0 + 2));
-        Emit(MpccChannel.Adc3, 1.80 + 0.05 * Math.Sin(T / 18.0 + 3));
-        Emit(MpccChannel.Adc4, 12.0 + 1.0 * Math.Sin(T / 20.0));
-        Emit(MpccChannel.Adc5, 24.0 + 0.5 * Math.Sin(T / 22.0 + 1));
-        Emit(MpccChannel.Adc6, 5.0 + 0.3 * Math.Sin(T / 24.0 + 2));
+        Emit(MpccChannel.VoltageCh0, 3.30 + 0.20 * Math.Sin(T / 12.0));
+        Emit(MpccChannel.VoltageCh1, 2.50 + 0.15 * Math.Sin(T / 14.0 + 1));
+        Emit(MpccChannel.VoltageCh2, 4.10 + 0.10 * Math.Sin(T / 16.0 + 2));
+        Emit(MpccChannel.VoltageCh3, 1.80 + 0.05 * Math.Sin(T / 18.0 + 3));
+        Emit(MpccChannel.VoltageCh4, 12.0 + 1.0 * Math.Sin(T / 20.0));
+        Emit(MpccChannel.VoltageCh5, 24.0 + 0.5 * Math.Sin(T / 22.0 + 1));
+        Emit(MpccChannel.VoltageCh6, 5.0 + 0.3 * Math.Sin(T / 24.0 + 2));
         Emit(MpccChannel.Vdda, 3.00 + 0.005 * Math.Sin(T / 40.0));
         Emit(MpccChannel.McuTemp, 32.0 + 2.0 * Math.Sin(T / 35.0 + 0.5));
         unchecked { _seq++; }
@@ -73,7 +73,7 @@ public sealed class MpccSimulator : IDisposable
                 RespondOk(op, arg);
                 break;
             case MpccReqOp.GetInfo:
-                SendStream(op, arg, [MpccInfo.ProtocolVersion, MpccInfo.FwVersionMajor, MpccInfo.FwVersionMinor, _node]);
+                SendStream(op, arg, BuildInfoPayload());
                 break;
             case MpccReqOp.ReadParam:
                 if (_params.TryGetValue(arg, out var pv) && FindParam(arg) is { } pd)
@@ -157,7 +157,7 @@ public sealed class MpccSimulator : IDisposable
         }
         switch (sensor)
         {
-            case MpccSensor.Sts31:
+            case MpccSensor.Sts31Cpu:
                 Add(MpccQuantity.Temp, 23.0 + 3.0 * Math.Sin(T / 30.0));
                 break;
             case MpccSensor.Mcu:
@@ -169,6 +169,34 @@ public sealed class MpccSimulator : IDisposable
                 break; // brak wielkości mierzonych
         }
         SendStream(MpccReqOp.ReadSensor, sensorArg, payload.ToArray());
+    }
+
+    /// <summary>
+    /// Ramka identyfikacyjna profilu 2 (28 B). Bufor jest jawnie zerowany, bo profil rozpoznaje się
+    /// po długości odpowiedzi — niewypełniony bajt trafiłby do hosta jako dana.
+    /// </summary>
+    private byte[] BuildInfoPayload()
+    {
+        var d = new byte[DeviceIdentity.Length28B];
+        d[DeviceIdentity.OffProtocolVersion] = MpccInfo.ProtocolVersion;
+        d[DeviceIdentity.OffFwMajor] = MpccInfo.FwVersionMajor;
+        d[DeviceIdentity.OffFwMinor] = MpccInfo.FwVersionMinor;
+        d[DeviceIdentity.OffNode] = _node;
+        d[DeviceIdentity.OffHwMajor] = MpccInfo.HwVersionMajor;
+        d[DeviceIdentity.OffHwMinor] = MpccInfo.HwVersionMinor;
+        BitConverter.GetBytes(MpccInfo.BuildRevision).CopyTo(d, DeviceIdentity.OffBuildRevision);
+        d[DeviceIdentity.OffBuildFlags] = 0;
+
+        // Sygnatura symulatora w miejscu UID. Nie jest to numer rzeczywistego układu — pozwala
+        // odróżnić węzeł symulowany od sprzętowego w dzienniku i w panelu informacyjnym.
+        BitConverter.GetBytes(0x53494Du).CopyTo(d, DeviceIdentity.OffUid);
+        BitConverter.GetBytes((uint)_node).CopyTo(d, DeviceIdentity.OffUid + 4);
+        BitConverter.GetBytes(0u).CopyTo(d, DeviceIdentity.OffUid + 8);
+
+        BitConverter.GetBytes(MpccInfo.DeviceType).CopyTo(d, DeviceIdentity.OffDeviceType);
+        d[DeviceIdentity.OffProfileVersion] = MpccInfo.ProfileVersion;
+        BitConverter.GetBytes(MpccCapabilities.Mask).CopyTo(d, DeviceIdentity.OffCapabilities);
+        return d;
     }
 
     private ParamDescriptor? FindParam(byte id) => MpccParams.All.FirstOrDefault(p => p.Id == id);
