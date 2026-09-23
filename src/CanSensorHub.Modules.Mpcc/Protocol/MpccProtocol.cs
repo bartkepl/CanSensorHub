@@ -21,7 +21,7 @@ public static class MpccInfo
     public const byte FwVersionMinor = 2;
     public const byte HwVersionMajor = 1;
     public const byte HwVersionMinor = 0;
-    public const ushort BuildRevision = 2;
+    public const ushort BuildRevision = 3;
 
     /// <summary>Wersja układu 29-bitowego identyfikatora. Zmieniana wyłącznie przy zmianie znaczenia pól identyfikatora, niezależnie od wersji firmware.</summary>
     public const byte ProtocolVersion = 1;
@@ -188,6 +188,21 @@ public enum MpccEventCode : byte
     OutputChanged = 0x81,
 }
 
+/// <summary>
+/// Bajt READING_STATUS rekordu <c>sensor_reading</c>. MPCC nie zgłasza zdolności
+/// <see cref="DeviceCapability.RangeLimits"/> i nie prowadzi limitów, więc jego odczyty mają stale
+/// <see cref="Ok"/>; pozostałe wartości są tu po to, by rekord z węzła prowadzącego limity dał się
+/// odczytać bez zmiany tego modułu.
+/// </summary>
+public enum MpccReadingStatus : byte
+{
+    Ok = 0x00,
+    WarnLow = 0x01,
+    WarnHigh = 0x02,
+    ErrLow = 0x03,
+    ErrHigh = 0x04,
+}
+
 public static class MpccEventSource
 {
     public const byte System = 0x00;
@@ -274,6 +289,16 @@ public static class MpccNames
         MpccSensor.Pcf8574 => "PCF8574",
         MpccSensor.Mcu => "MCU",
         MpccSensor.Afe => "AFE",
+        _ => s.ToString(),
+    };
+
+    public static string Of(MpccReadingStatus s) => s switch
+    {
+        MpccReadingStatus.Ok => "OK",
+        MpccReadingStatus.WarnLow => "WARN_LOW",
+        MpccReadingStatus.WarnHigh => "WARN_HIGH",
+        MpccReadingStatus.ErrLow => "ERR_LOW",
+        MpccReadingStatus.ErrHigh => "ERR_HIGH",
         _ => s.ToString(),
     };
 

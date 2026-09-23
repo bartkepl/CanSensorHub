@@ -150,10 +150,12 @@ public sealed class MpccSimulator : IDisposable
         if (!Enum.IsDefined(typeof(MpccSensor), sensorArg)) { Respond(MpccReqOp.ReadSensor, sensorArg, StatusCode.ErrSensorAbsent); return; }
         var sensor = (MpccSensor)sensorArg;
         var payload = new List<byte>();
+        // record_layouts.sensor_reading: [QTY u8, VALUE i32 LE, READING_STATUS u8] — 6 B.
         void Add(MpccQuantity q, double value)
         {
             payload.Add((byte)q);
             payload.AddRange(BitConverter.GetBytes((int)Math.Round(value / MpccTables.Quantities[q].Scale)));
+            payload.Add((byte)MpccReadingStatus.Ok);
         }
         switch (sensor)
         {

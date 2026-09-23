@@ -5,7 +5,8 @@ using CanSensorHub.Modules.Mpcc.Protocol;
 
 namespace CanSensorHub.Modules.Mpcc;
 
-public sealed record MpccSensorReading(MpccQuantity Quantity, double Value, string Unit);
+/// <summary>Jeden odczyt z READ_SENSOR wraz z bajtem statusu rekordu <c>sensor_reading</c>. MPCC nie prowadzi limitów, więc status jest w praktyce zawsze <see cref="MpccReadingStatus.Ok"/> — pole niesie go mimo to, bo należy do układu rekordu, a nie do zdolności węzła.</summary>
+public sealed record MpccSensorReading(MpccQuantity Quantity, double Value, string Unit, MpccReadingStatus Status);
 /// <summary>
 /// Odpowiedź GET_INFO. Cztery pola zgodne wstecz (ProtocolVersion..Node) są obecne zawsze — każda
 /// generacja firmware wysyła co najmniej je, pod tymi samymi przesunięciami (układ info_layout
@@ -151,15 +152,19 @@ public sealed class MpccDeviceClient : IDisposable
         }
         else if (seg.Obj == (byte)MpccReqOp.ReadSensor)
         {
+            // Rekord 'sensor_reading' warstwy wspólnej ma 6 B: [QTY u8, VALUE i32 LE,
+            // READING_STATUS u8]. Krok pętli musi odpowiadać długości rekordu co do bajtu —
+            // rozjazd nie kończy się błędem, tylko cichym przesunięciem kolejnych wartości.
             var readings = new List<MpccSensorReading>();
-            for (var i = 0; i + 5 <= data.Length; i += 5)
+            for (var i = 0; i + 6 <= data.Length; i += 6)
             {
                 var qtyByte = data[i];
                 var raw = BitConverter.ToInt32(data, i + 1);
+                var status = (MpccReadingStatus)data[i + 5];
                 if (Enum.IsDefined(typeof(MpccQuantity), qtyByte) && MpccTables.Quantities.TryGetValue((MpccQuantity)qtyByte, out var qi))
                 {
                     var value = raw * qi.Scale;
-                    readings.Add(new MpccSensorReading((MpccQuantity)qtyByte, value, qi.Unit));
+                    readings.Add(new MpccSensorReading((MpccQuantity)qtyByte, value, qi.Unit, status));
                     if (Enum.IsDefined(typeof(MpccSensor), seg.Arg))
                         Values.Set($"{MpccNames.Of((MpccSensor)seg.Arg)}_{MpccNames.Of((MpccQuantity)qtyByte)}", value);
                 }
