@@ -145,6 +145,50 @@ public enum DeviceCapability : uint
 }
 
 /// <summary>
+/// Zamiana bitmapy <see cref="DeviceCapability"/> na listę nazw w postaci używanej przez warstwę
+/// wspólną i raport testera zgodności (<c>TELEMETRY, SENSORS, PARAMS_NV, …</c>), dzięki czemu obie
+/// można zestawić bez tłumaczenia w głowie.
+///
+/// Nazwy wyprowadzane są z nazw wyliczenia przekształceniem PascalCase → UPPER_SNAKE, a nie
+/// z osobnej tablicy. Tablica byłaby kolejną ręcznie utrzymywaną kopią zbioru zdolności —
+/// dokładnie tym długiem, który opisuje ADR 0004 warstwy wspólnej.
+/// </summary>
+public static class DeviceCapabilityNames
+{
+    /// <summary>
+    /// Bity spoza wyliczenia wypisywane są jako <c>bitN</c>, nie pomijane. Węzeł nowszy od tej
+    /// aplikacji zgłosi zdolność, której ona nie zna — i lepiej, żeby było to widać, niż żeby
+    /// bitmapa wyglądała na w pełni zrozumianą.
+    /// </summary>
+    public static string Describe(uint mask)
+    {
+        if (mask == 0) return "brak";
+
+        var parts = new List<string>();
+        for (var bit = 0; bit < 32; bit++)
+        {
+            var value = 1u << bit;
+            if ((mask & value) == 0) continue;
+            parts.Add(Enum.IsDefined(typeof(DeviceCapability), value)
+                ? WireName(((DeviceCapability)value).ToString())
+                : $"bit{bit}");
+        }
+        return string.Join(", ", parts);
+    }
+
+    private static string WireName(string pascalCase)
+    {
+        var sb = new System.Text.StringBuilder(pascalCase.Length + 4);
+        foreach (var ch in pascalCase)
+        {
+            if (char.IsUpper(ch) && sb.Length > 0) sb.Append('_');
+            sb.Append(char.ToUpperInvariant(ch));
+        }
+        return sb.ToString();
+    }
+}
+
+/// <summary>
 /// Bajty zabezpieczające komend nieodwracalnych, wspólne dla wszystkich węzłów. Ramka bez właściwej
 /// wartości jest odrzucana kodem ERR_BAD_PARAM, co chroni przed wykonaniem komendy w następstwie
 /// zakłócenia na magistrali.

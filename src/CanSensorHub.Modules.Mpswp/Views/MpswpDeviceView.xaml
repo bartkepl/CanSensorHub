@@ -77,9 +77,11 @@
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
 
-                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Wersja protokołu:" Opacity="0.7" />
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Układ identyfikatora:" Opacity="0.7" />
                             <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding ProtocolVersionText}" FontFamily="Consolas" />
                             <TextBlock Grid.Row="0" Grid.Column="2" Text="Firmware:" Opacity="0.7" />
                             <TextBlock Grid.Row="0" Grid.Column="3" Text="{Binding FwVersionText}" FontFamily="Consolas" FontWeight="Bold" />
@@ -93,10 +95,21 @@
                             <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding BuildFlagsText}" FontFamily="Consolas" Margin="0,4,0,0" />
                             <TextBlock Grid.Row="2" Grid.Column="2" Text="UID:" Opacity="0.7" Margin="0,4,0,0" />
                             <TextBlock Grid.Row="2" Grid.Column="3" Text="{Binding UidText}" FontFamily="Consolas" Margin="0,4,0,0" TextTrimming="CharacterEllipsis" />
+
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Profil protokołu:" Opacity="0.7" Margin="0,4,0,0" />
+                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding ProfileText}" FontFamily="Consolas" FontWeight="Bold" Margin="0,4,0,0" />
+                            <TextBlock Grid.Row="3" Grid.Column="2" Text="Typ urządzenia:" Opacity="0.7" Margin="0,4,0,0" />
+                            <TextBlock Grid.Row="3" Grid.Column="3" Text="{Binding DeviceTypeText}" FontFamily="Consolas" Margin="0,4,0,0" />
+
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Zdolności:" Opacity="0.7" Margin="0,4,0,0" VerticalAlignment="Top" />
+                            <TextBlock Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="3" Text="{Binding CapabilitiesText}" FontFamily="Consolas" FontSize="11" Margin="0,5,0,0" TextWrapping="Wrap" />
                         </Grid>
                         <TextBlock Margin="0,8,0,0" Opacity="0.6" FontSize="11" TextWrapping="Wrap"
-                                   Text="HW/Build#/Flagi/UID pochodzą z rozszerzonej ramki GET_INFO (21 B) — to starsze firmware, które wysyła tylko oryginalne 4 B (wersja protokołu/firmware/NODE), ich nie zgłasza."
+                                   Text="Węzeł odesłał samą ramkę 4 B (układ identyfikatora, firmware, NODE). Pozostałe pola wysyłają dopiero nowsze generacje firmware: HW/Build#/Flagi/UID — ramka 21 B, profil/typ/zdolności — ramka 28 B."
                                    Visibility="{Binding ShowExtendedInfoNote, Converter={StaticResource BoolToVis}}" />
+                        <TextBlock Margin="0,8,0,0" Opacity="0.6" FontSize="11" TextWrapping="Wrap"
+                                   Text="Profil, typ urządzenia i zdolności pochodzą z ramki GET_INFO o długości 28 B — węzeł pracuje na starszym profilu i ich nie zgłasza. Pola pozostają puste, ponieważ wartość zero jest poprawnym typem urządzenia i nie da się jej odróżnić od braku danych."
+                                   Visibility="{Binding ShowCommonProfileNote, Converter={StaticResource BoolToVis}}" />
                         <Button Content="Odśwież GET_INFO" Command="{Binding RefreshInfoCommand}" Margin="0,8,0,0" HorizontalAlignment="Left" />
                     </StackPanel>
                 </GroupBox>

@@ -85,14 +85,27 @@ public partial class MpccDeviceViewModel : ObservableObject, IDeviceModuleInstan
     [ObservableProperty] private string _buildFlagsText = "—";
     [ObservableProperty] private string _uidText = "—";
     [ObservableProperty] private bool _hasExtendedInfo;
+    // Pola profilu 2 — pojawiają się dopiero z ramką 28 B. Profil zgłaszany jest wprost, więc nie
+    // wyprowadza się go z długości odpowiedzi, gdy węzeł go podaje.
+    [ObservableProperty] private string _profileText = "—";
+    [ObservableProperty] private string _deviceTypeText = "—";
+    [ObservableProperty] private string _capabilitiesText = "—";
+    [ObservableProperty] private bool _hasCommonProfileInfo;
     /// <summary>Niepusty, gdy węzeł zgłasza coś innego niż tablice <see cref="MpccInfo"/> tego modułu — odczyt komend mógł się rozejść. Pusty łańcuch = brak zastrzeżeń (służy zarazem jako źródło widoczności przez <see cref="HasFirmwareCompatWarning"/>).</summary>
     [ObservableProperty] private string _firmwareCompatWarning = "";
 
     public bool HasFirmwareCompatWarning => !string.IsNullOrEmpty(FirmwareCompatWarning);
     public bool ShowExtendedInfoNote => !HasExtendedInfo;
+    public bool ShowCommonProfileNote => HasExtendedInfo && !HasCommonProfileInfo;
 
     partial void OnFirmwareCompatWarningChanged(string value) => OnPropertyChanged(nameof(HasFirmwareCompatWarning));
-    partial void OnHasExtendedInfoChanged(bool value) => OnPropertyChanged(nameof(ShowExtendedInfoNote));
+    partial void OnHasExtendedInfoChanged(bool value)
+    {
+        OnPropertyChanged(nameof(ShowExtendedInfoNote));
+        OnPropertyChanged(nameof(ShowCommonProfileNote));
+    }
+
+    partial void OnHasCommonProfileInfoChanged(bool value) => OnPropertyChanged(nameof(ShowCommonProfileNote));
 
     [RelayCommand] private Task RefreshInfo() => Client.GetInfoAsync();
 
@@ -159,6 +172,24 @@ public partial class MpccDeviceViewModel : ObservableObject, IDeviceModuleInstan
             BuildRevisionText = info.BuildRevision?.ToString() ?? "—";
             BuildFlagsText = DescribeBuildFlags(info.BuildFlags ?? MpccInfoBuildFlags.None);
             UidText = info.UidHex ?? "—";
+        }
+
+        // Numer profilu bierze się z pola PROFILE_VERSION, nie z pola PROTO_VERSION pokazywanego
+        // wyżej. To pierwsze mówi, którą generacją wspólnej bazy posługuje się węzeł; to drugie —
+        // którą wersją układu 29-bitowego identyfikatora. Rozdzielenie ich jest celowe: układ
+        // identyfikatora pozostaje niezmieniony od początku, a profil zmienia się wraz z bazą.
+        HasCommonProfileInfo = info.Profile >= DeviceProfile.Common;
+        if (HasCommonProfileInfo)
+        {
+            ProfileText = info.ProfileVersion?.ToString() ?? "—";
+            DeviceTypeText = info.DeviceType is { } deviceType
+                ? $"0x{deviceType:X4}" + (deviceType == MpccInfo.DeviceType
+                    ? " (MPCC)"
+                    : " — nieobsługiwany przez ten moduł")
+                : "—";
+            CapabilitiesText = info.Capabilities is { } caps
+                ? $"0x{caps:X8}   {DeviceCapabilityNames.Describe(caps)}"
+                : "—";
         }
 
         FirmwareCompatWarning = BuildCompatWarning(info, protoMismatch, fwMajorMismatch, deviceTypeMismatch);
