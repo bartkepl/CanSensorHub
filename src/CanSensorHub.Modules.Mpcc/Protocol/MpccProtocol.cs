@@ -21,7 +21,7 @@ public static class MpccInfo
     public const byte FwVersionMinor = 2;
     public const byte HwVersionMajor = 1;
     public const byte HwVersionMinor = 0;
-    public const ushort BuildRevision = 3;
+    public const ushort BuildRevision = 4;
 
     /// <summary>Wersja układu 29-bitowego identyfikatora. Zmieniana wyłącznie przy zmianie znaczenia pól identyfikatora, niezależnie od wersji firmware.</summary>
     public const byte ProtocolVersion = 1;
