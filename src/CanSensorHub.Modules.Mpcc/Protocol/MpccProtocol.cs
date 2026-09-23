@@ -39,6 +39,15 @@ public static class MpccInfo
     public const byte BootloaderNode = 0x10;
 }
 
+/// <summary>Bajt BUILD_FLAGS ramki identyfikacyjnej. Obecny w ramkach 21-bajtowych i dłuższych.</summary>
+[Flags]
+public enum MpccInfoBuildFlags : byte
+{
+    None = 0,
+    /// <summary>Build Debug (konfiguracja Debug w STM32CubeIDE) — nie powinien trafić na urządzenie produkcyjne.</summary>
+    Debug = 1 << 0,
+}
+
 /// <summary>
 /// Bitmapa zdolności zgłaszana przez węzeł. Odpowiada sekcji <c>capabilities</c> pliku
 /// <c>MPCC/protocol/device.yaml</c>.

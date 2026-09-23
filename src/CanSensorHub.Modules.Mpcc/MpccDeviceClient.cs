@@ -6,7 +6,46 @@ using CanSensorHub.Modules.Mpcc.Protocol;
 namespace CanSensorHub.Modules.Mpcc;
 
 public sealed record MpccSensorReading(MpccQuantity Quantity, double Value, string Unit);
-public sealed record MpccDeviceInfo(byte ProtocolVersion, byte FwMajor, byte FwMinor, byte Node);
+/// <summary>
+/// Odpowiedź GET_INFO. Cztery pola zgodne wstecz (ProtocolVersion..Node) są obecne zawsze — każda
+/// generacja firmware wysyła co najmniej je, pod tymi samymi przesunięciami (układ info_layout
+/// warstwy wspólnej trzyma [0:4] nieruchomo). Pola od HwMajor wzwyż wypełnia dopiero ramka
+/// rozszerzona (21 B), a DeviceType/ProfileVersion/Capabilities — ramka profilu 2 (28 B). Starsze
+/// firmware pozostawia je puste, a widok pokazuje wtedy notę zamiast zgadywać.
+/// </summary>
+public sealed record MpccDeviceInfo(
+    byte ProtocolVersion, byte FwMajor, byte FwMinor, byte Node,
+    byte? HwMajor = null, byte? HwMinor = null, ushort? BuildRevision = null,
+    MpccInfoBuildFlags? BuildFlags = null, byte[]? Uid = null,
+    ushort? DeviceType = null, byte? ProfileVersion = null, uint? Capabilities = null)
+{
+    public bool HasExtendedInfo => HwMajor.HasValue;
+    public string? UidHex => Uid is null ? null : Convert.ToHexString(Uid);
+
+    /// <summary>Generacja protokołu węzła, rozpoznana z długości odpowiedzi GET_INFO.</summary>
+    public DeviceProfile Profile => ProfileVersion switch
+    {
+        >= (byte)DeviceProfile.Common => DeviceProfile.Common,
+        _ when HwMajor.HasValue => DeviceProfile.Legacy21B,
+        _ => DeviceProfile.Legacy4B,
+    };
+
+    public bool Supports(DeviceCapability capability) =>
+        Capabilities is { } caps && (caps & (uint)capability) != 0;
+
+    /// <summary>
+    /// Węzeł zgłasza typ urządzenia inny niż obsługiwany przez ten moduł. Sytuacja oznacza, że pod
+    /// danym adresem pracuje urządzenie innego rodzaju — interpretacja jego telemetrii i parametrów
+    /// według tablic MPCC dałaby wartości pozornie poprawne.
+    /// </summary>
+    public bool DeviceTypeMismatch => DeviceType is { } dt && dt != MpccInfo.DeviceType;
+
+    public static MpccDeviceInfo From(DeviceIdentity id) => new(
+        id.ProtocolVersion, id.FwMajor, id.FwMinor, id.Node,
+        id.HwMajor, id.HwMinor, id.BuildRevision,
+        id.BuildFlags is { } bf ? (MpccInfoBuildFlags)bf : null,
+        id.Uid, id.DeviceType, id.ProfileVersion, id.Capabilities);
+}
 public sealed record MpccRtcTime(int Second, int Minute, int Hour, int Day, int Month, int Year, int WeekDay);
 
 /// <summary>
@@ -128,9 +167,12 @@ public sealed class MpccDeviceClient : IDisposable
             if (Enum.IsDefined(typeof(MpccSensor), seg.Arg))
                 SensorReadingsReceived?.Invoke(this, ((MpccSensor)seg.Arg, readings));
         }
-        else if (seg.Obj == (byte)MpccReqOp.GetInfo && data.Length >= 4)
+        else if (seg.Obj == (byte)MpccReqOp.GetInfo && data.Length >= DeviceIdentity.Length4B)
         {
-            InfoReceived?.Invoke(this, new MpccDeviceInfo(data[0], data[1], data[2], data[3]));
+            // Dekodowanie ramki identyfikacyjnej należy do warstwy wspólnej: układ pól [0:20] jest
+            // zamrożony i identyczny dla każdego węzła, a profil rozpoznaje się po długości
+            // odpowiedzi (4, 21 albo 28 bajtów).
+            InfoReceived?.Invoke(this, MpccDeviceInfo.From(DeviceIdentity.Parse(data)));
         }
     }
 

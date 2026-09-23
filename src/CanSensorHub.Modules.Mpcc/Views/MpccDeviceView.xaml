@@ -58,6 +58,49 @@
                             IsEnabled="{Binding IsRecordingCsv, Converter={StaticResource InverseBool}}" />
                     <Button Content="{Binding RecordButtonLabel}" Command="{Binding ToggleCsvRecordingCommand}" Margin="16,2,4,2" />
                 </StackPanel>
+
+                <Border DockPanel.Dock="Top" Background="{DynamicResource Brush.Warning}" Padding="10,6" Margin="0,0,0,8" CornerRadius="4"
+                        Visibility="{Binding HasFirmwareCompatWarning, Converter={StaticResource BoolToVis}}">
+                    <TextBlock Text="{Binding FirmwareCompatWarning}" FontWeight="Bold" Foreground="White" TextWrapping="Wrap" />
+                </Border>
+
+                <GroupBox DockPanel.Dock="Top" Header="Informacje o urządzeniu (GET_INFO)" Margin="0,0,0,8">
+                    <StackPanel>
+                        <Grid Margin="0,2,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="150" />
+                                <ColumnDefinition Width="140" />
+                                <ColumnDefinition Width="150" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Wersja protokołu:" Opacity="0.7" />
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding ProtocolVersionText}" FontFamily="Consolas" />
+                            <TextBlock Grid.Row="0" Grid.Column="2" Text="Firmware:" Opacity="0.7" />
+                            <TextBlock Grid.Row="0" Grid.Column="3" Text="{Binding FwVersionText}" FontFamily="Consolas" FontWeight="Bold" />
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Wersja sprzętu (HW):" Opacity="0.7" Margin="0,4,0,0" />
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding HwVersionText}" FontFamily="Consolas" Margin="0,4,0,0" />
+                            <TextBlock Grid.Row="1" Grid.Column="2" Text="Build #:" Opacity="0.7" Margin="0,4,0,0" />
+                            <TextBlock Grid.Row="1" Grid.Column="3" Text="{Binding BuildRevisionText}" FontFamily="Consolas" Margin="0,4,0,0" />
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Flagi builda:" Opacity="0.7" Margin="0,4,0,0" />
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding BuildFlagsText}" FontFamily="Consolas" Margin="0,4,0,0" />
+                            <TextBlock Grid.Row="2" Grid.Column="2" Text="UID:" Opacity="0.7" Margin="0,4,0,0" />
+                            <TextBlock Grid.Row="2" Grid.Column="3" Text="{Binding UidText}" FontFamily="Consolas" Margin="0,4,0,0" TextTrimming="CharacterEllipsis" />
+                        </Grid>
+                        <TextBlock Margin="0,8,0,0" Opacity="0.6" FontSize="11" TextWrapping="Wrap"
+                                   Text="HW/Build#/Flagi/UID pochodzą z rozszerzonej ramki GET_INFO (21 B) — to starsze firmware, które wysyła tylko oryginalne 4 B (wersja protokołu/firmware/NODE), ich nie zgłasza."
+                                   Visibility="{Binding ShowExtendedInfoNote, Converter={StaticResource BoolToVis}}" />
+                        <Button Content="Odśwież GET_INFO" Command="{Binding RefreshInfoCommand}" Margin="0,8,0,0" HorizontalAlignment="Left" />
+                    </StackPanel>
+                </GroupBox>
+
                 <ItemsControl ItemsSource="{Binding DashboardTiles}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>

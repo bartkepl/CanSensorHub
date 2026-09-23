@@ -73,12 +73,135 @@ public partial class MpccDeviceViewModel : ObservableObject, IDeviceModuleInstan
     partial void OnHeaderTextChanged(string value) => HeaderChanged?.Invoke(this, EventArgs.Empty);
     partial void OnIsOnlineChanged(bool value) => HeaderChanged?.Invoke(this, EventArgs.Empty);
 
+    #region Device info (GET_INFO)
+
+    // Pola zgodne wstecz — wysyła je każda generacja firmware, pod stałymi przesunięciami.
+    [ObservableProperty] private string _protocolVersionText = "—";
+    [ObservableProperty] private string _fwVersionText = "—";
+    // Pola rozszerzone — pojawiają się dopiero z ramką 21 B (układ info_layout warstwy wspólnej);
+    // "—" znaczy tu "jeszcze nie odebrano", a ShowExtendedInfoNote — "węzeł tego nie zgłasza".
+    [ObservableProperty] private string _hwVersionText = "—";
+    [ObservableProperty] private string _buildRevisionText = "—";
+    [ObservableProperty] private string _buildFlagsText = "—";
+    [ObservableProperty] private string _uidText = "—";
+    [ObservableProperty] private bool _hasExtendedInfo;
+    /// <summary>Niepusty, gdy węzeł zgłasza coś innego niż tablice <see cref="MpccInfo"/> tego modułu — odczyt komend mógł się rozejść. Pusty łańcuch = brak zastrzeżeń (służy zarazem jako źródło widoczności przez <see cref="HasFirmwareCompatWarning"/>).</summary>
+    [ObservableProperty] private string _firmwareCompatWarning = "";
+
+    public bool HasFirmwareCompatWarning => !string.IsNullOrEmpty(FirmwareCompatWarning);
+    public bool ShowExtendedInfoNote => !HasExtendedInfo;
+
+    partial void OnFirmwareCompatWarningChanged(string value) => OnPropertyChanged(nameof(HasFirmwareCompatWarning));
+    partial void OnHasExtendedInfoChanged(bool value) => OnPropertyChanged(nameof(ShowExtendedInfoNote));
+
+    [RelayCommand] private Task RefreshInfo() => Client.GetInfoAsync();
+
+    /// <summary>
+    /// Buduje komunikat o niezgodności między węzłem a tablicami tego modułu. Pusty łańcuch oznacza
+    /// brak zastrzeżeń.
+    /// </summary>
+    private static string BuildCompatWarning(MpccDeviceInfo info,
+        bool protoMismatch, bool fwMajorMismatch, bool deviceTypeMismatch)
+    {
+        if (deviceTypeMismatch)
+            return $"Węzeł zgłasza typ urządzenia 0x{info.DeviceType:X4}, a ten moduł obsługuje " +
+                   $"0x{MpccInfo.DeviceType:X4}. Pod tym adresem pracuje urządzenie innego rodzaju — " +
+                   "prezentowane wartości nie odnoszą się do sterownika zasilania.";
+
+        if (protoMismatch)
+            return $"Węzeł zgłasza wersję układu identyfikatora {info.ProtocolVersion}, a moduł " +
+                   $"zbudowano dla {MpccInfo.ProtocolVersion}. Znaczenie pól ramki mogło ulec zmianie.";
+
+        if (fwMajorMismatch)
+        {
+            var direction = info.FwMajor < MpccInfo.FwVersionMajor
+                ? "Węzeł pracuje na starszej generacji firmware niż ta, dla której zbudowano moduł. " +
+                  "Zgodność przywraca wgranie bieżącego obrazu przez narzędzie bootloadera."
+                : "Węzeł pracuje na nowszej generacji firmware niż ta, dla której zbudowano moduł. " +
+                  "Kształt niektórych komend mógł ulec zmianie.";
+            return $"Węzeł zgłasza firmware {info.FwMajor}.{info.FwMinor}, a moduł zbudowano dla " +
+                   $"{MpccInfo.FwVersionMajor}.{MpccInfo.FwVersionMinor}. {direction}";
+        }
+
+        return "";
+    }
+
     private void OnInfo(object? sender, MpccDeviceInfo info)
     {
         IsOnline = true;
         FirmwareInfo = $"protokół v{info.ProtocolVersion}, firmware {info.FwMajor}.{info.FwMinor}, NODE=0x{info.Node:X2}";
-        HeaderText = $"{InstanceName} — fw {info.FwMajor}.{info.FwMinor} (NODE=0x{info.Node:X2})";
+
+        // Różnica wersji GŁÓWNEJ protokołu albo firmware oznacza ryzyko zmiany przełamującej —
+        // konwencja wersjonowania device.yaml obiecuje zgodność wyłącznie w obrębie wersji
+        // pobocznej → sygnalizowane jako krytyczne. Sama różnica numeru budowy jest z definicji
+        // zgodna → odnotowywana informacyjnie i tylko wtedy, gdy jest jedyną różnicą.
+        var protoMismatch = info.ProtocolVersion != MpccInfo.ProtocolVersion;
+        var fwMajorMismatch = info.FwMajor != MpccInfo.FwVersionMajor;
+
+        // Niezgodność typu urządzenia jest poważniejsza niż różnica wersji: oznacza, że pod tym
+        // adresem pracuje urządzenie innego rodzaju, a jego telemetria i parametry zinterpretowane
+        // według tablic sterownika zasilania dałyby wartości pozornie poprawne.
+        var deviceTypeMismatch = info.DeviceTypeMismatch;
+
+        var critical = protoMismatch || fwMajorMismatch || deviceTypeMismatch;
+        var buildMismatch = info.HasExtendedInfo && info.BuildRevision != MpccInfo.BuildRevision;
+
+        HeaderText = critical
+            ? $"{InstanceName} — fw {info.FwMajor}.{info.FwMinor} (NODE=0x{info.Node:X2}) ⚠ NIEZGODNOŚĆ WERSJI"
+            : $"{InstanceName} — fw {info.FwMajor}.{info.FwMinor} (NODE=0x{info.Node:X2})";
+
+        ProtocolVersionText = info.ProtocolVersion.ToString();
+        FwVersionText = $"{info.FwMajor}.{info.FwMinor}";
+        HasExtendedInfo = info.HasExtendedInfo;
+        if (info.HasExtendedInfo)
+        {
+            HwVersionText = $"{info.HwMajor}.{info.HwMinor}";
+            BuildRevisionText = info.BuildRevision?.ToString() ?? "—";
+            BuildFlagsText = DescribeBuildFlags(info.BuildFlags ?? MpccInfoBuildFlags.None);
+            UidText = info.UidHex ?? "—";
+        }
+
+        FirmwareCompatWarning = BuildCompatWarning(info, protoMismatch, fwMajorMismatch, deviceTypeMismatch);
+
+        if (critical)
+        {
+            AppendEventRow("SYSTEM", "-",
+                $"⚠ NIEZGODNOŚĆ WERSJI: urządzenie zgłasza proto v{info.ProtocolVersion} fw {info.FwMajor}.{info.FwMinor}" +
+                (info.HasExtendedInfo ? $" build #{info.BuildRevision}" : "") +
+                $", ta aplikacja zbudowana dla proto v{MpccInfo.ProtocolVersion} fw {MpccInfo.FwVersionMajor}.{MpccInfo.FwVersionMinor} build #{MpccInfo.BuildRevision} — komendy/protokół mogą się różnić.");
+        }
+        else if (buildMismatch)
+        {
+            AppendEventRow("SYSTEM", "-",
+                $"ℹ inny build firmware (#{info.BuildRevision} vs #{MpccInfo.BuildRevision} tej aplikacji) — ta sama wersja fw, drobna różnica buildu.");
+        }
     }
+
+    /// <summary>
+    /// Brak ustawionych bitów oznacza Release — nieobecność flagi Debug jest dziś jedynym
+    /// zdefiniowanym rodzajem budowy (<c>info_build_flags</c> warstwy wspólnej ma ten jeden bit).
+    /// Ewentualne przyszłe bity są wypisywane zamiast być po cichu pomijane.
+    /// </summary>
+    private static string DescribeBuildFlags(MpccInfoBuildFlags flags)
+    {
+        if (flags == MpccInfoBuildFlags.None)
+        {
+            return "Release";
+        }
+        var parts = new List<string>();
+        if (flags.HasFlag(MpccInfoBuildFlags.Debug))
+        {
+            parts.Add("DEBUG (nie używać w produkcji!)");
+        }
+        var unknown = flags & ~MpccInfoBuildFlags.Debug;
+        if (unknown != MpccInfoBuildFlags.None)
+        {
+            parts.Add(unknown.ToString());
+        }
+        return string.Join(" · ", parts);
+    }
+
+    #endregion
 
     #region Dashboard
 

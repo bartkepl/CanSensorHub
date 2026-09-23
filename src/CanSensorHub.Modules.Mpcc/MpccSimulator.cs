@@ -185,7 +185,7 @@ public sealed class MpccSimulator : IDisposable
         d[DeviceIdentity.OffHwMajor] = MpccInfo.HwVersionMajor;
         d[DeviceIdentity.OffHwMinor] = MpccInfo.HwVersionMinor;
         BitConverter.GetBytes(MpccInfo.BuildRevision).CopyTo(d, DeviceIdentity.OffBuildRevision);
-        d[DeviceIdentity.OffBuildFlags] = 0;
+        d[DeviceIdentity.OffBuildFlags] = (byte)MpccInfoBuildFlags.None;
 
         // Sygnatura symulatora w miejscu UID. Nie jest to numer rzeczywistego układu — pozwala
         // odróżnić węzeł symulowany od sprzętowego w dzienniku i w panelu informacyjnym.
