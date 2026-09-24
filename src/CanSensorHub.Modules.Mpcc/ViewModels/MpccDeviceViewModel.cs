@@ -256,6 +256,7 @@ public partial class MpccDeviceViewModel : ObservableObject, IDeviceModuleInstan
 
     private void OnTelemetry(object? sender, TelemetryRaw t)
     {
+        OnTelemetryForSensorPoll();
         if (!Enum.IsDefined(typeof(MpccChannel), t.Channel)) return;
         var channel = (MpccChannel)t.Channel;
         var info = MpccTables.Channels[channel];
@@ -351,7 +352,8 @@ public partial class MpccDeviceViewModel : ObservableObject, IDeviceModuleInstan
     {
         var groups = new List<ChartSeriesGroupVm>();
 
-        // Averaged channels are shown by default: they arrive on every TELEMETRY_PERIOD without polling.
+        // Telemetry channels are shown by default: they arrive on every TELEMETRY_PERIOD without polling.
+        // MPCC sends the latest sample there, not an average, hence the "(telemetria)" label.
         var averages = new List<ChartSeriesVm>();
         foreach (var channel in Enum.GetValues<MpccChannel>())
         {
@@ -360,11 +362,11 @@ public partial class MpccDeviceViewModel : ObservableObject, IDeviceModuleInstan
             var label = MpccTables.Channels[channel].Label;
             averages.Add(new ChartSeriesVm
             {
-                Key = AverageSeriesKey(channel), Label = label, LegendLabel = $"{label} (śr.)",
+                Key = AverageSeriesKey(channel), Label = label, LegendLabel = $"{label} (telemetria)",
                 Target = target, ColorHex = QuantityColors[(byte)channel], IsAverage = true, IsChecked = true,
             });
         }
-        groups.Add(new ChartSeriesGroupVm("Średnie (telemetria)", averages));
+        groups.Add(new ChartSeriesGroupVm("Telemetria", averages));
 
         foreach (var (sensor, quantities) in MpccTables.SensorProvides)
         {
@@ -399,20 +401,54 @@ public partial class MpccDeviceViewModel : ObservableObject, IDeviceModuleInstan
     [ObservableProperty] private bool _autoPollSensors;
     private System.Threading.Timer? _sensorPollTimer;
 
+    // Odpytanie czujników jest wyzwalane nadejściem telemetrii, a nie niezależnym zegarem. Obie
+    // drogi są migawkami wartości odświeżanej co MEASURE_PERIOD i stemplowanymi chwilą odbioru;
+    // przy niezależnych zegarach węzła i komputera odczyt czujnika trafiał w dowolną fazę względem
+    // telemetrii i na wykresie był przesunięty o ułamek sekundy albo pochodził z sąsiedniego
+    // przebiegu pomiarowego. Zapytanie wysłane zaraz po paczce telemetrii trafia zwykle w ten sam
+    // przebieg. Zegar pozostaje zapasowy — odpytuje tylko wtedy, gdy telemetria nie nadchodzi.
+    private const long TelemetryPollMinIntervalMs = 1500;
+    private const long FallbackPollIntervalMs = 2000;
+    private const long TelemetrySilenceMs = 3000;
+    private long _lastSensorPollMs;
+    private long _lastTelemetryMs;
+
     partial void OnAutoPollSensorsChanged(bool value)
     {
         if (value)
         {
+            Interlocked.Exchange(ref _lastSensorPollMs, 0);
             _sensorPollTimer ??= new System.Threading.Timer(_ =>
             {
-                foreach (var s in Enum.GetValues<MpccSensor>()) _ = Client.ReadSensorAsync(s);
-            }, null, TimeSpan.Zero, TimeSpan.FromSeconds(2));
+                var now = Environment.TickCount64;
+                if (now - Interlocked.Read(ref _lastTelemetryMs) > TelemetrySilenceMs)
+                    PollSensorsIfDue(FallbackPollIntervalMs);
+            }, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(500));
         }
         else
         {
             _sensorPollTimer?.Dispose();
             _sensorPollTimer = null;
         }
+    }
+
+    private void OnTelemetryForSensorPoll()
+    {
+        Interlocked.Exchange(ref _lastTelemetryMs, Environment.TickCount64);
+        // Pierwsza ramka paczki wyzwala odpytanie; minimalny odstęp tłumi pozostałe kanały tej
+        // samej paczki, a przy krótkim TELEMETRY_PERIOD ogranicza obciążenie magistrali.
+        if (AutoPollSensors) PollSensorsIfDue(TelemetryPollMinIntervalMs);
+    }
+
+    // Wywoływane równolegle z wątku odbioru magistrali i z zegara zapasowego — o tym, kto
+    // wysyła odpytanie, rozstrzyga CompareExchange, więc jedna chwila daje co najwyżej jedno.
+    private void PollSensorsIfDue(long minIntervalMs)
+    {
+        var now = Environment.TickCount64;
+        var last = Interlocked.Read(ref _lastSensorPollMs);
+        if (last != 0 && now - last < minIntervalMs) return;
+        if (Interlocked.CompareExchange(ref _lastSensorPollMs, now, last) != last) return;
+        foreach (var s in Enum.GetValues<MpccSensor>()) _ = Client.ReadSensorAsync(s);
     }
 
     [RelayCommand]

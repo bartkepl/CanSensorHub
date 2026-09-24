@@ -263,6 +263,7 @@ public partial class MpswpDeviceViewModel : ObservableObject, IDeviceModuleInsta
 
     private void OnTelemetry(object? sender, TelemetryRaw t)
     {
+        OnTelemetryForSensorPoll();
         if (!Enum.IsDefined(typeof(MpswpChannel), t.Channel)) return;
         var channel = (MpswpChannel)t.Channel;
         var info = MpswpTables.Channels[channel];
@@ -442,20 +443,54 @@ public partial class MpswpDeviceViewModel : ObservableObject, IDeviceModuleInsta
     [ObservableProperty] private bool _autoPollSensors;
     private System.Threading.Timer? _sensorPollTimer;
 
+    // Odpytanie czujników jest wyzwalane nadejściem telemetrii, a nie niezależnym zegarem. Obie
+    // drogi są migawkami wartości odświeżanej co MEASURE_PERIOD i stemplowanymi chwilą odbioru;
+    // przy niezależnych zegarach węzła i komputera odczyt czujnika trafiał w dowolną fazę względem
+    // telemetrii i na wykresie był przesunięty o ułamek sekundy albo pochodził z sąsiedniego
+    // przebiegu pomiarowego. Zapytanie wysłane zaraz po paczce telemetrii trafia zwykle w ten sam
+    // przebieg. Zegar pozostaje zapasowy — odpytuje tylko wtedy, gdy telemetria nie nadchodzi.
+    private const long TelemetryPollMinIntervalMs = 1500;
+    private const long FallbackPollIntervalMs = 2000;
+    private const long TelemetrySilenceMs = 3000;
+    private long _lastSensorPollMs;
+    private long _lastTelemetryMs;
+
     partial void OnAutoPollSensorsChanged(bool value)
     {
         if (value)
         {
+            Interlocked.Exchange(ref _lastSensorPollMs, 0);
             _sensorPollTimer ??= new System.Threading.Timer(_ =>
             {
-                foreach (var s in Enum.GetValues<MpswpSensor>()) _ = Client.ReadSensorAsync(s);
-            }, null, TimeSpan.Zero, TimeSpan.FromSeconds(2));
+                var now = Environment.TickCount64;
+                if (now - Interlocked.Read(ref _lastTelemetryMs) > TelemetrySilenceMs)
+                    PollSensorsIfDue(FallbackPollIntervalMs);
+            }, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(500));
         }
         else
         {
             _sensorPollTimer?.Dispose();
             _sensorPollTimer = null;
         }
+    }
+
+    private void OnTelemetryForSensorPoll()
+    {
+        Interlocked.Exchange(ref _lastTelemetryMs, Environment.TickCount64);
+        // Pierwsza ramka paczki wyzwala odpytanie; minimalny odstęp tłumi pozostałe kanały tej
+        // samej paczki, a przy krótkim TELEMETRY_PERIOD ogranicza obciążenie magistrali.
+        if (AutoPollSensors) PollSensorsIfDue(TelemetryPollMinIntervalMs);
+    }
+
+    // Wywoływane równolegle z wątku odbioru magistrali i z zegara zapasowego — o tym, kto
+    // wysyła odpytanie, rozstrzyga CompareExchange, więc jedna chwila daje co najwyżej jedno.
+    private void PollSensorsIfDue(long minIntervalMs)
+    {
+        var now = Environment.TickCount64;
+        var last = Interlocked.Read(ref _lastSensorPollMs);
+        if (last != 0 && now - last < minIntervalMs) return;
+        if (Interlocked.CompareExchange(ref _lastSensorPollMs, now, last) != last) return;
+        foreach (var s in Enum.GetValues<MpswpSensor>()) _ = Client.ReadSensorAsync(s);
     }
 
     [RelayCommand]

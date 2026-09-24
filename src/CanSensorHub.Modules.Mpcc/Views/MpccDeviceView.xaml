@@ -181,8 +181,8 @@
             <DockPanel Margin="8">
                 <DockPanel DockPanel.Dock="Top" Margin="0,0,0,8">
                     <Button DockPanel.Dock="Left" Content="Wyczyść" Command="{Binding ClearChartsCommand}" />
-                    <CheckBox DockPanel.Dock="Left" Content="Auto-odpytywanie czujników (co 2 s)" IsChecked="{Binding AutoPollSensors}" Margin="16,0,0,0" />
-                    <TextBlock Text="Linia ciągła = średnia (telemetria), przerywana z punktami = odczyt czujnika; ten sam kolor = ten sam kanał. Kliknij pozycję legendy, aby ukryć lub pokazać krzywą. Najedź na punkt, aby zobaczyć jego wartość i czas zebrania."
+                    <CheckBox DockPanel.Dock="Left" Content="Auto-odpytywanie czujników (po każdej paczce telemetrii)" IsChecked="{Binding AutoPollSensors}" Margin="16,0,0,0" />
+                    <TextBlock Text="Linia ciągła = telemetria (ostatnia próbka — MPCC nie uśrednia), przerywana z punktami = odczyt czujnika; ten sam kolor = ten sam kanał. Kliknij pozycję legendy, aby ukryć lub pokazać krzywą. Najedź na punkt, aby zobaczyć jego wartość i czas zebrania."
                                VerticalAlignment="Center" Margin="16,0,0,0" Opacity="0.7" TextWrapping="Wrap" />
                 </DockPanel>
                 <Grid>
