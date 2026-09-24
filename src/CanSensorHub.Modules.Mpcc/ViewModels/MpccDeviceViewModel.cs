@@ -58,6 +58,7 @@ public partial class MpccDeviceViewModel : ObservableObject, IDeviceModuleInstan
         Client.TimeReceived += OnTime;
         Client.Error += (_, msg) => AppendEventRow("ERROR", "-", msg);
 
+        (ChartSeriesGroups, TempSeries, VoltageSeries) = BuildChartSeries();
         InitDashboard();
         InitParams();
         InitSensors();
@@ -267,7 +268,7 @@ public partial class MpccDeviceViewModel : ObservableObject, IDeviceModuleInstan
             tile.Value = t.Value * info.Scale;
             tile.LastUpdate = DateTimeOffset.Now;
         }
-        ChartSampleReceived?.Invoke(this, (channel, tile.Value, t.Valid));
+        if (t.Valid) RaiseChartSample(AverageSeriesKey(channel), tile.Value);
     }
 
     [RelayCommand]
@@ -303,24 +304,97 @@ public partial class MpccDeviceViewModel : ObservableObject, IDeviceModuleInstan
 
     #region Charts
 
-    /// <summary>Raised on every telemetry (fused/averaged) sample so the Charts view's code-behind can feed ScottPlot.</summary>
-    public event EventHandler<(MpccChannel Channel, double Value, bool Valid)>? ChartSampleReceived;
-
     /// <summary>
-    /// Raised on every individual-sensor sample, regardless of whether its sensor's checkbox is currently
-    /// checked (the view buffers everything so toggling a box on later still has data to show) — routed
-    /// to whichever existing averaged-channel plot matches its physical quantity, per <see cref="ChartTarget"/>.
-    /// SensorLabel/QuantityLabel are kept separate (rather than pre-joined) so the view can drop the
-    /// quantity suffix when a sensor contributes only one curve to a given plot — the axis title/legend
-    /// already says what's being measured there, no need to repeat it on every single curve.
+    /// Raised on every chart sample — averaged telemetry and individual-sensor readings alike — regardless
+    /// of whether the curve is currently shown: the view buffers everything, so switching a curve on later
+    /// still has history to display. <c>SeriesKey</c> identifies a <see cref="ChartSeriesVm"/>.
     /// </summary>
-    public event EventHandler<(string SensorKey, string SensorLabel, ChartTarget Target, string SeriesKey, string QuantityLabel, double Value)>? SensorChartSampleReceived;
+    public event EventHandler<(string SeriesKey, double Value)>? ChartSampleReceived;
 
     public event EventHandler? ChartsClearRequested;
 
-    /// <summary>One checkbox per SENSOR (not per quantity) — checking "MCU" plots temp+VDDA+VBAT together, matching the reference app's per-sensor curves.</summary>
-    public ObservableCollection<SensorChartToggleVm> SensorToggles { get; } = [];
-    private readonly Dictionary<string, SensorChartToggleVm> _sensorTogglesByKey = [];
+    /// <summary>Side-panel groups: averaged channels first, then one group per sensor, one checkbox per curve.</summary>
+    public IReadOnlyList<ChartSeriesGroupVm> ChartSeriesGroups { get; }
+    /// <summary>Curves of the temperature plot, in legend order.</summary>
+    public IReadOnlyList<ChartSeriesVm> TempSeries { get; }
+    /// <summary>Curves of the ADC voltage plot, in legend order.</summary>
+    public IReadOnlyList<ChartSeriesVm> VoltageSeries { get; }
+    private readonly Dictionary<string, ChartSeriesVm> _chartSeriesByKey = [];
+
+    public ChartSeriesVm? FindChartSeries(string key) => _chartSeriesByKey.GetValueOrDefault(key);
+
+    public static string AverageSeriesKey(MpccChannel channel) => $"avg_{channel}";
+    public static string SensorSeriesKey(MpccSensor sensor, MpccQuantity quantity) => $"{sensor}_{quantity}";
+
+    /// <summary>
+    /// One color per physical quantity, not per curve: an averaged channel and the sensor reading behind
+    /// it are the same measurement, so they share a color and differ only in line style. Within one plot
+    /// every quantity is distinct (Tableau 10 order), and the colors hold on a white plot background.
+    /// Channel and quantity ids are the same global register, hence one table keyed by the byte value.
+    /// </summary>
+    private static readonly IReadOnlyDictionary<byte, string> QuantityColors = new Dictionary<byte, string>
+    {
+        [(byte)MpccQuantity.Temp] = "#D62728",
+        [(byte)MpccQuantity.McuTemp] = "#1F77B4",
+        [(byte)MpccQuantity.VoltageCh0] = "#1F77B4",
+        [(byte)MpccQuantity.VoltageCh1] = "#FF7F0E",
+        [(byte)MpccQuantity.VoltageCh2] = "#2CA02C",
+        [(byte)MpccQuantity.VoltageCh3] = "#D62728",
+        [(byte)MpccQuantity.VoltageCh4] = "#9467BD",
+        [(byte)MpccQuantity.VoltageCh5] = "#8C564B",
+        [(byte)MpccQuantity.VoltageCh6] = "#E377C2",
+        [(byte)MpccQuantity.Vdda] = "#7F7F7F",
+        [(byte)MpccQuantity.Vbat] = "#17BECF",
+    };
+
+    private (IReadOnlyList<ChartSeriesGroupVm> Groups, IReadOnlyList<ChartSeriesVm> Temp, IReadOnlyList<ChartSeriesVm> Voltage) BuildChartSeries()
+    {
+        var groups = new List<ChartSeriesGroupVm>();
+
+        // Averaged channels are shown by default: they arrive on every TELEMETRY_PERIOD without polling.
+        var averages = new List<ChartSeriesVm>();
+        foreach (var channel in Enum.GetValues<MpccChannel>())
+        {
+            var target = ChartTargetFor((MpccQuantity)channel);
+            if (target == ChartTarget.None) continue;
+            var label = MpccTables.Channels[channel].Label;
+            averages.Add(new ChartSeriesVm
+            {
+                Key = AverageSeriesKey(channel), Label = label, LegendLabel = $"{label} (śr.)",
+                Target = target, ColorHex = QuantityColors[(byte)channel], IsAverage = true, IsChecked = true,
+            });
+        }
+        groups.Add(new ChartSeriesGroupVm("Średnie (telemetria)", averages));
+
+        foreach (var (sensor, quantities) in MpccTables.SensorProvides)
+        {
+            var sensorName = MpccTables.SensorNames[sensor];
+            var shortName = sensorName.Split(" (")[0];
+            var series = new List<ChartSeriesVm>();
+            foreach (var q in quantities)
+            {
+                var target = ChartTargetFor(q);
+                if (target == ChartTarget.None) continue;
+                var label = MpccTables.Quantities[q].Label;
+                series.Add(new ChartSeriesVm
+                {
+                    Key = SensorSeriesKey(sensor, q), Label = label, LegendLabel = $"{shortName}: {label}",
+                    Target = target, ColorHex = QuantityColors[(byte)q],
+                });
+            }
+            if (series.Count > 0) groups.Add(new ChartSeriesGroupVm(sensorName, series));
+        }
+
+        foreach (var s in groups.SelectMany(g => g.Series)) _chartSeriesByKey[s.Key] = s;
+        var all = groups.SelectMany(g => g.Series).ToList();
+        return (groups, all.Where(s => s.Target == ChartTarget.Temp).ToList(), all.Where(s => s.Target == ChartTarget.Voltage).ToList());
+    }
+
+    private void RaiseChartSample(string seriesKey, double value)
+    {
+        if (_chartSeriesByKey.TryGetValue(seriesKey, out var series)) series.HasData = true;
+        ChartSampleReceived?.Invoke(this, (seriesKey, value));
+    }
 
     [ObservableProperty] private bool _autoPollSensors;
     private System.Threading.Timer? _sensorPollTimer;
@@ -342,18 +416,22 @@ public partial class MpccDeviceViewModel : ObservableObject, IDeviceModuleInstan
     }
 
     [RelayCommand]
-    private void ClearCharts() => ChartsClearRequested?.Invoke(this, EventArgs.Empty);
+    private void ClearCharts()
+    {
+        foreach (var s in _chartSeriesByKey.Values) s.HasData = false;
+        ChartsClearRequested?.Invoke(this, EventArgs.Empty);
+    }
 
     [RelayCommand]
     private void SelectAllSensorTraces()
     {
-        foreach (var t in SensorToggles) t.IsChecked = true;
+        foreach (var s in _chartSeriesByKey.Values) s.IsChecked = true;
     }
 
     [RelayCommand]
     private void DeselectAllSensorTraces()
     {
-        foreach (var t in SensorToggles) t.IsChecked = false;
+        foreach (var s in _chartSeriesByKey.Values) s.IsChecked = false;
     }
 
     #endregion
@@ -484,21 +562,8 @@ public partial class MpccDeviceViewModel : ObservableObject, IDeviceModuleInstan
             row.LastUpdate = DateTimeOffset.Now;
         }
 
-        var sensorKey = e.Sensor.ToString();
-        if (!_sensorTogglesByKey.TryGetValue(sensorKey, out var toggle))
-        {
-            toggle = new SensorChartToggleVm { Key = sensorKey, Label = MpccTables.SensorNames[e.Sensor] };
-            _sensorTogglesByKey[sensorKey] = toggle;
-            SensorToggles.Add(toggle);
-        }
-
         foreach (var reading in e.Readings)
-        {
-            var target = ChartTargetFor(reading.Quantity);
-            if (target == ChartTarget.None) continue;
-            var seriesKey = $"{sensorKey}_{reading.Quantity}";
-            SensorChartSampleReceived?.Invoke(this, (sensorKey, toggle.Label, target, seriesKey, MpccTables.Quantities[reading.Quantity].Label, reading.Value));
-        }
+            RaiseChartSample(SensorSeriesKey(e.Sensor, reading.Quantity), reading.Value);
     }
 
     /// <summary>Maps a per-sensor quantity onto whichever existing averaged-channel plot shares its physical unit.</summary>

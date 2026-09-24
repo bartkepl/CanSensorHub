@@ -140,15 +140,62 @@ public partial class FlagIndicatorVm : ObservableObject
 }
 
 /// <summary>
-/// One checkbox on the Charts tab per SENSOR (not per measured quantity) — checking e.g. "SHT45" plots
-/// every quantity that sensor provides (temperature AND humidity together), each overlaid on its
-/// matching existing averaged-channel plot, exactly like the reference Python app's per-sensor curves.
+/// One curve on the Charts tab — either an averaged telemetry channel or a single quantity of a single
+/// sensor. The same instance backs the side-panel checkbox and the plot's legend entry, so hiding a
+/// curve from either place is reflected in the other.
 /// </summary>
-public partial class SensorChartToggleVm : ObservableObject
+public partial class ChartSeriesVm : ObservableObject
 {
     public required string Key { get; init; }
+    /// <summary>Label under the group in the side panel — the group header already names the sensor.</summary>
     public required string Label { get; init; }
+    /// <summary>Label in the plot legend and hover tooltip — must stand alone, so it names the source too.</summary>
+    public required string LegendLabel { get; init; }
+    public required ChartTarget Target { get; init; }
+    public required string ColorHex { get; init; }
+    public bool IsAverage { get; init; }
     [ObservableProperty] private bool _isChecked;
+    /// <summary>Legend entries stay hidden until the curve has at least one sample — a sensor that is
+    /// never polled would otherwise clutter the legend with entries that toggle nothing.</summary>
+    [ObservableProperty] private bool _hasData;
+
+    [RelayCommand]
+    private void Toggle() => IsChecked = !IsChecked;
+}
+
+/// <summary>
+/// Side-panel group of <see cref="ChartSeriesVm"/> — one per sensor plus one for the averaged channels.
+/// The header checkbox is three-state: null when only some of the group's curves are shown.
+/// </summary>
+public sealed class ChartSeriesGroupVm : ObservableObject
+{
+    public string Label { get; }
+    public IReadOnlyList<ChartSeriesVm> Series { get; }
+
+    public ChartSeriesGroupVm(string label, IReadOnlyList<ChartSeriesVm> series)
+    {
+        Label = label;
+        Series = series;
+        foreach (var s in series)
+        {
+            s.PropertyChanged += (_, e) =>
+            {
+                if (e.PropertyName == nameof(ChartSeriesVm.IsChecked)) OnPropertyChanged(nameof(IsChecked));
+            };
+        }
+    }
+
+    public bool? IsChecked
+    {
+        get => Series.All(s => s.IsChecked) ? true : Series.Any(s => s.IsChecked) ? null : false;
+        set
+        {
+            // A two-state CheckBox never writes null back (it cycles indeterminate -> checked), so null
+            // here can only come from a programmatic write and carries no intent.
+            if (value is not { } on) return;
+            foreach (var s in Series) s.IsChecked = on;
+        }
+    }
 }
 
 /// <summary>One row of the Bus Monitor / Response log used by module tabs that show raw traffic context.</summary>

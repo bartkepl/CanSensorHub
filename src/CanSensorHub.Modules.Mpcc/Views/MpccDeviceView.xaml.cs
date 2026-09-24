@@ -2,40 +2,31 @@ using System.ComponentModel;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
-using CanSensorHub.Modules.Mpcc.Protocol;
 using CanSensorHub.Modules.Mpcc.ViewModels;
 
 namespace CanSensorHub.Modules.Mpcc.Views;
 
 /// <summary>
-/// Code-behind only wires the two ScottPlot charts to the view model's telemetry/sensor streams —
-/// ScottPlot's imperative plot-object API doesn't lend itself to pure XAML binding, so this is the one
-/// place the module intentionally steps outside strict MVVM. Individual-sensor series are overlaid
-/// directly onto the matching averaged-channel plot (Temp or Voltage) rather than a separate plot, mirroring
-/// the reference Python app's "one curve per sensor + one bold curve for the average, same axes" layout.
+/// Code-behind only wires the two ScottPlot charts to the view model's chart samples — ScottPlot's
+/// imperative plot-object API doesn't lend itself to pure XAML binding, so this is the one place the
+/// module intentionally steps outside strict MVVM. Which curves exist, their colors and whether they are
+/// shown all come from <see cref="ChartSeriesVm"/>; the legend is plain WPF bound to the same objects
+/// (ScottPlot's own legend is a bitmap and can't be clicked), so this class only buffers and draws.
 /// </summary>
 public partial class MpccDeviceView : UserControl
 {
     // Time-based, not count-based: channels/sensors update at very different effective rates (fused
-    // telemetry pushed on TELEMETRY_PERIOD vs. per-sensor readings only arriving once a sensor's checkbox
-    // is ticked, or on auto-poll), so a fixed sample COUNT gives each series a different rolling time
-    // span — the fast ones look dense-and-short, the slow ones stay wide. Trimming by elapsed seconds
-    // instead keeps every curve's visible window the same width once trimming kicks in.
+    // telemetry pushed on TELEMETRY_PERIOD vs. per-sensor readings only arriving on demand or on
+    // auto-poll), so a fixed sample COUNT gives each series a different rolling time span — the fast ones
+    // look dense-and-short, the slow ones stay wide. Trimming by elapsed seconds instead keeps every
+    // curve's visible window the same width once trimming kicks in.
     private const double MaxWindowSeconds = 600;
-    private readonly Dictionary<MpccChannel, List<double>> _xs = [];
-    private readonly Dictionary<MpccChannel, List<double>> _ys = [];
 
-    // Individual-sensor series, keyed by "{Sensor}_{Quantity}" — buffered regardless of checkbox state
-    // so toggling a sensor on later still has history to show.
-    private readonly Dictionary<string, List<double>> _sensorXs = [];
-    private readonly Dictionary<string, List<double>> _sensorYs = [];
-    private readonly Dictionary<string, (string SensorKey, string SensorLabel, ChartTarget Target, string QuantityLabel)> _seriesMeta = [];
+    // Keyed by ChartSeriesVm.Key — buffered regardless of visibility so switching a curve on later still
+    // has history to show.
+    private readonly Dictionary<string, (List<double> Xs, List<double> Ys)> _buffers = [];
 
     private readonly DateTime _start = DateTime.UtcNow;
-
-    // ShowLegend(Edge) creates a new outside-the-data-area legend panel each time it's called rather than
-    // replacing the previous one, so it must be invoked at most once per plot — not on every redraw.
-    private readonly HashSet<ScottPlot.WPF.WpfPlot> _legendShown = [];
 
     // Hover-to-inspect: which plotted curves live on each plot right now (rebuilt every redraw, since
     // Plot.Clear() drops the ScottPlot.Plottables.Scatter instances) and one WPF ToolTip per plot that
@@ -43,24 +34,9 @@ public partial class MpccDeviceView : UserControl
     private readonly Dictionary<ScottPlot.WPF.WpfPlot, List<(ScottPlot.Plottables.Scatter Scatter, string Label)>> _hoverSeries = [];
     private readonly Dictionary<ScottPlot.WPF.WpfPlot, ToolTip> _hoverTooltips = [];
 
-    private static readonly MpccChannel[] TempChannels = [MpccChannel.Temp, MpccChannel.McuTemp];
-    private static readonly MpccChannel[] VoltageChannels =
-        [MpccChannel.VoltageCh0, MpccChannel.VoltageCh1, MpccChannel.VoltageCh2, MpccChannel.VoltageCh3, MpccChannel.VoltageCh4, MpccChannel.VoltageCh5, MpccChannel.VoltageCh6, MpccChannel.Vdda];
-
-    // 16 colors, matching Mpswp's palette — headroom so a plot with many overlaid sensor curves never
-    // wraps back to a color already in use on the same plot.
-    private static readonly ScottPlot.Color[] Palette =
-    [
-        ScottPlot.Colors.Red, ScottPlot.Colors.Blue, ScottPlot.Colors.Green, ScottPlot.Colors.Orange,
-        ScottPlot.Colors.Purple, ScottPlot.Colors.Brown, ScottPlot.Colors.Cyan, ScottPlot.Colors.Magenta,
-        ScottPlot.Colors.Pink, ScottPlot.Colors.Olive, ScottPlot.Colors.Navy, ScottPlot.Colors.Teal,
-        ScottPlot.Colors.Gold, ScottPlot.Colors.Indigo, ScottPlot.Colors.Lime, ScottPlot.Colors.Maroon,
-    ];
-
     public MpccDeviceView()
     {
         InitializeComponent();
-        foreach (var c in Enum.GetValues<MpccChannel>()) { _xs[c] = []; _ys[c] = []; }
 
         TempPlot.Plot.Axes.Bottom.Label.Text = "Czas [s] od uruchomienia zakładki";
         TempPlot.Plot.Axes.Left.Label.Text = "Temperatura [°C]";
@@ -75,75 +51,34 @@ public partial class MpccDeviceView : UserControl
             {
                 oldVm.ChartSampleReceived -= OnSample;
                 oldVm.ChartsClearRequested -= OnClearRequested;
-                oldVm.SensorChartSampleReceived -= OnSensorSample;
-                DetachToggleHandlers(oldVm);
+                foreach (var s in oldVm.TempSeries.Concat(oldVm.VoltageSeries)) s.PropertyChanged -= OnSeriesChanged;
             }
             if (e.NewValue is MpccDeviceViewModel vm)
             {
                 vm.ChartSampleReceived += OnSample;
                 vm.ChartsClearRequested += OnClearRequested;
-                vm.SensorChartSampleReceived += OnSensorSample;
-                vm.SensorToggles.CollectionChanged += (_, _) => AttachToggleHandlers(vm);
-                AttachToggleHandlers(vm);
+                foreach (var s in vm.TempSeries.Concat(vm.VoltageSeries)) s.PropertyChanged += OnSeriesChanged;
             }
         };
     }
 
-    private void AttachToggleHandlers(MpccDeviceViewModel vm)
+    private void OnSeriesChanged(object? sender, PropertyChangedEventArgs e)
     {
-        foreach (var t in vm.SensorToggles)
-        {
-            t.PropertyChanged -= OnToggleChanged;
-            t.PropertyChanged += OnToggleChanged;
-        }
+        if (e.PropertyName != nameof(ChartSeriesVm.IsChecked) || sender is not ChartSeriesVm series) return;
+        Dispatcher.InvokeAsync(() => Redraw(series.Target));
     }
 
-    private void DetachToggleHandlers(MpccDeviceViewModel vm)
+    private void OnSample(object? sender, (string SeriesKey, double Value) e)
     {
-        foreach (var t in vm.SensorToggles) t.PropertyChanged -= OnToggleChanged;
-    }
-
-    private void OnToggleChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        if (e.PropertyName != nameof(SensorChartToggleVm.IsChecked)) return;
         Dispatcher.InvokeAsync(() =>
         {
-            RedrawTemp();
-            RedrawVoltage();
-        });
-    }
-
-    private void OnSample(object? sender, (MpccChannel Channel, double Value, bool Valid) e)
-    {
-        if (!e.Valid) return;
-        Dispatcher.InvokeAsync(() =>
-        {
+            if (DataContext is not MpccDeviceViewModel vm || vm.FindChartSeries(e.SeriesKey) is not { } series) return;
             var t = (DateTime.UtcNow - _start).TotalSeconds;
-            var xs = _xs[e.Channel];
-            var ys = _ys[e.Channel];
-            xs.Add(t);
-            ys.Add(e.Value);
-            TrimOld(xs, ys, t);
-
-            if (Array.IndexOf(TempChannels, e.Channel) >= 0) RedrawTemp();
-            else if (Array.IndexOf(VoltageChannels, e.Channel) >= 0) RedrawVoltage();
-        });
-    }
-
-    private void OnSensorSample(object? sender, (string SensorKey, string SensorLabel, ChartTarget Target, string SeriesKey, string QuantityLabel, double Value) e)
-    {
-        Dispatcher.InvokeAsync(() =>
-        {
-            var t = (DateTime.UtcNow - _start).TotalSeconds;
-            if (!_sensorXs.TryGetValue(e.SeriesKey, out var xs)) { xs = []; _sensorXs[e.SeriesKey] = xs; _sensorYs[e.SeriesKey] = []; }
-            _seriesMeta[e.SeriesKey] = (e.SensorKey, e.SensorLabel, e.Target, e.QuantityLabel);
-            var ys = _sensorYs[e.SeriesKey];
-            xs.Add(t);
-            ys.Add(e.Value);
-            TrimOld(xs, ys, t);
-
-            if (e.Target == ChartTarget.Temp) RedrawTemp();
-            else if (e.Target == ChartTarget.Voltage) RedrawVoltage();
+            if (!_buffers.TryGetValue(e.SeriesKey, out var buf)) { buf = ([], []); _buffers[e.SeriesKey] = buf; }
+            buf.Xs.Add(t);
+            buf.Ys.Add(e.Value);
+            TrimOld(buf.Xs, buf.Ys, t);
+            if (series.IsChecked) Redraw(series.Target);
         });
     }
 
@@ -160,51 +95,41 @@ public partial class MpccDeviceView : UserControl
         ys.RemoveRange(0, i);
     }
 
-    private bool IsSensorChecked(string sensorKey) =>
-        DataContext is MpccDeviceViewModel vm && vm.SensorToggles.FirstOrDefault(t => t.Key == sensorKey)?.IsChecked == true;
+    private void Redraw(ChartTarget target)
+    {
+        if (DataContext is not MpccDeviceViewModel vm) return;
+        if (target == ChartTarget.Temp) RedrawPlot(TempPlot, vm.TempSeries);
+        else if (target == ChartTarget.Voltage) RedrawPlot(VoltagePlot, vm.VoltageSeries);
+    }
 
-    private void RedrawTemp() => RedrawTarget(TempPlot, TempChannels, ChartTarget.Temp);
-    private void RedrawVoltage() => RedrawTarget(VoltagePlot, VoltageChannels, ChartTarget.Voltage);
-
-    private void RedrawTarget(ScottPlot.WPF.WpfPlot plot, MpccChannel[] channels, ChartTarget target)
+    private void RedrawPlot(ScottPlot.WPF.WpfPlot plot, IReadOnlyList<ChartSeriesVm> seriesList)
     {
         plot.Plot.Clear();
         var hoverList = ResetHoverSeries(plot);
-        var colorIdx = 0;
 
-        foreach (var c in channels)
+        foreach (var series in seriesList)
         {
-            if (_xs[c].Count < 2) continue;
-            var label = MpccTables.Channels[c].Label + " (śr.)";
-            var scatter = plot.Plot.Add.Scatter(_xs[c].ToArray(), _ys[c].ToArray());
-            scatter.LegendText = label;
-            scatter.Color = ScottPlot.Colors.Black;
-            scatter.LineWidth = 3;
-            hoverList.Add((scatter, label));
-        }
-
-        // Plottable series for this target, from checked sensors only.
-        var plottable = _seriesMeta
-            .Where(kv => kv.Value.Target == target && IsSensorChecked(kv.Value.SensorKey) && _sensorXs[kv.Key].Count >= 2)
-            .ToList();
-        // A sensor normally contributes one curve per plot, so its name alone is unambiguous — the axis
-        // title already says what's measured. Only append the quantity when the SAME sensor puts more
-        // than one curve on this SAME plot (e.g. MCU: VDDA + VBAT both land on "Napięcia ADC").
-        var seriesPerSensor = plottable.CountBy(kv => kv.Value.SensorKey).ToDictionary(g => g.Key, g => g.Value);
-
-        foreach (var (seriesKey, (sensorKey, sensorLabel, _, quantityLabel)) in plottable)
-        {
-            var xs = _sensorXs[seriesKey];
-            var ys = _sensorYs[seriesKey];
-            var label = seriesPerSensor[sensorKey] > 1 ? $"{sensorLabel} {quantityLabel}" : sensorLabel;
-            var scatter = plot.Plot.Add.Scatter(xs.ToArray(), ys.ToArray());
-            scatter.LegendText = label;
-            scatter.Color = Palette[colorIdx++ % Palette.Length];
-            hoverList.Add((scatter, label));
+            if (!series.IsChecked || !_buffers.TryGetValue(series.Key, out var buf) || buf.Xs.Count == 0) continue;
+            var scatter = plot.Plot.Add.Scatter(buf.Xs.ToArray(), buf.Ys.ToArray());
+            scatter.Color = ScottPlot.Color.FromHex(series.ColorHex);
+            // An averaged channel and its sensor reading share a color (same measurement), so the line
+            // style is what tells them apart: solid for the average, dashed with sample markers for the
+            // on-demand sensor reading. The legend swatch in the XAML mirrors this.
+            if (series.IsAverage)
+            {
+                scatter.LineWidth = 2.5f;
+                scatter.MarkerSize = 0;
+            }
+            else
+            {
+                scatter.LineWidth = 1.5f;
+                scatter.LinePattern = ScottPlot.LinePattern.Dashed;
+                scatter.MarkerSize = 5;
+            }
+            hoverList.Add((scatter, series.LegendLabel));
         }
 
         plot.Plot.Axes.AutoScale();
-        if (_legendShown.Add(plot)) plot.Plot.ShowLegend(ScottPlot.Edge.Right);
         plot.Refresh();
     }
 
@@ -261,13 +186,13 @@ public partial class MpccDeviceView : UserControl
 
     private void OnClearRequested(object? sender, EventArgs e)
     {
-        foreach (var c in Enum.GetValues<MpccChannel>()) { _xs[c].Clear(); _ys[c].Clear(); }
-        foreach (var key in _sensorXs.Keys) { _sensorXs[key].Clear(); _sensorYs[key].Clear(); }
         Dispatcher.InvokeAsync(() =>
         {
+            _buffers.Clear();
             foreach (var plot in new[] { TempPlot, VoltagePlot })
             {
                 plot.Plot.Clear();
+                ResetHoverSeries(plot);
                 plot.Refresh();
             }
         });
