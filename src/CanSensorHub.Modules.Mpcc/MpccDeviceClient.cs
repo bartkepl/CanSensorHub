@@ -78,7 +78,19 @@ public sealed class MpccDeviceClient : IDisposable
     {
         _bus = bus;
         NodeId = nodeId;
+        _asm.TransferAbandoned += OnTransferAbandoned;
         _bus.FrameReceived += OnFrameReceived;
+    }
+
+    // Porzucony transfer oznacza zgubioną ramkę STREAM: odpowiedź przepada zamiast dotrzeć
+    // sklejona z danymi innego odpytania. Zgłoszenie trafia do dziennika zdarzeń, żeby
+    // utrata ramek na magistrali była widoczna, a nie objawiała się tylko lukami na wykresie.
+    private void OnTransferAbandoned(object? sender, StreamTransferAbandoned a)
+    {
+        var op = Enum.IsDefined(typeof(MpccReqOp), a.Obj) ? ((MpccReqOp)a.Obj).ToString() : $"0x{a.Obj:X2}";
+        var why = a.Reason == StreamAbandonReason.Timeout ? "przekroczony czas oczekiwania" : "nadszedł kolejny transfer";
+        var missing = a.MissingIndices.Length > 0 ? string.Join(", ", a.MissingIndices) : "—";
+        Error?.Invoke(this, $"Porzucono niekompletną odpowiedź {op} (ARG=0x{a.Arg:X2}): brak segmentów {missing}; {why}.");
     }
 
     private void OnFrameReceived(object? sender, CanFrame frame)

@@ -153,12 +153,97 @@ public class StreamAssemblerTests
     }
 
     [Fact]
-    public void Powtorzony_segment_nadpisuje_poprzedni_bez_psucia_dlugosci()
+    public void Powtorzona_ramka_nie_psuje_transferu_ani_nie_jest_zglaszana()
     {
+        // Kontroler CAN powtarza ramkę, której nadania nie potwierdził, choć odbiorca mógł ją
+        // już przyjąć — ten sam indeks o tej samej treści jest więc zjawiskiem normalnym.
         var assembler = new StreamAssembler();
-        assembler.Push(Seg(0, false, 0xFF));
-        assembler.Push(Seg(0, false, 0x01));   // retransmisja tego samego indeksu
+        var abandoned = new List<StreamTransferAbandoned>();
+        assembler.TransferAbandoned += (_, a) => abandoned.Add(a);
+
+        assembler.Push(Seg(0, false, 0x01));
+        assembler.Push(Seg(0, false, 0x01));
 
         Assert.Equal(new byte[] { 0x01, 0x02 }, assembler.Push(Seg(1, last: true, 0x02)));
+        Assert.Empty(abandoned);
+    }
+
+    [Fact]
+    public void Zgubiony_segment_nie_przesuwa_skladania_kolejnych_transferow()
+    {
+        // Regresja: po utracie jednego segmentu niekompletny transfer był dopełniany segmentami
+        // następnego odpytania. Każda kolejna odpowiedź łączyła wtedy świeże wartości (indeksy
+        // do zgubionego włącznie) z wartościami sprzed jednego odpytania — na wykresie część
+        // kanałów pokrywała się z telemetrią, a część była przesunięta o okres odpytywania.
+        var time = new ManualTimeProvider();
+        var assembler = new StreamAssembler(time);
+        var abandoned = new List<StreamTransferAbandoned>();
+        assembler.TransferAbandoned += (_, a) => abandoned.Add(a);
+
+        // Odpytanie A: segment 3 zgubiony.
+        foreach (var i in new[] { 0, 1, 2, 4, 5 }) Assert.Null(assembler.Push(Seg(i, false, (byte)(0xA0 + i))));
+        Assert.Null(assembler.Push(Seg(6, last: true, 0xA6)));
+
+        for (var transfer = 0; transfer < 3; transfer++)
+        {
+            time.Advance(TimeSpan.FromSeconds(2));
+            var tag = (byte)(0xB0 + 0x10 * transfer);
+            byte[]? result = null;
+            for (var i = 0; i < 7; i++)
+            {
+                result = assembler.Push(Seg(i, i == 6, (byte)(tag + i)));
+                if (i < 6) Assert.Null(result);
+            }
+            Assert.Equal(Enumerable.Range(0, 7).Select(i => (byte)(tag + i)).ToArray(), result);
+        }
+
+        var a = Assert.Single(abandoned);
+        Assert.Equal(StreamAbandonReason.Timeout, a.Reason);
+        Assert.Equal(new[] { 3 }, a.MissingIndices);
+    }
+
+    [Fact]
+    public void Transfer_z_przerwami_w_granicach_limitu_sklada_sie()
+    {
+        var time = new ManualTimeProvider();
+        var assembler = new StreamAssembler(time);
+
+        Assert.Null(assembler.Push(Seg(0, false, 0x01)));
+        time.Advance(StreamAssembler.DefaultSegmentGapTimeout);
+        Assert.Null(assembler.Push(Seg(1, false, 0x02)));
+        time.Advance(StreamAssembler.DefaultSegmentGapTimeout);
+
+        Assert.Equal(new byte[] { 0x01, 0x02, 0x03 }, assembler.Push(Seg(2, last: true, 0x03)));
+    }
+
+    [Fact]
+    public void Kolejny_transfer_przed_uplywem_limitu_zastepuje_niekompletny()
+    {
+        // Dwa odpytania tego samego obiektu tuż po sobie: segment o już zebranym indeksie, lecz
+        // innej treści, otwiera nowy transfer zamiast dopełniać poprzedni.
+        var assembler = new StreamAssembler(new ManualTimeProvider());
+        var abandoned = new List<StreamTransferAbandoned>();
+        assembler.TransferAbandoned += (_, a) => abandoned.Add(a);
+
+        Assert.Null(assembler.Push(Seg(0, false, 0xA0)));
+        Assert.Null(assembler.Push(Seg(2, last: true, 0xA2)));   // segment 1 zgubiony
+
+        Assert.Null(assembler.Push(Seg(0, false, 0xB0)));
+        Assert.Null(assembler.Push(Seg(1, false, 0xB1)));
+        Assert.Equal(new byte[] { 0xB0, 0xB1, 0xB2 }, assembler.Push(Seg(2, last: true, 0xB2)));
+
+        var a = Assert.Single(abandoned);
+        Assert.Equal(StreamAbandonReason.Superseded, a.Reason);
+        Assert.Equal(new[] { 1 }, a.MissingIndices);
+    }
+
+    /// <summary>Zegar sterowany z testu — limit przerwy między segmentami liczony jest względem niego.</summary>
+    private sealed class ManualTimeProvider : TimeProvider
+    {
+        private long _ticks;
+
+        public override long TimestampFrequency => TimeSpan.TicksPerSecond;
+        public override long GetTimestamp() => _ticks;
+        public void Advance(TimeSpan by) => _ticks += by.Ticks;
     }
 }

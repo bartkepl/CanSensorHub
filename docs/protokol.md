@@ -55,6 +55,30 @@ segmentów, lecz transfer jest kompletny dopiero po zebraniu wszystkich indeksó
 od zera. Kolejność odbioru nie musi odpowiadać kolejności nadania. Metoda
 `Expire()` zamyka transfer przeterminowany, zgłaszając brakujące indeksy.
 
+!!! danger "Niekompletny transfer nie może czekać na następne odpytanie"
+    Transfer z brakującym segmentem pozostawał w buforze bez ograniczenia
+    czasu. Następne odpytanie tego samego obiektu dopełniało go własnymi
+    segmentami, a wynik łączył dane z dwóch odpytań. Po jednej zgubionej
+    ramce składanie przesuwało się o transfer na stałe: w odpowiedzi
+    READ_SENSOR wielkości o indeksach do zgubionego segmentu włącznie były
+    świeże, pozostałe — sprzed jednego okresu odpytywania. Na wykresie część
+    kanałów pokrywała się z telemetrią, a część była przesunięta o okres
+    odpytywania, bez żadnego sygnału błędu.
+
+Niekompletny transfer jest porzucany, gdy:
+
+- od jego ostatniego segmentu minęło więcej niż `SegmentGapTimeout`
+  (domyślnie 500 ms) — segmenty jednego transferu dzielą milisekundy,
+  kolejne odpytania tego samego obiektu sekundy;
+- nadchodzi segment o indeksie już zebranym, lecz o innej treści — należy
+  on do kolejnego transferu. Ten sam indeks o identycznej treści jest
+  powtórzeniem ramki przez kontroler CAN i niczego nie zmienia.
+
+Porzucenie zgłasza zdarzenie `TransferAbandoned` z brakującymi indeksami.
+Moduły urządzeń przekazują je do dziennika zdarzeń, więc utrata ramek
+na magistrali jest widoczna wprost. Reguły działają wyłącznie po stronie
+hosta i nie zmieniają formatu ramek.
+
 Ta sama poprawka została wprowadzona w bibliotece `mpcan` po stronie hostów
 pythonowych — defekt występował w obu implementacjach niezależnie.
 

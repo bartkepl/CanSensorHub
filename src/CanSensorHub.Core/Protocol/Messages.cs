@@ -114,25 +114,85 @@ public static class StreamHeaderBits
     public static byte Build(int index, bool last) => (byte)(((index & IndexMask) & 0xFF) | (last ? LastBit : 0));
 }
 
+/// <summary>Przyczyna porzucenia niekompletnego transferu przez <see cref="StreamAssembler"/>.</summary>
+public enum StreamAbandonReason
+{
+    /// <summary>Od ostatniego segmentu minęło więcej niż <see cref="StreamAssembler.SegmentGapTimeout"/>.</summary>
+    Timeout,
+    /// <summary>Nadszedł segment o indeksie już zebranym, lecz o innej treści — należy on do następnego transferu.</summary>
+    Superseded,
+}
+
+/// <summary>Opis transferu porzuconego przez <see cref="StreamAssembler"/> przed skompletowaniem.</summary>
+public readonly record struct StreamTransferAbandoned(
+    byte Node, byte Obj, byte Arg, int[] MissingIndices, StreamAbandonReason Reason);
+
 /// <summary>
 /// Składa transfery segmentowane (FUNC=STREAM), grupując je po (węzeł, obiekt, argument).
 /// Znosi odbiór segmentów w kolejności innej niż nadana — patrz komentarz w <see cref="Push"/>.
 /// </summary>
 public sealed class StreamAssembler
 {
+    /// <summary>
+    /// Najdłuższa dopuszczalna przerwa między segmentami jednego transferu. Segmenty transferu
+    /// nadawane są seriami, w odstępach rzędu milisekund, a kolejne odpytania tego samego obiektu
+    /// dzielą sekundy — próg leży z zapasem pomiędzy tymi skalami.
+    /// </summary>
+    public static readonly TimeSpan DefaultSegmentGapTimeout = TimeSpan.FromMilliseconds(500);
+
     private readonly Dictionary<(byte Node, byte Obj, byte Arg), Dictionary<int, byte[]>> _buffers = new();
     private readonly Dictionary<(byte Node, byte Obj, byte Arg), int> _expected = new();
+    private readonly Dictionary<(byte Node, byte Obj, byte Arg), long> _lastSegmentAt = new();
+    private readonly TimeProvider _time;
+
+    public TimeSpan SegmentGapTimeout { get; }
+
+    /// <summary>
+    /// Zgłaszane przy porzuceniu niekompletnego transferu w <see cref="Push"/>. Transfer porzucony
+    /// jawnie przez <see cref="Expire"/> nie jest zgłaszany — wywołujący dostaje braki w wyniku.
+    /// </summary>
+    public event EventHandler<StreamTransferAbandoned>? TransferAbandoned;
+
+    public StreamAssembler(TimeProvider? time = null, TimeSpan? segmentGapTimeout = null)
+    {
+        _time = time ?? TimeProvider.System;
+        SegmentGapTimeout = segmentGapTimeout ?? DefaultSegmentGapTimeout;
+    }
 
     /// <summary>Feeds one segment; returns the concatenated payload once the "last" segment arrives, else null.</summary>
     public byte[]? Push(StreamSegment segment)
     {
         var key = (segment.Node, segment.Obj, segment.Arg);
-        if (!_buffers.TryGetValue(key, out var segs))
+        var now = _time.GetTimestamp();
+
+        // Niekompletny transfer nie może czekać bez końca na brakujący segment. Pozostawiony
+        // w buforze zostałby dopełniony segmentami NASTĘPNEGO transferu tego samego obiektu:
+        // wynik łączyłby wtedy dane z dwóch odpytań, a po jednej zgubionej ramce składanie
+        // przesuwałoby się o transfer na stałe — część wartości każdej odpowiedzi pochodziłaby
+        // z poprzedniego odpytania, bez żadnego sygnału błędu.
+        if (_buffers.TryGetValue(key, out var segs))
+        {
+            if (_time.GetElapsedTime(_lastSegmentAt[key], now) > SegmentGapTimeout)
+            {
+                Abandon(key, StreamAbandonReason.Timeout);
+                segs = null;
+            }
+            else if (segs.TryGetValue(segment.Index, out var previous) && !previous.AsSpan().SequenceEqual(segment.Payload))
+            {
+                // Ten sam indeks o innej treści to początek kolejnego transferu, który nadszedł
+                // przed upływem limitu. Identyczna treść to powtórzenie ramki przez kontroler CAN
+                // i niczego nie zmienia.
+                Abandon(key, StreamAbandonReason.Superseded);
+                segs = null;
+            }
+        }
+        if (segs is null)
         {
             segs = new Dictionary<int, byte[]>();
             _buffers[key] = segs;
         }
         segs[segment.Index] = segment.Payload;
+        _lastSegmentAt[key] = now;
 
         // Segment końcowy wyznacza liczbę segmentów, ale NIE kończy transferu.
         // Kolejność odbioru nie musi odpowiadać kolejności nadania: kontroler CAN
@@ -147,6 +207,7 @@ public sealed class StreamAssembler
 
         _buffers.Remove(key);
         _expected.Remove(key);
+        _lastSegmentAt.Remove(key);
 
         var total = 0;
         for (int i = 0; i < expected; i++)
@@ -171,11 +232,19 @@ public sealed class StreamAssembler
     /// danych: odbiorca otrzymałby krótszy bufor bez żadnego sygnału błędu, a przy
     /// ramce identyfikacyjnej — bufor nieodróżnialny od starszego profilu protokołu.
     /// </summary>
-    public int[]? Expire(byte node, byte obj, byte arg)
+    public int[]? Expire(byte node, byte obj, byte arg) => Discard((node, obj, arg));
+
+    private void Abandon((byte Node, byte Obj, byte Arg) key, StreamAbandonReason reason)
     {
-        var key = (node, obj, arg);
+        var missing = Discard(key) ?? [];
+        TransferAbandoned?.Invoke(this, new StreamTransferAbandoned(key.Node, key.Obj, key.Arg, missing, reason));
+    }
+
+    private int[]? Discard((byte Node, byte Obj, byte Arg) key)
+    {
         if (!_buffers.TryGetValue(key, out var segs)) return null;
         _buffers.Remove(key);
+        _lastSegmentAt.Remove(key);
 
         var known = _expected.TryGetValue(key, out var e) ? e : segs.Keys.Max() + 1;
         _expected.Remove(key);
