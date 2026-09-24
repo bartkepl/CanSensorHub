@@ -59,6 +59,11 @@ public partial class MpswpDeviceViewModel : ObservableObject, IDeviceModuleInsta
         Client.SensorRangeChanged += OnSensorRangeChanged;
         Client.Error += (_, msg) => AppendEventRow("ERROR", "-", msg);
 
+        (ChartSeriesGroups, var allSeries) = BuildChartSeries();
+        TempSeries = allSeries.Where(s => s.Target == ChartTarget.Temp).ToList();
+        HumSeries = allSeries.Where(s => s.Target == ChartTarget.Hum).ToList();
+        PressSeries = allSeries.Where(s => s.Target == ChartTarget.Press).ToList();
+        AirSeries = allSeries.Where(s => s.Target == ChartTarget.Air).ToList();
         InitDashboard();
         InitParams();
         InitSensors();
@@ -272,7 +277,7 @@ public partial class MpswpDeviceViewModel : ObservableObject, IDeviceModuleInsta
             tile.Value = t.Value * info.Scale;
             tile.LastUpdate = DateTimeOffset.Now;
         }
-        ChartSampleReceived?.Invoke(this, (channel, tile.Value, t.Valid));
+        if (t.Valid) RaiseChartSample(AverageSeriesKey(channel), tile.Value);
     }
 
     [RelayCommand]
@@ -308,24 +313,131 @@ public partial class MpswpDeviceViewModel : ObservableObject, IDeviceModuleInsta
 
     #region Charts
 
-    /// <summary>Raised on every telemetry (fused/averaged) sample so the Charts view's code-behind can feed ScottPlot.</summary>
-    public event EventHandler<(MpswpChannel Channel, double Value, bool Valid)>? ChartSampleReceived;
-
     /// <summary>
-    /// Raised on every individual-sensor sample, regardless of whether its sensor's checkbox is currently
-    /// checked (the view buffers everything so toggling a box on later still has data to show) — routed
-    /// to whichever existing averaged-channel plot matches its physical quantity, per <see cref="ChartTarget"/>.
-    /// SensorLabel/QuantityLabel are kept separate (rather than pre-joined) so the view can drop the
-    /// quantity suffix when a sensor contributes only one curve to a given plot — the axis title/legend
-    /// already says what's being measured there, no need to repeat it on every single curve.
+    /// Raised on every chart sample — averaged telemetry and individual-sensor readings alike — regardless
+    /// of whether the curve is currently shown: the view buffers everything, so switching a curve on later
+    /// still has history to display. <c>SeriesKey</c> identifies a <see cref="ChartSeriesVm"/>.
     /// </summary>
-    public event EventHandler<(string SensorKey, string SensorLabel, ChartTarget Target, string SeriesKey, string QuantityLabel, double Value)>? SensorChartSampleReceived;
+    public event EventHandler<(string SeriesKey, double Value)>? ChartSampleReceived;
 
     public event EventHandler? ChartsClearRequested;
 
-    /// <summary>One checkbox per SENSOR (not per quantity) — checking "SHT45" plots temperature+humidity together, matching the reference app's per-sensor curves.</summary>
-    public ObservableCollection<SensorChartToggleVm> SensorToggles { get; } = [];
-    private readonly Dictionary<string, SensorChartToggleVm> _sensorTogglesByKey = [];
+    /// <summary>Side-panel groups: averaged channels first, then one group per sensor, one checkbox per quantity.</summary>
+    public IReadOnlyList<ChartSeriesGroupVm> ChartSeriesGroups { get; }
+    /// <summary>Curves of each plot, in legend order.</summary>
+    public IReadOnlyList<ChartSeriesVm> TempSeries { get; }
+    public IReadOnlyList<ChartSeriesVm> HumSeries { get; }
+    public IReadOnlyList<ChartSeriesVm> PressSeries { get; }
+    public IReadOnlyList<ChartSeriesVm> AirSeries { get; }
+    private readonly Dictionary<string, ChartSeriesVm> _chartSeriesByKey = [];
+
+    public ChartSeriesVm? FindChartSeries(string key) => _chartSeriesByKey.GetValueOrDefault(key);
+
+    public IReadOnlyList<ChartSeriesVm> ChartSeriesFor(ChartTarget target) => target switch
+    {
+        ChartTarget.Temp => TempSeries,
+        ChartTarget.Hum => HumSeries,
+        ChartTarget.Press => PressSeries,
+        ChartTarget.Air => AirSeries,
+        _ => [],
+    };
+
+    public static string AverageSeriesKey(MpswpChannel channel) => $"avg_{channel}";
+    public static string SensorSeriesKey(MpswpSensor sensor, MpswpQuantity quantity) => $"{sensor}_{quantity}";
+
+    /// <summary>
+    /// One color per SENSOR, identical on every plot: several sensors measure the same quantity (up to
+    /// nine temperature curves), so a per-quantity color would not tell them apart, while a per-sensor
+    /// color lets e.g. SHT45's temperature and humidity curves be matched at a glance. Tableau 10 order,
+    /// readable on the white plot background; gray is left out as too close to the black averages.
+    /// </summary>
+    private static readonly IReadOnlyDictionary<MpswpSensor, string> SensorColors = new Dictionary<MpswpSensor, string>
+    {
+        [MpswpSensor.Htu21D] = "#1F77B4",
+        [MpswpSensor.Sht45] = "#FF7F0E",
+        [MpswpSensor.Mpl3115A2] = "#2CA02C",
+        [MpswpSensor.Lps25Hb] = "#D62728",
+        [MpswpSensor.Bme680] = "#9467BD",
+        [MpswpSensor.Sts31Cpu] = "#8C564B",
+        [MpswpSensor.Sts31Sens] = "#E377C2",
+        [MpswpSensor.Tmp117] = "#BCBD22",
+        [MpswpSensor.Mcu] = "#17BECF",
+    };
+
+    /// <summary>
+    /// Averages are black — the fused curve is the reference the sensor curves are read against. The
+    /// air-quality plot is the exception: it carries three averages and no sensor curves, so black for
+    /// all three would make them indistinguishable.
+    /// </summary>
+    private static readonly IReadOnlyDictionary<MpswpChannel, string> AverageColors = new Dictionary<MpswpChannel, string>
+    {
+        [MpswpChannel.Temp] = "#000000",
+        [MpswpChannel.Hum] = "#000000",
+        [MpswpChannel.Press] = "#000000",
+        [MpswpChannel.VocIndex] = "#1F77B4",
+        [MpswpChannel.NoxIndex] = "#FF7F0E",
+        [MpswpChannel.Iaq] = "#2CA02C",
+    };
+
+    private (IReadOnlyList<ChartSeriesGroupVm> Groups, IReadOnlyList<ChartSeriesVm> All) BuildChartSeries()
+    {
+        var groups = new List<ChartSeriesGroupVm>();
+
+        // Averaged channels are shown by default: they arrive on every TELEMETRY_PERIOD without polling.
+        var averages = new List<ChartSeriesVm>();
+        foreach (var channel in Enum.GetValues<MpswpChannel>())
+        {
+            var target = AverageChartTargetFor(channel);
+            if (target == ChartTarget.None) continue;
+            var label = MpswpTables.Channels[channel].Label;
+            averages.Add(new ChartSeriesVm
+            {
+                Key = AverageSeriesKey(channel), Label = label, LegendLabel = $"{label} (śr.)",
+                Target = target, ColorHex = AverageColors[channel], IsAverage = true, IsChecked = true,
+            });
+        }
+        groups.Add(new ChartSeriesGroupVm("Średnie (telemetria)", averages));
+
+        foreach (var (sensor, quantities) in MpswpTables.SensorProvides)
+        {
+            var sensorName = MpswpTables.SensorNames[sensor];
+            var series = new List<ChartSeriesVm>();
+            foreach (var q in quantities)
+            {
+                var target = ChartTargetFor(q);
+                if (target == ChartTarget.None) continue;
+                // Each plot shows one quantity per sensor, and the axis title already names it, so the
+                // legend needs only the sensor — its full name, since the two STS31 differ only there.
+                series.Add(new ChartSeriesVm
+                {
+                    Key = SensorSeriesKey(sensor, q), Label = MpswpTables.Quantities[q].Label, LegendLabel = sensorName,
+                    Target = target, ColorHex = SensorColors[sensor],
+                });
+            }
+            if (series.Count > 0) groups.Add(new ChartSeriesGroupVm(sensorName, series));
+        }
+
+        var all = groups.SelectMany(g => g.Series).ToList();
+        foreach (var s in all) _chartSeriesByKey[s.Key] = s;
+        return (groups, all);
+    }
+
+    /// <summary>Plot of each averaged channel. IAQ has no per-sensor counterpart in <see cref="ChartTargetFor"/>
+    /// (BME680 reports only raw gas resistance), yet its fused index belongs with VOC/NOx.</summary>
+    private static ChartTarget AverageChartTargetFor(MpswpChannel c) => c switch
+    {
+        MpswpChannel.Temp => ChartTarget.Temp,
+        MpswpChannel.Hum => ChartTarget.Hum,
+        MpswpChannel.Press => ChartTarget.Press,
+        MpswpChannel.VocIndex or MpswpChannel.NoxIndex or MpswpChannel.Iaq => ChartTarget.Air,
+        _ => ChartTarget.None,
+    };
+
+    private void RaiseChartSample(string seriesKey, double value)
+    {
+        if (_chartSeriesByKey.TryGetValue(seriesKey, out var series)) series.HasData = true;
+        ChartSampleReceived?.Invoke(this, (seriesKey, value));
+    }
 
     [ObservableProperty] private bool _autoPollSensors;
     private System.Threading.Timer? _sensorPollTimer;
@@ -347,18 +459,22 @@ public partial class MpswpDeviceViewModel : ObservableObject, IDeviceModuleInsta
     }
 
     [RelayCommand]
-    private void ClearCharts() => ChartsClearRequested?.Invoke(this, EventArgs.Empty);
+    private void ClearCharts()
+    {
+        foreach (var s in _chartSeriesByKey.Values) s.HasData = false;
+        ChartsClearRequested?.Invoke(this, EventArgs.Empty);
+    }
 
     [RelayCommand]
     private void SelectAllSensorTraces()
     {
-        foreach (var t in SensorToggles) t.IsChecked = true;
+        foreach (var s in _chartSeriesByKey.Values) s.IsChecked = true;
     }
 
     [RelayCommand]
     private void DeselectAllSensorTraces()
     {
-        foreach (var t in SensorToggles) t.IsChecked = false;
+        foreach (var s in _chartSeriesByKey.Values) s.IsChecked = false;
     }
 
     #endregion
@@ -474,21 +590,10 @@ public partial class MpswpDeviceViewModel : ObservableObject, IDeviceModuleInsta
         if (_sensorRows.TryGetValue((byte)e.Sensor, out var row))
             row.ApplyReadings(e.Readings);
 
-        var sensorKey = e.Sensor.ToString();
-        if (!_sensorTogglesByKey.TryGetValue(sensorKey, out var toggle))
-        {
-            toggle = new SensorChartToggleVm { Key = sensorKey, Label = MpswpTables.SensorNames[e.Sensor] };
-            _sensorTogglesByKey[sensorKey] = toggle;
-            SensorToggles.Add(toggle);
-        }
-
         foreach (var reading in e.Readings)
         {
             if (reading.IsRejected) continue; // poza LTL/UTL — nie zniekształcaj wykresu odrzuconą wartością
-            var target = ChartTargetFor(reading.Quantity);
-            if (target == ChartTarget.None) continue;
-            var seriesKey = $"{sensorKey}_{reading.Quantity}";
-            SensorChartSampleReceived?.Invoke(this, (sensorKey, toggle.Label, target, seriesKey, MpswpTables.Quantities[reading.Quantity].Label, reading.Value));
+            RaiseChartSample(SensorSeriesKey(e.Sensor, reading.Quantity), reading.Value);
         }
     }
 

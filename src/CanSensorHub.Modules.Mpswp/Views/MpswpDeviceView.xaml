@@ -44,6 +44,47 @@
                 </DataTrigger>
             </Style.Triggers>
         </Style>
+        <!-- Legend entry: a flat button toggling its curve. The swatch mirrors the plot's line style
+             (bold = average, thin with a marker = sensor reading); a hidden curve is dimmed and struck through. -->
+        <DataTemplate x:Key="ChartLegendItem" DataType="{x:Type vm:ChartSeriesVm}">
+            <Button Command="{Binding ToggleCommand}" Cursor="Hand" Margin="0" Padding="4,2" HorizontalContentAlignment="Left"
+                    ToolTip="Kliknij, aby ukryć lub pokazać krzywą"
+                    Visibility="{Binding HasData, Converter={StaticResource BoolToVis}}">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="Transparent" Padding="{TemplateBinding Padding}" CornerRadius="3">
+                            <ContentPresenter />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.Border}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+                <StackPanel x:Name="Entry" Orientation="Horizontal">
+                    <!-- White backing keeps the black average swatch visible on the dark theme. -->
+                    <Border Width="30" Height="14" Margin="0,0,6,0" VerticalAlignment="Center" Background="White" CornerRadius="2">
+                        <Grid>
+                            <Line x:Name="Swatch" X1="2" X2="28" Y1="7" Y2="7" Stroke="{Binding ColorHex}" StrokeThickness="3" />
+                            <Ellipse x:Name="Marker" Width="6" Height="6" Fill="{Binding ColorHex}" Visibility="Collapsed" />
+                        </Grid>
+                    </Border>
+                    <TextBlock x:Name="Caption" Text="{Binding LegendLabel}" FontSize="11" VerticalAlignment="Center"
+                               Foreground="{DynamicResource Brush.Fg}" TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+            </Button>
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding IsAverage}" Value="False">
+                    <Setter TargetName="Swatch" Property="StrokeThickness" Value="1.5" />
+                    <Setter TargetName="Marker" Property="Visibility" Value="Visible" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsChecked}" Value="False">
+                    <Setter TargetName="Entry" Property="Opacity" Value="0.4" />
+                    <Setter TargetName="Caption" Property="TextDecorations" Value="Strikethrough" />
+                </DataTrigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
     </UserControl.Resources>
 
     <TabControl Margin="4" Background="Transparent">
@@ -159,14 +200,15 @@
         <!-- ===================== Wykresy ===================== -->
         <TabItem Header="Wykresy">
             <DockPanel Margin="8">
-                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,8">
-                    <Button Content="Wyczyść" Command="{Binding ClearChartsCommand}" />
-                    <CheckBox Content="Auto-odpytywanie czujników (co 2 s)" IsChecked="{Binding AutoPollSensors}" Margin="16,0,0,0" />
-                    <TextBlock Text="Każda krzywa = osobny czujnik; gruba czarna = średnia. Najedź na punkt, aby zobaczyć jego wartość i dokładny czas zebrania." VerticalAlignment="Center" Margin="16,0,0,0" Opacity="0.7" />
-                </StackPanel>
+                <DockPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+                    <Button DockPanel.Dock="Left" Content="Wyczyść" Command="{Binding ClearChartsCommand}" />
+                    <CheckBox DockPanel.Dock="Left" Content="Auto-odpytywanie czujników (co 2 s)" IsChecked="{Binding AutoPollSensors}" Margin="16,0,0,0" />
+                    <TextBlock Text="Gruba czarna = średnia (telemetria), cienka z punktami = odczyt czujnika; każdy czujnik ma ten sam kolor na wszystkich wykresach. Kliknij pozycję legendy, aby ukryć lub pokazać krzywą. Najedź na punkt, aby zobaczyć jego wartość i czas zebrania."
+                               VerticalAlignment="Center" Margin="16,0,0,0" Opacity="0.7" TextWrapping="Wrap" />
+                </DockPanel>
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="210" />
+                        <ColumnDefinition Width="230" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <DockPanel Grid.Column="0">
@@ -174,12 +216,29 @@
                             <Button Content="Wszystkie" Command="{Binding SelectAllSensorTracesCommand}" Padding="6,2" FontSize="11" />
                             <Button Content="Żaden" Command="{Binding DeselectAllSensorTracesCommand}" Padding="6,2" FontSize="11" Margin="4,0,0,0" />
                         </StackPanel>
-                        <GroupBox Header="Czujniki na wykresie">
+                        <GroupBox Header="Krzywe na wykresie">
                             <ScrollViewer VerticalScrollBarVisibility="Auto">
-                                <ItemsControl ItemsSource="{Binding SensorToggles}">
+                                <ItemsControl ItemsSource="{Binding ChartSeriesGroups}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <CheckBox Content="{Binding Label}" IsChecked="{Binding IsChecked}" Margin="2" />
+                                            <StackPanel Margin="0,0,0,6">
+                                                <CheckBox IsChecked="{Binding IsChecked}" Margin="2">
+                                                    <TextBlock Text="{Binding Label}" FontWeight="Bold" TextTrimming="CharacterEllipsis" />
+                                                </CheckBox>
+                                                <ItemsControl ItemsSource="{Binding Series}" Margin="18,0,0,0">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <CheckBox IsChecked="{Binding IsChecked}" Margin="2">
+                                                                <StackPanel Orientation="Horizontal">
+                                                                    <Rectangle Width="10" Height="10" Margin="0,0,6,0" VerticalAlignment="Center"
+                                                                               Fill="{Binding ColorHex}" Stroke="White" StrokeThickness="0.5" />
+                                                                    <TextBlock Text="{Binding Label}" TextTrimming="CharacterEllipsis" />
+                                                                </StackPanel>
+                                                            </CheckBox>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </StackPanel>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
@@ -197,16 +256,36 @@
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <GroupBox Header="Temperatura [°C]" Grid.Row="0" Grid.Column="0">
-                            <sp:WpfPlot x:Name="TempPlot" />
+                            <DockPanel>
+                                <ScrollViewer DockPanel.Dock="Right" Width="165" VerticalScrollBarVisibility="Auto">
+                                    <ItemsControl ItemsSource="{Binding TempSeries}" ItemTemplate="{StaticResource ChartLegendItem}" />
+                                </ScrollViewer>
+                                <sp:WpfPlot x:Name="TempPlot" />
+                            </DockPanel>
                         </GroupBox>
                         <GroupBox Header="Wilgotność [%RH]" Grid.Row="0" Grid.Column="1">
-                            <sp:WpfPlot x:Name="HumPlot" />
+                            <DockPanel>
+                                <ScrollViewer DockPanel.Dock="Right" Width="165" VerticalScrollBarVisibility="Auto">
+                                    <ItemsControl ItemsSource="{Binding HumSeries}" ItemTemplate="{StaticResource ChartLegendItem}" />
+                                </ScrollViewer>
+                                <sp:WpfPlot x:Name="HumPlot" />
+                            </DockPanel>
                         </GroupBox>
                         <GroupBox Header="Ciśnienie [Pa]" Grid.Row="1" Grid.Column="0">
-                            <sp:WpfPlot x:Name="PressPlot" />
+                            <DockPanel>
+                                <ScrollViewer DockPanel.Dock="Right" Width="165" VerticalScrollBarVisibility="Auto">
+                                    <ItemsControl ItemsSource="{Binding PressSeries}" ItemTemplate="{StaticResource ChartLegendItem}" />
+                                </ScrollViewer>
+                                <sp:WpfPlot x:Name="PressPlot" />
+                            </DockPanel>
                         </GroupBox>
                         <GroupBox Header="Jakość powietrza [idx]" Grid.Row="1" Grid.Column="1">
-                            <sp:WpfPlot x:Name="AirPlot" />
+                            <DockPanel>
+                                <ScrollViewer DockPanel.Dock="Right" Width="165" VerticalScrollBarVisibility="Auto">
+                                    <ItemsControl ItemsSource="{Binding AirSeries}" ItemTemplate="{StaticResource ChartLegendItem}" />
+                                </ScrollViewer>
+                                <sp:WpfPlot x:Name="AirPlot" />
+                            </DockPanel>
                         </GroupBox>
                         <GroupBox Header="Wyładowania AS3935" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
                             <DockPanel>

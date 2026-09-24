@@ -2,34 +2,30 @@ using System.ComponentModel;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
-using CanSensorHub.Modules.Mpswp.Protocol;
 using CanSensorHub.Modules.Mpswp.ViewModels;
 
 namespace CanSensorHub.Modules.Mpswp.Views;
 
 /// <summary>
-/// Code-behind only wires the four ScottPlot charts to the view model's telemetry/sensor streams —
-/// ScottPlot's imperative plot-object API doesn't lend itself to pure XAML binding, so this is the one
-/// place the module intentionally steps outside strict MVVM. Individual-sensor series are overlaid
-/// directly onto the matching averaged-channel plot (Temp/Hum/Press/Air) rather than a separate plot,
-/// mirroring the reference Python app's "one curve per sensor + one bold curve for the average, same axes" layout.
+/// Code-behind only wires the ScottPlot charts to the view model's chart samples — ScottPlot's
+/// imperative plot-object API doesn't lend itself to pure XAML binding, so this is the one place the
+/// module intentionally steps outside strict MVVM. Individual-sensor series are overlaid onto the
+/// matching averaged-channel plot (Temp/Hum/Press/Air). Which curves exist, their colors and whether
+/// they are shown all come from <see cref="ChartSeriesVm"/>; the legend of those four plots is plain WPF
+/// bound to the same objects (ScottPlot's own legend is a bitmap and can't be clicked).
 /// </summary>
 public partial class MpswpDeviceView : UserControl
 {
     // Time-based, not count-based: channels/sensors update at very different effective rates (fused
-    // telemetry pushed on TELEMETRY_PERIOD vs. per-sensor readings only arriving once a sensor's checkbox
-    // is ticked, or on auto-poll), so a fixed sample COUNT gives each series a different rolling time
+    // telemetry pushed on TELEMETRY_PERIOD vs. per-sensor readings only arriving on demand or on
+    // auto-poll), so a fixed sample COUNT gives each series a different rolling time
     // span — the fast ones look dense-and-short, the slow ones stay wide. Trimming by elapsed seconds
     // instead keeps every curve's visible window the same width once trimming kicks in.
     private const double MaxWindowSeconds = 600;
-    private readonly Dictionary<MpswpChannel, List<double>> _xs = [];
-    private readonly Dictionary<MpswpChannel, List<double>> _ys = [];
 
-    // Individual-sensor series, keyed by "{Sensor}_{Quantity}" — buffered regardless of checkbox state
-    // so toggling a sensor on later still has history to show.
-    private readonly Dictionary<string, List<double>> _sensorXs = [];
-    private readonly Dictionary<string, List<double>> _sensorYs = [];
-    private readonly Dictionary<string, (string SensorKey, string SensorLabel, ChartTarget Target, string QuantityLabel)> _seriesMeta = [];
+    // Keyed by ChartSeriesVm.Key — buffered regardless of visibility so switching a curve on later still
+    // has history to show.
+    private readonly Dictionary<string, (List<double> Xs, List<double> Ys)> _buffers = [];
 
     // AS3935 lightning strikes: sparse, discrete events — plotted as time-vs-distance points (not a
     // connected line, which would imply a trend between unrelated strikes) with energy shown via color
@@ -39,9 +35,9 @@ public partial class MpswpDeviceView : UserControl
 
     private readonly DateTime _start = DateTime.UtcNow;
 
-    // ShowLegend(Edge) creates a new outside-the-data-area legend panel each time it's called rather than
-    // replacing the previous one, so it must be invoked at most once per plot — not on every redraw.
-    private readonly HashSet<ScottPlot.WPF.WpfPlot> _legendShown = [];
+    // Only the lightning plot keeps ScottPlot's legend (energy classes, nothing to toggle). ShowLegend(Edge)
+    // creates a new outside-the-data-area legend panel on every call, so it must run once, not per redraw.
+    private bool _lightningLegendShown;
 
     // Hover-to-inspect: which plotted curves live on each plot right now (rebuilt every redraw, since
     // Plot.Clear() drops the ScottPlot.Plottables.Scatter instances) and one WPF ToolTip per plot that
@@ -49,23 +45,9 @@ public partial class MpswpDeviceView : UserControl
     private readonly Dictionary<ScottPlot.WPF.WpfPlot, List<(ScottPlot.Plottables.Scatter Scatter, string Label)>> _hoverSeries = [];
     private readonly Dictionary<ScottPlot.WPF.WpfPlot, ToolTip> _hoverTooltips = [];
 
-    private static readonly MpswpChannel[] AirChannels = [MpswpChannel.VocIndex, MpswpChannel.NoxIndex, MpswpChannel.Iaq];
-
-    // 16 colors: the Temp plot alone can carry 9 series (8 sensors + MCU internal ADC), which used to
-    // wrap past the old 8-color palette and silently reuse a color (MCU landed back on Red, same as
-    // HTU21D) — two unrelated curves became visually indistinguishable.
-    private static readonly ScottPlot.Color[] Palette =
-    [
-        ScottPlot.Colors.Red, ScottPlot.Colors.Blue, ScottPlot.Colors.Green, ScottPlot.Colors.Orange,
-        ScottPlot.Colors.Purple, ScottPlot.Colors.Brown, ScottPlot.Colors.Cyan, ScottPlot.Colors.Magenta,
-        ScottPlot.Colors.Pink, ScottPlot.Colors.Olive, ScottPlot.Colors.Navy, ScottPlot.Colors.Teal,
-        ScottPlot.Colors.Gold, ScottPlot.Colors.Indigo, ScottPlot.Colors.Lime, ScottPlot.Colors.Maroon,
-    ];
-
     public MpswpDeviceView()
     {
         InitializeComponent();
-        foreach (var c in Enum.GetValues<MpswpChannel>()) { _xs[c] = []; _ys[c] = []; }
 
         const string timeAxisLabel = "Czas [s] od uruchomienia zakładki";
         TempPlot.Plot.Axes.Bottom.Label.Text = timeAxisLabel;
@@ -86,93 +68,36 @@ public partial class MpswpDeviceView : UserControl
             {
                 oldVm.ChartSampleReceived -= OnSample;
                 oldVm.ChartsClearRequested -= OnClearRequested;
-                oldVm.SensorChartSampleReceived -= OnSensorSample;
                 oldVm.LightningStrikeReceived -= OnLightningStrike;
-                DetachToggleHandlers(oldVm);
+                foreach (var s in oldVm.ChartSeriesGroups.SelectMany(g => g.Series)) s.PropertyChanged -= OnSeriesChanged;
             }
             if (e.NewValue is MpswpDeviceViewModel vm)
             {
                 vm.ChartSampleReceived += OnSample;
                 vm.ChartsClearRequested += OnClearRequested;
-                vm.SensorChartSampleReceived += OnSensorSample;
                 vm.LightningStrikeReceived += OnLightningStrike;
-                vm.SensorToggles.CollectionChanged += (_, _) => AttachToggleHandlers(vm);
-                AttachToggleHandlers(vm);
+                foreach (var s in vm.ChartSeriesGroups.SelectMany(g => g.Series)) s.PropertyChanged += OnSeriesChanged;
             }
         };
     }
 
-    private void AttachToggleHandlers(MpswpDeviceViewModel vm)
+    private void OnSeriesChanged(object? sender, PropertyChangedEventArgs e)
     {
-        foreach (var t in vm.SensorToggles)
-        {
-            t.PropertyChanged -= OnToggleChanged;
-            t.PropertyChanged += OnToggleChanged;
-        }
+        if (e.PropertyName != nameof(ChartSeriesVm.IsChecked) || sender is not ChartSeriesVm series) return;
+        Dispatcher.InvokeAsync(() => Redraw(series.Target));
     }
 
-    private void DetachToggleHandlers(MpswpDeviceViewModel vm)
+    private void OnSample(object? sender, (string SeriesKey, double Value) e)
     {
-        foreach (var t in vm.SensorToggles) t.PropertyChanged -= OnToggleChanged;
-    }
-
-    private void OnToggleChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        if (e.PropertyName != nameof(SensorChartToggleVm.IsChecked)) return;
         Dispatcher.InvokeAsync(() =>
         {
-            RedrawTarget(TempPlot, ChartTarget.Temp);
-            RedrawTarget(HumPlot, ChartTarget.Hum);
-            RedrawTarget(PressPlot, ChartTarget.Press);
-            RedrawTarget(AirPlot, ChartTarget.Air);
-        });
-    }
-
-    private void OnSample(object? sender, (MpswpChannel Channel, double Value, bool Valid) e)
-    {
-        if (!e.Valid) return;
-        Dispatcher.InvokeAsync(() =>
-        {
+            if (DataContext is not MpswpDeviceViewModel vm || vm.FindChartSeries(e.SeriesKey) is not { } series) return;
             var t = (DateTime.UtcNow - _start).TotalSeconds;
-            var xs = _xs[e.Channel];
-            var ys = _ys[e.Channel];
-            xs.Add(t);
-            ys.Add(e.Value);
-            TrimOld(xs, ys, t);
-
-            switch (e.Channel)
-            {
-                case MpswpChannel.Temp: RedrawTarget(TempPlot, ChartTarget.Temp); break;
-                case MpswpChannel.Hum: RedrawTarget(HumPlot, ChartTarget.Hum); break;
-                case MpswpChannel.Press: RedrawTarget(PressPlot, ChartTarget.Press); break;
-                default:
-                    if (Array.IndexOf(AirChannels, e.Channel) >= 0) RedrawTarget(AirPlot, ChartTarget.Air);
-                    break;
-            }
-        });
-    }
-
-    private void OnSensorSample(object? sender, (string SensorKey, string SensorLabel, ChartTarget Target, string SeriesKey, string QuantityLabel, double Value) e)
-    {
-        Dispatcher.InvokeAsync(() =>
-        {
-            var t = (DateTime.UtcNow - _start).TotalSeconds;
-            if (!_sensorXs.TryGetValue(e.SeriesKey, out var xs)) { xs = []; _sensorXs[e.SeriesKey] = xs; _sensorYs[e.SeriesKey] = []; }
-            _seriesMeta[e.SeriesKey] = (e.SensorKey, e.SensorLabel, e.Target, e.QuantityLabel);
-            var ys = _sensorYs[e.SeriesKey];
-            xs.Add(t);
-            ys.Add(e.Value);
-            TrimOld(xs, ys, t);
-
-            var plot = e.Target switch
-            {
-                ChartTarget.Temp => TempPlot,
-                ChartTarget.Hum => HumPlot,
-                ChartTarget.Press => PressPlot,
-                ChartTarget.Air => AirPlot,
-                _ => null,
-            };
-            if (plot is not null) RedrawTarget(plot, e.Target);
+            if (!_buffers.TryGetValue(e.SeriesKey, out var buf)) { buf = ([], []); _buffers[e.SeriesKey] = buf; }
+            buf.Xs.Add(t);
+            buf.Ys.Add(e.Value);
+            TrimOld(buf.Xs, buf.Ys, t);
+            if (series.IsChecked) Redraw(series.Target);
         });
     }
 
@@ -229,7 +154,11 @@ public partial class MpswpDeviceView : UserControl
         AddBucket(high, "Energia: wysoka", ScottPlot.Colors.Red);
 
         LightningPlot.Plot.Axes.AutoScale();
-        if (_legendShown.Add(LightningPlot)) LightningPlot.Plot.ShowLegend(ScottPlot.Edge.Right);
+        if (!_lightningLegendShown)
+        {
+            LightningPlot.Plot.ShowLegend(ScottPlot.Edge.Right);
+            _lightningLegendShown = true;
+        }
         LightningPlot.Refresh();
     }
 
@@ -246,58 +175,46 @@ public partial class MpswpDeviceView : UserControl
         ys.RemoveRange(0, i);
     }
 
-    private bool IsSensorChecked(string sensorKey) =>
-        DataContext is MpswpDeviceViewModel vm && vm.SensorToggles.FirstOrDefault(t => t.Key == sensorKey)?.IsChecked == true;
-
-    private IEnumerable<MpswpChannel> ChannelsFor(ChartTarget target) => target switch
+    private void Redraw(ChartTarget target)
     {
-        ChartTarget.Temp => [MpswpChannel.Temp],
-        ChartTarget.Hum => [MpswpChannel.Hum],
-        ChartTarget.Press => [MpswpChannel.Press],
-        ChartTarget.Air => AirChannels,
-        _ => [],
-    };
+        if (DataContext is not MpswpDeviceViewModel vm) return;
+        var plot = target switch
+        {
+            ChartTarget.Temp => TempPlot,
+            ChartTarget.Hum => HumPlot,
+            ChartTarget.Press => PressPlot,
+            ChartTarget.Air => AirPlot,
+            _ => null,
+        };
+        if (plot is not null) RedrawPlot(plot, vm.ChartSeriesFor(target));
+    }
 
-    private void RedrawTarget(ScottPlot.WPF.WpfPlot plot, ChartTarget target)
+    private void RedrawPlot(ScottPlot.WPF.WpfPlot plot, IReadOnlyList<ChartSeriesVm> seriesList)
     {
         plot.Plot.Clear();
         var hoverList = ResetHoverSeries(plot);
-        var colorIdx = 0;
 
-        foreach (var c in ChannelsFor(target))
+        foreach (var series in seriesList)
         {
-            if (_xs[c].Count < 2) continue;
-            var label = MpswpTables.Channels[c].Label + " (śr.)";
-            var scatter = plot.Plot.Add.Scatter(_xs[c].ToArray(), _ys[c].ToArray());
-            scatter.LegendText = label;
-            scatter.Color = ScottPlot.Colors.Black;
-            scatter.LineWidth = 3;
-            hoverList.Add((scatter, label));
-        }
-
-        // Plottable series for this target, from checked sensors only.
-        var plottable = _seriesMeta
-            .Where(kv => kv.Value.Target == target && IsSensorChecked(kv.Value.SensorKey) && _sensorXs[kv.Key].Count >= 2)
-            .ToList();
-        // A sensor normally contributes one curve per plot, so its name alone is unambiguous — the axis
-        // title already says what's measured. Only append the quantity when the SAME sensor puts more
-        // than one curve on this SAME plot (e.g. BME680: temperature + humidity both land on... no,
-        // those are different plots; this mainly matters for MCU: VDDA + VBAT sharing one target).
-        var seriesPerSensor = plottable.CountBy(kv => kv.Value.SensorKey).ToDictionary(g => g.Key, g => g.Value);
-
-        foreach (var (seriesKey, (sensorKey, sensorLabel, _, quantityLabel)) in plottable)
-        {
-            var xs = _sensorXs[seriesKey];
-            var ys = _sensorYs[seriesKey];
-            var label = seriesPerSensor[sensorKey] > 1 ? $"{sensorLabel} {quantityLabel}" : sensorLabel;
-            var scatter = plot.Plot.Add.Scatter(xs.ToArray(), ys.ToArray());
-            scatter.LegendText = label;
-            scatter.Color = Palette[colorIdx++ % Palette.Length];
-            hoverList.Add((scatter, label));
+            if (!series.IsChecked || !_buffers.TryGetValue(series.Key, out var buf) || buf.Xs.Count == 0) continue;
+            var scatter = plot.Plot.Add.Scatter(buf.Xs.ToArray(), buf.Ys.ToArray());
+            scatter.Color = ScottPlot.Color.FromHex(series.ColorHex);
+            // Averages: bold line without markers — the continuous reference. Sensors: thin line with a
+            // marker per sample, since polled readings are sparse. The legend swatch in the XAML mirrors this.
+            if (series.IsAverage)
+            {
+                scatter.LineWidth = 3;
+                scatter.MarkerSize = 0;
+            }
+            else
+            {
+                scatter.LineWidth = 1.5f;
+                scatter.MarkerSize = 5;
+            }
+            hoverList.Add((scatter, series.LegendLabel));
         }
 
         plot.Plot.Axes.AutoScale();
-        if (_legendShown.Add(plot)) plot.Plot.ShowLegend(ScottPlot.Edge.Right);
         plot.Refresh();
     }
 
@@ -354,14 +271,14 @@ public partial class MpswpDeviceView : UserControl
 
     private void OnClearRequested(object? sender, EventArgs e)
     {
-        foreach (var c in Enum.GetValues<MpswpChannel>()) { _xs[c].Clear(); _ys[c].Clear(); }
-        foreach (var key in _sensorXs.Keys) { _sensorXs[key].Clear(); _sensorYs[key].Clear(); }
-        _lightningStrikes.Clear();
         Dispatcher.InvokeAsync(() =>
         {
+            _buffers.Clear();
+            _lightningStrikes.Clear();
             foreach (var plot in new[] { TempPlot, HumPlot, PressPlot, AirPlot, LightningPlot })
             {
                 plot.Plot.Clear();
+                ResetHoverSeries(plot);
                 plot.Refresh();
             }
         });
