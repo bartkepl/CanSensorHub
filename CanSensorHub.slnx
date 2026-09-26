@@ -2,10 +2,12 @@
   <Folder Name="/src/">
     <Project Path="src/CanSensorHub.App/CanSensorHub.App.csproj" />
     <Project Path="src/CanSensorHub.Core/CanSensorHub.Core.csproj" />
+    <Project Path="src/CanSensorHub.Metrology/CanSensorHub.Metrology.csproj" />
     <Project Path="src/CanSensorHub.Modules.Mpcc/CanSensorHub.Modules.Mpcc.csproj" />
     <Project Path="src/CanSensorHub.Modules.Mpswp/CanSensorHub.Modules.Mpswp.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/CanSensorHub.Core.Tests/CanSensorHub.Core.Tests.csproj" />
+    <Project Path="tests/CanSensorHub.Metrology.Tests/CanSensorHub.Metrology.Tests.csproj" />
   </Folder>
 </Solution>

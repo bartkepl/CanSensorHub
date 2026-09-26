@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- Bez WPF i bez warstwy CAN: przyrządy, statystyka i raporty są wspólne dla wszystkich
+         narzędzi kalibracyjnych (docs/adr/0002) i testowane bez Windows Desktop SDK.
+         VISA jest ładowana dynamicznie (visa64.dll), więc brak biblioteki nie blokuje
+         kompilacji ani testów. -->
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>CanSensorHub.Metrology</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="CanSensorHub.Metrology.Tests" />
+  </ItemGroup>
+
+</Project>

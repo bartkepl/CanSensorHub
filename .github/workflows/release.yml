@@ -40,7 +40,7 @@ jobs:
 
       # ── Testy ─────────────────────────────────────────────────────────────────
       - name: Run tests
-        run: dotnet test tests/CanSensorHub.Core.Tests --nologo -v q
+        run: dotnet test CanSensorHub.slnx --nologo -v q
 
       # ── Publikacja ────────────────────────────────────────────────────────────
       # self-contained: pakiet niesie własny runtime .NET, więc instalacja nie
