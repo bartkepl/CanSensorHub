@@ -95,6 +95,12 @@ public sealed partial class MpccAfeCalViewModel : ObservableObject, IDisposable
         RefreshDevices();
     }
 
+    /// <summary>Po otwarciu okna: wyszukanie przyrządów, żeby zapamiętane albo rozpoznane adresy były od razu wybrane.</summary>
+    public async Task InitializeAsync()
+    {
+        if (RefreshResourcesCommand.CanExecute(null)) await RefreshResourcesCommand.ExecuteAsync(null);
+    }
+
     // --- przyrządy -------------------------------------------------------------------------------
 
     private bool CanUseVisa() => !IsBusy && _visa is not null;
@@ -419,7 +425,7 @@ public sealed partial class MpccAfeCalViewModel : ObservableObject, IDisposable
         }
         catch (Exception ex)
         {
-            StatusText = $"{title}: błąd.";
+            StatusText = $"{title}: {ex.Message}";
             AddLog(ProcedureMessageKind.Error, ex.Message);
         }
         finally

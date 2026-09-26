@@ -98,9 +98,12 @@ skalibrowanego daje `a ≈ 1` i `b ≈ 0`.
    rozrzutu wzorca (z powtórzeniem punktu), temperatura płytki. Po ostatnim
    punkcie DAC wraca do 0 V — również po przerwaniu i po błędzie.
 5. **Zestawienie.** Tabela pokazuje dla każdego kanału `a`, `b`, residua
-   dopasowania oraz współczynniki bieżące i nowe. Kanał z korekcją nierealną
-   (domyślnie powyżej 5 % wzmocnienia albo 100 mV przesunięcia) jest odrzucany
-   z opisem przyczyny. Taka korekcja wskazuje zwykle błąd połączeń.
+   dopasowania oraz współczynniki bieżące i nowe. Kanał jest odrzucany z opisem
+   przyczyny, gdy:
+    - residuum dopasowania przekracza tolerancję sprawdzenia — tor nie jest
+      liniowy w zakresie kalibracji, a korekcja liniowa tego nie usunie;
+    - korekcja jest nierealna (domyślnie powyżej 5 % wzmocnienia albo 100 mV
+      przesunięcia), co wskazuje zwykle błąd połączeń.
 6. **Zapis.** Po zaznaczeniu pola zatwierdzenia — *Zapisz do węzła i sprawdź*.
 7. **Sprawdzenie.** Automatycznie po zapisie, w punktach leżących między punktami
    kalibracji. Wynik PASS/FAIL na kanał względem tolerancji. Sprawdzenie można
@@ -143,7 +146,7 @@ pozostaje wtedy niezmieniony.
 | Ustalanie | 0 = 2 × `MEASURE_PERIOD` + 500 ms | czas po zmianie nastawy |
 | Maks. σ wzorca | 0,5 mV | powyżej — powtórzenie punktu |
 | Maks. prób punktu | 3 | po wyczerpaniu punkt jest przyjmowany z ostrzeżeniem |
-| Tolerancja sprawdzenia | 5 mV | kryterium PASS |
+| Tolerancja sprawdzenia | 5 mV | kryterium PASS; także największe dopuszczalne residuum dopasowania |
 | Maks. korekcja wzmocnienia | 0,05 | \|a − 1\|; powyżej — kanał odrzucony |
 | Maks. korekcja przesunięcia | 100 mV | \|b\|; powyżej — kanał odrzucony |
 

@@ -7,7 +7,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance vm:MpccAfeCalViewModel}"
-        Title="Kalibracja wejść napięciowych MPCC" Width="1280" Height="860" MinWidth="1000" MinHeight="640"
+        Title="Kalibracja wejść napięciowych MPCC" Width="1320" Height="1040" MinWidth="1000" MinHeight="640"
         WindowStartupLocation="CenterOwner"
         Background="{DynamicResource Brush.Bg}" Foreground="{DynamicResource Brush.Fg}">
     <Window.Resources>

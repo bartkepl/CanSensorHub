@@ -15,6 +15,11 @@ public partial class MpccAfeCalWindow : Window
     public MpccAfeCalWindow(MpccAfeCalViewModel vm)
     {
         InitializeComponent();
+        // Pełna wysokość panelu ustawień mieści się w ~1040 px; na mniejszym ekranie okno dopasowuje
+        // się do obszaru roboczego, a panel ustawień przewija się.
+        var work = SystemParameters.WorkArea;
+        Height = Math.Min(Height, work.Height - 20);
+        Width = Math.Min(Width, work.Width - 20);
         _vm = vm;
         DataContext = vm;
         vm.ErrorSeriesChanged += (_, series) => RedrawErrorPlot(series);
@@ -26,6 +31,7 @@ public partial class MpccAfeCalWindow : Window
         ErrorPlot.Plot.ShowLegend(ScottPlot.Edge.Right);
         RedrawErrorPlot([]);
         Closed += (_, _) => _vm.Dispose();
+        Loaded += async (_, _) => await _vm.InitializeAsync();
     }
 
     private void OnLogChanged(object? sender, NotifyCollectionChangedEventArgs e)

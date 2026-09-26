@@ -86,6 +86,16 @@ public class CalculatorTests
     }
 
     [Fact]
+    public void Rejects_channel_whose_transfer_is_not_linear()
+    {
+        // Przebieg zmierzony na MPCC (CH0): liniowo do ~1.3 V, potem kompresja przez upływ na pinie.
+        var pts = new[] { Point(0, 0.10505, 0.105), Point(1, 1.28053, 1.2808), Point(2, 2.45537, 2.403), Point(3, 3.63076, 3.138) };
+        var cal = AfeCalibrationCalculator.Compute(pts, Nominal, 25.0, new AfeCalSettings { MaxGainCorrection = 0.5 }).Single(c => c.Channel == 0);
+        Assert.False(cal.Accepted);
+        Assert.Contains("nieliniowy", cal.Rejection);
+    }
+
+    [Fact]
     public void Excludes_saturated_points_from_fit()
     {
         // Trzeci punkt w nasyceniu (pin ≈ 3.0 V na kanałach 0–3) — nie może zaniżyć nachylenia.

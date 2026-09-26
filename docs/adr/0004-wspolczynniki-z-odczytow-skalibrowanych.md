@@ -63,6 +63,11 @@ Wariant **C**.
   przekracza 99 % pełnej skali ADC, są wyłączane z dopasowania i z oceny
   sprawdzenia. Na kanałach 0–3 napięcie wejściowe 5 V odpowiada pełnej skali
   (VDDA ≈ 3,0 V), stąd domyślna górna granica zakresu 4,8 V.
+- Wynik jest odrzucany, jeśli residuum dopasowania (przy więcej niż dwóch
+  punktach) przekracza tolerancję sprawdzenia. Model węzła jest liniowy, więc
+  zakrzywienie charakterystyki — np. upływ zabezpieczenia na pinie ADC,
+  zaobserwowany na kanałach 0–3 MPCC powyżej ~1,4 V na pinie — nie daje się
+  skorygować, a nachylenie dopasowane do krzywej byłoby fałszywe.
 - Wynik jest odrzucany, jeśli korekcja wzmocnienia przekracza 5 % albo
   korekcja przesunięcia 100 mV (wartości konfigurowalne). Korekcje tego rzędu
   wskazują na błąd połączeń, nie na tolerancję dzielnika.

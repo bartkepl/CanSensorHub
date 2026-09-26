@@ -72,6 +72,11 @@ public static class AfeCalibrationCalculator
     private static string? Judge(int ch, LinearFitResult fit, AfeCoefficients after, bool temperatureKnown, AfeCalSettings s)
     {
         var info = AfeModel.Channels[ch];
+        // Residuum większe od tolerancji oznacza, że tor nie jest liniowy w zakresie kalibracji
+        // (np. upływ zabezpieczenia wejścia albo nasycenie poniżej pełnej skali ADC). Korekcja
+        // liniowa nie usunie takiego błędu, a nachylenie dopasowane do krzywej jest fałszywe.
+        if (fit.Residuals.Count > 2 && fit.MaxAbsResidual * 1000.0 > s.ToleranceMv)
+            return $"tor nieliniowy w zakresie: residuum {fit.MaxAbsResidual * 1000.0:0.0} mV > tolerancja {s.ToleranceMv:0.###} mV — zawęzić zakres albo sprawdzić obwód wejściowy";
         if (Math.Abs(fit.Slope - 1.0) > s.MaxGainCorrection)
             return $"korekcja wzmocnienia {(fit.Slope - 1.0) * 100:+0.00;-0.00} % przekracza {s.MaxGainCorrection * 100:0.##} % — sprawdzić połączenie kanału";
         if (Math.Abs(fit.Intercept) * 1000.0 > s.MaxOffsetCorrectionMv)
