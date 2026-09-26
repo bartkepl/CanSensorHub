@@ -56,4 +56,8 @@
          <loc>https://bartkepl.github.io/CanSensorHub/adr/0005-sekwencja-zapisu-kalibracji/</loc>
          <lastmod>2026-09-26</lastmod>
     </url>
+    <url>
+         <loc>https://bartkepl.github.io/CanSensorHub/adr/0006-raport-html-pdf-przez-chromium/</loc>
+         <lastmod>2026-09-26</lastmod>
+    </url>
 </urlset>

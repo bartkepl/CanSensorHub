@@ -12,31 +12,29 @@
         <meta name="author" content="bartkepl">
       
       
-        <link rel="canonical" href="https://bartkepl.github.io/CanSensorHub/moduly/">
+        <link rel="canonical" href="https://bartkepl.github.io/CanSensorHub/adr/0006-raport-html-pdf-przez-chromium/">
       
       
-        <link rel="prev" href="../BOOTLOADER_ROBUSTNESS/">
+        <link rel="prev" href="../0005-sekwencja-zapisu-kalibracji/">
       
-      
-        <link rel="next" href="../kalibracja-mpcc-afe/">
       
       
         
       
       
-      <link rel="icon" href="../assets/images/favicon.png">
+      <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
-        <title>Dodawanie modułu urządzenia - CanSensorHub — stanowisko obsługi magistrali CAN</title>
+        <title>0006 Raport HTML i PDF - CanSensorHub — stanowisko obsługi magistrali CAN</title>
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -55,7 +53,7 @@
       
     
     
-    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -80,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#dodawanie-moduu-urzadzenia" class="md-skip">
+        <a href="#0006-raport-html-pdf-przez-przegladarke-chromium-bez-okna" class="md-skip">
           Przejdź do treści
         </a>
       
@@ -96,7 +94,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Nagłówek">
-    <a href=".." title="CanSensorHub — stanowisko obsługi magistrali CAN" class="md-header__button md-logo" aria-label="CanSensorHub — stanowisko obsługi magistrali CAN" data-md-component="logo">
+    <a href="../.." title="CanSensorHub — stanowisko obsługi magistrali CAN" class="md-header__button md-logo" aria-label="CanSensorHub — stanowisko obsługi magistrali CAN" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -116,7 +114,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Dodawanie modułu urządzenia
+              0006 Raport HTML i PDF
             
           </span>
         </div>
@@ -234,7 +232,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Nawigacja" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="CanSensorHub — stanowisko obsługi magistrali CAN" class="md-nav__button md-logo" aria-label="CanSensorHub — stanowisko obsługi magistrali CAN" data-md-component="logo">
+    <a href="../.." title="CanSensorHub — stanowisko obsługi magistrali CAN" class="md-nav__button md-logo" aria-label="CanSensorHub — stanowisko obsługi magistrali CAN" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -264,7 +262,7 @@
   
   
     <li class="md-nav__item">
-      <a href=".." class="md-nav__link">
+      <a href="../.." class="md-nav__link">
         
   
   
@@ -291,7 +289,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../architektura/" class="md-nav__link">
+      <a href="../../architektura/" class="md-nav__link">
         
   
   
@@ -318,7 +316,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../protokol/" class="md-nav__link">
+      <a href="../../protokol/" class="md-nav__link">
         
   
   
@@ -345,7 +343,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../bootloader/" class="md-nav__link">
+      <a href="../../bootloader/" class="md-nav__link">
         
   
   
@@ -372,7 +370,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../BOOTLOADER_ROBUSTNESS/" class="md-nav__link">
+      <a href="../../BOOTLOADER_ROBUSTNESS/" class="md-nav__link">
         
   
   
@@ -396,37 +394,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Dodawanie modułu urządzenia
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../moduly/" class="md-nav__link">
         
   
   
@@ -442,92 +413,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Spis treści">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Spis treści
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#zakres-do-dostarczenia" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Zakres do dostarczenia
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#idevicemoduledescriptor" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        IDeviceModuleDescriptor
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#zrodo-tablic-protokou" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Źródło tablic protokołu
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#identyfikatory-kanaow-telemetrii" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Identyfikatory kanałów telemetrii
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#narzedzie-serwisowe-urzadzenia" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Narzędzie serwisowe urządzenia
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#rejestracja" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Rejestracja
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -539,7 +424,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../kalibracja-mpcc-afe/" class="md-nav__link">
+      <a href="../../kalibracja-mpcc-afe/" class="md-nav__link">
         
   
   
@@ -566,7 +451,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../budowanie/" class="md-nav__link">
+      <a href="../../budowanie/" class="md-nav__link">
         
   
   
@@ -590,6 +475,8 @@
       
   
   
+    
+  
   
   
     
@@ -620,15 +507,15 @@
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" checked>
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../adr/" class="md-nav__link ">
+            <a href="../" class="md-nav__link ">
               
   
   
@@ -652,7 +539,7 @@
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_9">
             <span class="md-nav__icon md-icon"></span>
             
@@ -672,7 +559,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/0001-narzedzia-jako-osobne-projekty/" class="md-nav__link">
+      <a href="../0001-narzedzia-jako-osobne-projekty/" class="md-nav__link">
         
   
   
@@ -700,7 +587,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/0002-jedno-narzedzie-jedna-wielkosc/" class="md-nav__link">
+      <a href="../0002-jedno-narzedzie-jedna-wielkosc/" class="md-nav__link">
         
   
   
@@ -728,7 +615,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/0003-dostep-do-przyrzadow-przez-visa/" class="md-nav__link">
+      <a href="../0003-dostep-do-przyrzadow-przez-visa/" class="md-nav__link">
         
   
   
@@ -756,7 +643,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/0004-wspolczynniki-z-odczytow-skalibrowanych/" class="md-nav__link">
+      <a href="../0004-wspolczynniki-z-odczytow-skalibrowanych/" class="md-nav__link">
         
   
   
@@ -784,7 +671,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/0005-sekwencja-zapisu-kalibracji/" class="md-nav__link">
+      <a href="../0005-sekwencja-zapisu-kalibracji/" class="md-nav__link">
         
   
   
@@ -809,10 +696,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../adr/0006-raport-html-pdf-przez-chromium/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0006 Raport HTML i PDF
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -828,6 +742,70 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Spis treści">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Spis treści
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#kontekst" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kontekst
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rozwazane-warianty" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rozważane warianty
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decyzja" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decyzja
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#konsekwencje" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Konsekwencje
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -867,10 +845,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#zakres-do-dostarczenia" class="md-nav__link">
+  <a href="#kontekst" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Zakres do dostarczenia
+        Kontekst
       
     </span>
   </a>
@@ -878,10 +856,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#idevicemoduledescriptor" class="md-nav__link">
+  <a href="#rozwazane-warianty" class="md-nav__link">
     <span class="md-ellipsis">
       
-        IDeviceModuleDescriptor
+        Rozważane warianty
       
     </span>
   </a>
@@ -889,10 +867,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#zrodo-tablic-protokou" class="md-nav__link">
+  <a href="#decyzja" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Źródło tablic protokołu
+        Decyzja
       
     </span>
   </a>
@@ -900,32 +878,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#identyfikatory-kanaow-telemetrii" class="md-nav__link">
+  <a href="#konsekwencje" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Identyfikatory kanałów telemetrii
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#narzedzie-serwisowe-urzadzenia" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Narzędzie serwisowe urządzenia
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#rejestracja" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Rejestracja
+        Konsekwencje
       
     </span>
   </a>
@@ -952,145 +908,63 @@
   
 
 
-<h1 id="dodawanie-moduu-urzadzenia">Dodawanie modułu urządzenia<a class="headerlink" href="#dodawanie-moduu-urzadzenia" title="Permanent link">&para;</a></h1>
-<p>Moduł to osobny projekt WPF odwołujący się do <code>CanSensorHub.Core</code>. Cała otoczka
-protokołu — identyfikator, klasy komunikatów, transfery segmentowane, status,
-tożsamość urządzenia, bootloader — jest już w rdzeniu. Moduł dostarcza wyłącznie
-to, czym jego urządzenie się różni.</p>
-<h2 id="zakres-do-dostarczenia">Zakres do dostarczenia<a class="headerlink" href="#zakres-do-dostarczenia" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Element</th>
-<th>Rola</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>tablice protokołu</td>
-<td>kanały telemetrii, czujniki, opcode'y i zdarzenia specyficzne, rejestr parametrów</td>
-</tr>
-<tr>
-<td><code>XxxDeviceClient</code></td>
-<td>typowana warstwa nad <code>CanBusService</code> dla jednego węzła</td>
-</tr>
-<tr>
-<td><code>XxxDeviceViewModel</code></td>
-<td>implementacja <code>IDeviceModuleInstance</code></td>
-</tr>
-<tr>
-<td><code>XxxModuleDescriptor</code></td>
-<td>implementacja <code>IDeviceModuleDescriptor</code>, rejestrowana w <code>MainViewModel</code></td>
-</tr>
-<tr>
-<td><code>XxxSimulator</code></td>
-<td>opcjonalnie: fałszywy węzeł do pracy bez sprzętu</td>
-</tr>
-</tbody>
-</table>
-<h2 id="idevicemoduledescriptor"><code>IDeviceModuleDescriptor</code><a class="headerlink" href="#idevicemoduledescriptor" title="Permanent link">&para;</a></h2>
-<p>Opis typu modułu w katalogu „Dodaj urządzenie".</p>
-<table>
-<thead>
-<tr>
-<th>Składowa</th>
-<th>Znaczenie</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>ModuleId</code></td>
-<td>stabilny klucz maszynowy, np. <code>"MPCC"</code></td>
-</tr>
-<tr>
-<td><code>DisplayName</code>, <code>ShortName</code>, <code>Summary</code></td>
-<td>teksty interfejsu</td>
-</tr>
-<tr>
-<td><code>DefaultNodeId</code></td>
-<td>adres domyślny, podpowiadany w oknie dodawania</td>
-</tr>
-<tr>
-<td><code>DeviceType</code></td>
-<td>wartość z rejestru typów urządzeń warstwy wspólnej</td>
-</tr>
-<tr>
-<td><code>BootloaderNodeId</code></td>
-<td>adres wkompilowany w bootloader, niezależny od <code>NODE_ID</code> aplikacji</td>
-</tr>
-<tr>
-<td><code>EnterBootloaderOpcode</code></td>
-<td>opcode wejścia w bootloader — <code>0x0D</code> w profilu 2</td>
-</tr>
-<tr>
-<td><code>SupportsSimulation</code>, <code>StartSimulator</code></td>
-<td>obsługa trybu bez sprzętu</td>
-</tr>
-<tr>
-<td><code>CreateInstance</code></td>
-<td>utworzenie instancji urządzenia</td>
-</tr>
-</tbody>
-</table>
-<div class="admonition note">
-<p class="admonition-title"><code>DeviceType</code> nie jest polem opisowym</p>
-<p>Wartość służy do potwierdzenia, że pod danym adresem pracuje urządzenie
-tego rodzaju — zarówno przed zinterpretowaniem telemetrii, jak i przed
-wgraniem obrazu firmware. Wartość niezgodna z rejestrem typów urządzeń
-uczyni obie kontrole bezużytecznymi.</p>
-</div>
-<h2 id="zrodo-tablic-protokou">Źródło tablic protokołu<a class="headerlink" href="#zrodo-tablic-protokou" title="Permanent link">&para;</a></h2>
-<p>Tablice modułu muszą odpowiadać plikowi <code>protocol/device.yaml</code> odnośnego
-repozytorium urządzenia. Zgodność da się potwierdzić na żywym węźle:</p>
-<table>
-<thead>
-<tr>
-<th>Komenda</th>
-<th>Kontrola</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>LIST_PARAMS</code> (<code>0x13</code>)</td>
-<td>tablica parametrów w węźle odpowiada tablicy w module</td>
-</tr>
-<tr>
-<td><code>LIST_CHANNELS</code> (<code>0x14</code>)</td>
-<td>zestaw nadawanych kanałów odpowiada oczekiwanemu</td>
-</tr>
-<tr>
-<td><code>GET_CAPABILITIES</code> (<code>0x12</code>)</td>
-<td>węzeł obsługuje funkcje, których moduł używa</td>
-</tr>
-</tbody>
-</table>
-<p>Kontrole te są tańsze niż wykrycie rozbieżności na podstawie błędnych odczytów.</p>
-<h2 id="identyfikatory-kanaow-telemetrii">Identyfikatory kanałów telemetrii<a class="headerlink" href="#identyfikatory-kanaow-telemetrii" title="Permanent link">&para;</a></h2>
-<p>Kanał telemetrii jest adresowany <strong>globalnym identyfikatorem wielkości
-fizycznej</strong> z rejestru warstwy wspólnej. Moduł nie nadaje własnych numerów:
-<code>TEMP</code> to <code>0x01</code> na każdym węźle, <code>VOLTAGE_CH0</code> to <code>0x20</code> na każdym węźle.</p>
-<p>Skutkiem ubocznym jest to, że host generyczny dekoduje telemetrię modułu bez
-znajomości modułu. Własność ta jest wykorzystana przez rejestrator
-<code>CanSensorLoggerPi</code>.</p>
-<h2 id="narzedzie-serwisowe-urzadzenia">Narzędzie serwisowe urządzenia<a class="headerlink" href="#narzedzie-serwisowe-urzadzenia" title="Permanent link">&para;</a></h2>
-<p>Czynności okazjonalne dla danego typu urządzenia — np. kalibracja — należą do
-osobnego projektu narzędzia, nie do modułu
-(<a href="../adr/0001-narzedzia-jako-osobne-projekty/">ADR 0001</a>,
-<a href="../adr/0002-jedno-narzedzie-jedna-wielkosc/">ADR 0002</a>):</p>
+<h1 id="0006-raport-html-pdf-przez-przegladarke-chromium-bez-okna">0006. Raport HTML, PDF przez przeglądarkę Chromium bez okna<a class="headerlink" href="#0006-raport-html-pdf-przez-przegladarke-chromium-bez-okna" title="Permanent link">&para;</a></h1>
+<p><strong>Stan:</strong> przyjęta · <strong>Data:</strong> 2026-09-26
+<strong>Dotyczy:</strong> <code>CanSensorHub.Metrology</code>, projekty <code>CanSensorHub.Tools.*</code></p>
+<h2 id="kontekst">Kontekst<a class="headerlink" href="#kontekst" title="Permanent link">&para;</a></h2>
+<p>Raport CSV sesji kalibracji zawiera dane surowe i nadaje się do ponownego
+przeliczenia, lecz nie do odczytu przez człowieka ani do archiwizacji jako
+dokument (świadectwo kalibracji węzła). Potrzebny jest raport czytelny —
+z wynikiem, tabelami i wykresem błędu — w postaci do wydruku i w PDF.</p>
+<p>Ograniczenia:</p>
 <ol>
-<li>Projekt <code>CanSensorHub.Tools.&lt;Urządzenie&gt;&lt;Wielkość&gt;Cal</code>; nazwa zestawu musi
-   zaczynać się od <code>CanSensorHub.Tools.</code>.</li>
-<li>Klasa implementująca <code>IHubTool</code> i atrybut zestawu
-   <code>[assembly: HubTool(typeof(...))]</code>.</li>
-<li>Warunkowa referencja w <code>CanSensorHub.App.csproj</code>, w grupie
-   <code>Condition="'$(WithTools)' == 'true'"</code>.</li>
-<li>Przyrządy i obliczenia z <code>CanSensorHub.Metrology</code>. Nowy sterownik przyrządu
-   trafia tam, a nie do projektu narzędzia.</li>
+<li>Wszystkie zależności projektu są na licencji MIT
+   (<code>THIRD-PARTY-NOTICES.md</code>); nowa zależność musi tę własność zachować.</li>
+<li>Raport ma wyglądać tak samo na ekranie, na wydruku i w PDF — utrzymywanie
+   dwóch niezależnych układów tej samej treści prowadzi do rozbieżności.</li>
+<li>Build i testy nie mogą wymagać przeglądarki ani innego oprogramowania
+   zainstalowanego na maszynie CI.</li>
 </ol>
-<h2 id="rejestracja">Rejestracja<a class="headerlink" href="#rejestracja" title="Permanent link">&para;</a></h2>
-<p>Deskryptor rejestruje się w <code>MainViewModel</code>, obok modułów istniejących.
-<code>ModuleRegistry</code> udostępnia go w oknie dodawania urządzenia; lista jest zamknięta,
-więc adres węzła podaje operator, a typ modułu wybiera z katalogu.</p>
+<h2 id="rozwazane-warianty">Rozważane warianty<a class="headerlink" href="#rozwazane-warianty" title="Permanent link">&para;</a></h2>
+<p><strong>A. QuestPDF.</strong> Wygodne API układu, lecz licencja Community nie jest MIT
+i wiąże się z warunkami zależnymi od przychodu użytkownika; narusza
+ograniczenie 1.</p>
+<p><strong>B. PdfSharp/MigraDoc (MIT).</strong> PDF bez zewnętrznego oprogramowania, lecz
+układ raportu musiałby powstać drugi raz, w modelu dokumentu MigraDoc,
+obok wersji HTML; narusza ograniczenie 2.</p>
+<p><strong>C. Samodzielny HTML i konwersja przeglądarką Chromium bez okna</strong>
+(<code>--headless --print-to-pdf</code>). Jeden układ strony (HTML z wbudowanym stylem
+i wykresem SVG) obsługuje ekran, wydruk i PDF. Przeglądarka jest programem
+zewnętrznym, wywoływanym jako proces — nie jest zależnością kompilacji.</p>
+<h2 id="decyzja">Decyzja<a class="headerlink" href="#decyzja" title="Permanent link">&para;</a></h2>
+<p>Wariant <strong>C</strong>.</p>
+<ul>
+<li>Raport HTML powstaje przy każdej operacji, obok raportu CSV, pod tą samą
+  nazwą. Jest samodzielny: styl wbudowany, wykres jako SVG, bez skryptów
+  i plików zewnętrznych. Treść jest escapowana; bez escapowania wstawiany
+  jest wyłącznie SVG generowany przez kod.</li>
+<li>PDF powstaje na żądanie operatora z pliku HTML. Wyszukiwana jest kolejno
+  przeglądarka Google Chrome, a następnie Microsoft Edge (obecny w każdym
+  Windows 10/11); obie obsługują te same przełączniki.</li>
+<li>Przeglądarka jest uruchamiana z osobnym, tymczasowym katalogiem profilu.
+  Bez niego wywołanie przy otwartej przeglądarce użytkownika zostaje
+  przekazane do działającej instancji i kończy się bez utworzenia pliku.</li>
+<li>Elementy ogólne — budowanie dokumentu HTML, wykres SVG, konwersja do PDF —
+  należą do <code>CanSensorHub.Metrology.Reporting</code>; układ raportu konkretnej
+  kalibracji — do projektu narzędzia (docs/adr/0002).</li>
+</ul>
+<h2 id="konsekwencje">Konsekwencje<a class="headerlink" href="#konsekwencje" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Zależności projektu pozostają bez zmian.</li>
+<li>Brak zarówno Chrome, jak i Edge uniemożliwia wyłącznie utworzenie PDF;
+  raport HTML jest dostępny i można go wydrukować do PDF z dowolnej
+  przeglądarki.</li>
+<li>Testy obejmują budowanie HTML, SVG i dobór przeglądarki; sama konwersja
+  do PDF jest sprawdzana na stanowisku, nie w CI.</li>
+<li>Wygląd PDF zależy od silnika przeglądarki. Styl raportu używa wyłącznie
+  podstawowych właściwości CSS drukowania (<code>@page</code>, <code>break-inside</code>), więc
+  różnice między wersjami Chromium są pomijalne.</li>
+</ul>
 
 
 
@@ -1150,10 +1024,10 @@ więc adres węzła podaje operator, a typ modułu wybiera z katalogu.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.top", "navigation.indexes", "navigation.tracking", "content.code.copy", "content.code.annotate", "toc.follow", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Skopiowano do schowka", "clipboard.copy": "Kopiuj do schowka", "search.result.more.one": "1 wi\u0119cej na tej stronie", "search.result.more.other": "# wi\u0119cej na tej stronie", "search.result.none": "Brak wynik\u00f3w wyszukiwania", "search.result.one": "Wyniki wyszukiwania: 1", "search.result.other": "Wyniki wyszukiwania: #", "search.result.placeholder": "Zacznij pisa\u0107, aby szuka\u0107", "search.result.term.missing": "Brak", "select.version": "Wybierz wersj\u0119"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.top", "navigation.indexes", "navigation.tracking", "content.code.copy", "content.code.annotate", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Skopiowano do schowka", "clipboard.copy": "Kopiuj do schowka", "search.result.more.one": "1 wi\u0119cej na tej stronie", "search.result.more.other": "# wi\u0119cej na tej stronie", "search.result.none": "Brak wynik\u00f3w wyszukiwania", "search.result.one": "Wyniki wyszukiwania: 1", "search.result.other": "Wyniki wyszukiwania: #", "search.result.placeholder": "Zacznij pisa\u0107, aby szuka\u0107", "search.result.term.missing": "Brak", "select.version": "Wybierz wersj\u0119"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

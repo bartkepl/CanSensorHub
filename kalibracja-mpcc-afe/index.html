@@ -642,6 +642,8 @@
       
         
       
+        
+      
     
     
     
@@ -823,6 +825,34 @@
     
   
     0005 Sekwencja zapisu kalibracji
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0006-raport-html-pdf-przez-chromium/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0006 Raport HTML i PDF
   
 
     
@@ -1229,7 +1259,9 @@ wszystkich parametrów, w tym adresu węzła.</p>
 <p>Rozdzielczość <code>READ_ADC</code> wynosi 1 mV. Rozdzielczość poniżej 1 mV wynika
 z uśredniania rund, w których szum toru ADC działa jak dither. Wydłużenie
 serii zmniejsza niepewność średniej proporcjonalnie do <code>1/√n</code>.</p>
-<p>Ustawienia są zapisywane w <code>%AppData%\CanSensorHub\tools\mpcc-afe-cal.json</code>.</p>
+<p>Ustawienia są zapisywane w <code>%AppData%\CanSensorHub\tools\mpcc-afe-cal.json</code>.
+Przycisk <em>Ustawienia domyślne</em> przywraca wartości z tabeli powyżej; wybrane
+przyrządy (adresy, gniazdo i wyjście DAC) pozostają bez zmian.</p>
 <h2 id="raport">Raport<a class="headerlink" href="#raport" title="Permanent link">&para;</a></h2>
 <p>Każda operacja zapisuje raport CSV w <code>%AppData%\CanSensorHub\calibration\</code>,
 o nazwie <code>MPCC-AFE_&lt;UID&gt;_&lt;data&gt;-&lt;czas&gt;.csv</code>. Kolejne operacje jednej sesji
@@ -1274,6 +1306,13 @@ o nazwie <code>MPCC-AFE_&lt;UID&gt;_&lt;data&gt;-&lt;czas&gt;.csv</code>. Kolejn
 </table>
 <p>Raport zawiera dane surowe, co pozwala przeliczyć kalibrację innym modelem bez
 powtarzania pomiarów.</p>
+<p>Obok raportu CSV powstaje raport HTML o tej samej nazwie — dokument do odczytu
+i druku: wynik PASS/FAIL, tabela współczynników i sprawdzenia, wykres błędu
+przed kalibracją i w sprawdzeniu, kontekst (węzeł, przyrządy, ustawienia),
+dziennik zapisu do węzła i tabele punktów. <em>Otwórz raport</em> pokazuje go
+w domyślnej przeglądarce, a <em>Zapisz PDF</em> tworzy z niego plik PDF przeglądarką
+Google Chrome (albo Microsoft Edge) uruchomioną bez okna
+(<a href="../adr/0006-raport-html-pdf-przez-chromium/">ADR 0006</a>).</p>
 <h2 id="tryb-symulatora">Tryb symulatora<a class="headerlink" href="#tryb-symulatora" title="Permanent link">&para;</a></h2>
 <p>W trybie symulatora zadajnik i multimetr są symulowane i dołączone do wejścia
 analogowego magistrali symulowanej. Symulowany węzeł MPCC ma dzielniki
