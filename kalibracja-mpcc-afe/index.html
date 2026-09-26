@@ -530,6 +530,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#przywrocenie-wartosci-domyslnych" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Przywrócenie wartości domyślnych
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#ustawienia" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -903,6 +914,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#przywrocenie-wartosci-domyslnych" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Przywrócenie wartości domyślnych
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#ustawienia" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1108,6 +1130,15 @@ pozostaje wtedy niezmieniony.</p>
 <p>Zmiany innych parametrów węzła wykonane wcześniej w RAM i niezapisane
 zostaną utrwalone razem z kalibracją.</p>
 </div>
+<h2 id="przywrocenie-wartosci-domyslnych">Przywrócenie wartości domyślnych<a class="headerlink" href="#przywrocenie-wartosci-domyslnych" title="Permanent link">&para;</a></h2>
+<p><em>Przywróć domyślne</em> przygotowuje zapis wartości domyślnych z rejestru
+parametrów węzła (<code>c0 = 0</code>, <code>c1</code> nominalne dzielnika — 1,6667 dla kanałów 0–3,
+10,0 dla kanałów 4–6 — oraz <code>tc = 0</code>) dla kanałów wybranych w ustawieniach.
+Kanały, które już mają wartości domyślne, są pomijane. Zapis wymaga
+zatwierdzenia i przebiega tą samą sekwencją co zapis kalibracji, lecz nie
+wymaga przyrządów. Pozostała konfiguracja węzła nie jest zmieniana — w
+odróżnieniu od komendy <code>LOAD_DEFAULTS</code>, która przywraca wartości domyślne
+wszystkich parametrów, w tym adresu węzła.</p>
 <h2 id="ustawienia">Ustawienia<a class="headerlink" href="#ustawienia" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
