@@ -172,6 +172,8 @@ z uśredniania rund, w których szum toru ADC działa jak dither. Wydłużenie
 serii zmniejsza niepewność średniej proporcjonalnie do `1/√n`.
 
 Ustawienia są zapisywane w `%AppData%\CanSensorHub\tools\mpcc-afe-cal.json`.
+Przycisk *Ustawienia domyślne* przywraca wartości z tabeli powyżej; wybrane
+przyrządy (adresy, gniazdo i wyjście DAC) pozostają bez zmian.
 
 ## Raport
 
@@ -191,6 +193,14 @@ o nazwie `MPCC-AFE_<UID>_<data>-<czas>.csv`. Kolejne operacje jednej sesji
 
 Raport zawiera dane surowe, co pozwala przeliczyć kalibrację innym modelem bez
 powtarzania pomiarów.
+
+Obok raportu CSV powstaje raport HTML o tej samej nazwie — dokument do odczytu
+i druku: wynik PASS/FAIL, tabela współczynników i sprawdzenia, wykres błędu
+przed kalibracją i w sprawdzeniu, kontekst (węzeł, przyrządy, ustawienia),
+dziennik zapisu do węzła i tabele punktów. *Otwórz raport* pokazuje go
+w domyślnej przeglądarce, a *Zapisz PDF* tworzy z niego plik PDF przeglądarką
+Google Chrome (albo Microsoft Edge) uruchomioną bez okna
+([ADR 0006](adr/0006-raport-html-pdf-przez-chromium.md)).
 
 ## Tryb symulatora
 

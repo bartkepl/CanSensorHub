@@ -5,6 +5,7 @@ using CanSensorHub.Core.Can;
 using CanSensorHub.Core.Tools;
 using CanSensorHub.Metrology.Analysis;
 using CanSensorHub.Metrology.Instruments;
+using CanSensorHub.Metrology.Reporting;
 using CanSensorHub.Metrology.Simulation;
 using CanSensorHub.Metrology.Visa;
 using CanSensorHub.Tools.MpccAfeCal.Calibration;
@@ -59,12 +60,14 @@ public sealed partial class MpccAfeCalViewModel : ObservableObject, IDisposable
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(CalibrateCommand), nameof(CheckCommand), nameof(WriteCommand), nameof(RefreshResourcesCommand),
-        nameof(ReadNodeCommand), nameof(StopCommand), nameof(RestoreDefaultsCommand), nameof(ResetSettingsCommand))]
+        nameof(ReadNodeCommand), nameof(StopCommand), nameof(RestoreDefaultsCommand), nameof(ResetSettingsCommand), nameof(SavePdfCommand))]
     private bool _isBusy;
 
     [ObservableProperty] private double _progress;
     [ObservableProperty] private string _statusText = "Gotowe.";
-    [ObservableProperty] private string? _lastReportPath;
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(OpenReportCommand), nameof(SavePdfCommand))]
+    private string? _lastReportPath;
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(WriteCommand))]
@@ -504,12 +507,48 @@ public sealed partial class MpccAfeCalViewModel : ObservableObject, IDisposable
             // samej sesji — kalibracja, potem zapis i sprawdzenie — uzupełniają jeden raport.
             var path = Path.Combine(AfeCalSettingsStore.ReportDirectory, AfeCalibrationReport.DefaultFileName(_session));
             AfeCalibrationReport.Write(path, _session);
+            File.WriteAllText(HtmlPath(path), AfeHtmlReport.Build(_session), new System.Text.UTF8Encoding(false));
             LastReportPath = path;
-            AddLog(ProcedureMessageKind.Info, $"Raport: {path}");
+            AddLog(ProcedureMessageKind.Info, $"Raport: {path} (+ HTML)");
         }
         catch (Exception ex)
         {
             AddLog(ProcedureMessageKind.Error, $"Nie zapisano raportu: {ex.Message}");
+        }
+    }
+
+    private static string HtmlPath(string csvPath) => Path.ChangeExtension(csvPath, ".html");
+
+    private bool HasReport() => LastReportPath is not null;
+    private bool CanSavePdf() => LastReportPath is not null && !IsBusy;
+
+    [RelayCommand(CanExecute = nameof(HasReport))]
+    private void OpenReport() =>
+        Process.Start(new ProcessStartInfo { FileName = HtmlPath(LastReportPath!), UseShellExecute = true });
+
+    /// <summary>PDF z raportu HTML przeglądarką Chromium bez okna (docs/adr/0006); zapisywany obok CSV i HTML, po utworzeniu otwierany.</summary>
+    [RelayCommand(CanExecute = nameof(CanSavePdf))]
+    private async Task SavePdf()
+    {
+        var html = HtmlPath(LastReportPath!);
+        var pdf = Path.ChangeExtension(LastReportPath!, ".pdf");
+        IsBusy = true;
+        StatusText = "Tworzenie PDF…";
+        try
+        {
+            await ChromiumPdfPrinter.PrintAsync(html, pdf);
+            AddLog(ProcedureMessageKind.Info, $"PDF: {pdf}");
+            StatusText = "PDF utworzony.";
+            Process.Start(new ProcessStartInfo { FileName = pdf, UseShellExecute = true });
+        }
+        catch (Exception ex)
+        {
+            StatusText = $"PDF: {ex.Message}";
+            AddLog(ProcedureMessageKind.Error, ex.Message);
+        }
+        finally
+        {
+            IsBusy = false;
         }
     }
 

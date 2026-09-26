@@ -266,6 +266,10 @@
 
             <DockPanel DockPanel.Dock="Bottom" Margin="0,6,0,0">
                 <Button DockPanel.Dock="Right" Content="Folder raportów" Command="{Binding OpenReportFolderCommand}" />
+                <Button DockPanel.Dock="Right" Content="Zapisz PDF" Command="{Binding SavePdfCommand}"
+                        ToolTip="PDF z raportu HTML, przez Google Chrome (albo Microsoft Edge) bez okna; zapisywany obok CSV i otwierany." />
+                <Button DockPanel.Dock="Right" Content="Otwórz raport" Command="{Binding OpenReportCommand}"
+                        ToolTip="Raport HTML ostatniej sesji w domyślnej przeglądarce." />
                 <TextBlock Text="{Binding LastReportPath, StringFormat='Raport: {0}', TargetNullValue='Raport zapisywany automatycznie po każdej operacji.'}"
                            Opacity="0.7" TextTrimming="CharacterEllipsis" />
             </DockPanel>

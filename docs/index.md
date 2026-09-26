@@ -72,7 +72,7 @@ generowanego z tego samego opisu.
 | Moduł MPCC | w trakcie migracji wraz z firmware węzła |
 | Narzędzie bootloadera | odczyt typu urządzenia z odpowiedzi `HELLO` wersji 1.1, odmowa wgrania obrazu niewłaściwego typu |
 | Składanie transferów segmentowanych | odporne na kolejność, transfer niekompletny porzucany |
-| Narzędzie kalibracji AFE MPCC | procedura, zapis z `CAL_LOCK` i sprawdzenie zweryfikowane na stanowisku symulowanym |
+| Narzędzie kalibracji AFE MPCC | zweryfikowane na stanowisku (34401A, 34970A/34907A, MPCC 0.3 build 6): 7 kanałów PASS, błąd po kalibracji ≤ 0,9 mV (kanały 5 V) i ≤ 1,5 mV (30 V) do 4,8 V; raport CSV, HTML i PDF |
 | Testy | warstwa Core, biblioteka przyrządów, logika narzędzia kalibracji |
 | Wydania | budowane automatycznie, instalator z autoaktualizacją |
 | Kompilacja rozwiązania | 0 błędów, 0 ostrzeżeń |

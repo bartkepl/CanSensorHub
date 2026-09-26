@@ -56,6 +56,7 @@ nav:
       - 0003 Dostęp do przyrządów przez VISA: adr/0003-dostep-do-przyrzadow-przez-visa.md
       - 0004 Współczynniki z odczytów skalibrowanych: adr/0004-wspolczynniki-z-odczytow-skalibrowanych.md
       - 0005 Sekwencja zapisu kalibracji: adr/0005-sekwencja-zapisu-kalibracji.md
+      - 0006 Raport HTML i PDF: adr/0006-raport-html-pdf-przez-chromium.md
 
 markdown_extensions:
   - admonition

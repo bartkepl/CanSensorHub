@@ -15,3 +15,4 @@ nie zna ograniczenia, które ją wymusiło.
 | [0003](0003-dostep-do-przyrzadow-przez-visa.md) | Dostęp do przyrządów przez bezpośrednie wywołania `visa64.dll`; build i testy bez VISA | przyjęta |
 | [0004](0004-wspolczynniki-z-odczytow-skalibrowanych.md) | Współczynniki AFE MPCC wyznaczane przez złożenie z bieżącą korekcją; firmware bez zmian | przyjęta |
 | [0005](0005-sekwencja-zapisu-kalibracji.md) | Zapis współczynników: blokada zdejmowana tylko w RAM, jeden `SAVE_CONFIG`, wycofanie bez zapisu | przyjęta |
+| [0006](0006-raport-html-pdf-przez-chromium.md) | Raport HTML z wykresem SVG; PDF z tego samego HTML przez Chrome albo Edge bez okna, bez nowych zależności | przyjęta |

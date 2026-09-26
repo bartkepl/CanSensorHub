@@ -173,3 +173,34 @@ public class EndToEndTests
         }
     }
 }
+
+public class HtmlReportTests
+{
+    [Fact]
+    public async Task Html_report_contains_verdict_chart_and_points()
+    {
+        await using var bench = await SimulatedBench.StartAsync();
+        var s = SimulatedBench.FastSettings(points: 3, checkPoints: 3);
+        var ct = CancellationToken.None;
+        var state = await AfeNodeState.ReadAsync(bench.Link, ct);
+        var session = new AfeCalibrationSession { NodeId = SimulatedBench.Node, Settings = s, Simulated = true, CoefficientsBefore = state.Coefficients };
+        session.Node = await bench.Link.GetInfoAsync(ct);
+        session.CalibrationPoints = await bench.Procedure(s).MeasureAsync(Setpoints.Linear(0.1, 4.8, 3), null, ct);
+        session.Calibrations = AfeCalibrationCalculator.Compute(session.CalibrationPoints, state.Coefficients, state.Tref, s);
+        session.Changes = CoefficientChange.From(session.Calibrations);
+        session.Write = await new MpccCalibrationWriter(bench.Link).WriteAsync(session.Changes, ct);
+        var after = await AfeNodeState.ReadAsync(bench.Link, ct);
+        session.CheckPoints = await bench.Procedure(s).MeasureAsync(Setpoints.Interleaved(0.1, 4.8, 3), null, ct);
+        session.Checks = AfeCalibrationCalculator.Evaluate(session.CheckPoints, after.Coefficients, s);
+
+        var html = AfeHtmlReport.Build(session);
+
+        Assert.Contains("verdict pass", html);
+        Assert.Contains("<svg", html);
+        Assert.Contains("Punkty kalibracji", html);
+        Assert.Contains("Punkty sprawdzenia", html);
+        Assert.Contains("zapisano", html);
+        Assert.Contains(session.Node.UidHex!, html);
+        Assert.Equal(7, System.Text.RegularExpressions.Regex.Matches(html, "<td class=\"pass\">PASS</td>").Count);
+    }
+}
