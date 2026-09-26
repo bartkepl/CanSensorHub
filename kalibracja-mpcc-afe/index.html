@@ -1093,7 +1093,10 @@ skalibrowanego daje <code>a ≈ 1</code> i <code>b ≈ 0</code>.</p>
    współczynniki, <code>MEASURE_PERIOD</code>, <code>Tref</code> i stan blokady <code>CAL_LOCK</code>.</li>
 <li><strong>Kalibracja.</strong> Dla każdego punktu: nastawa DAC, ustalenie, równoległa seria
    odczytów multimetru i rundy <code>READ_ADC</code> wszystkich wybranych kanałów, kontrola
-   rozrzutu wzorca (z powtórzeniem punktu), temperatura płytki. Po ostatnim
+   rozrzutu wzorca (z powtórzeniem punktu), temperatura płytki. Próbki węzła
+   odstające od mediany serii (próg: 6 σ z MAD, nie mniej niż 10 mV) są
+   odrzucane i zgłaszane w dzienniku — typowo jest to odczyt sprzed zmiany
+   nastawy, gdy ustalanie było zbyt krótkie. Po ostatnim
    punkcie DAC wraca do 0 V — również po przerwaniu i po błędzie.</li>
 <li><strong>Zestawienie.</strong> Tabela pokazuje dla każdego kanału <code>a</code>, <code>b</code>, residua
    dopasowania oraz współczynniki bieżące i nowe. Kanał jest odrzucany z opisem
@@ -1192,7 +1195,7 @@ wszystkich parametrów, w tym adresu węzła.</p>
 <tr>
 <td>Ustalanie</td>
 <td>0 = 2 × <code>MEASURE_PERIOD</code> + 500 ms</td>
-<td>czas po zmianie nastawy</td>
+<td>czas po zmianie nastawy; nigdy krócej niż 2 × <code>MEASURE_PERIOD</code></td>
 </tr>
 <tr>
 <td>Maks. σ wzorca</td>
