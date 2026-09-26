@@ -30,7 +30,8 @@ public sealed partial class MpccAfeCalViewModel : ObservableObject, IDisposable
     private IReadOnlyList<CoefficientChange> _pendingChanges = [];
     private bool _pendingDefaults;
 
-    public AfeCalSettings Settings { get; }
+    /// <summary>Podmieniany w całości przy przywróceniu wartości domyślnych — powiadomienie odświeża wszystkie powiązania <c>Settings.*</c>.</summary>
+    [ObservableProperty] private AfeCalSettings _settings;
     public bool IsSimulation => _context.Bus.Kind == ConnectionKind.Simulated;
 
     public ObservableCollection<VisaResourceItem> Resources { get; } = [];
@@ -58,7 +59,7 @@ public sealed partial class MpccAfeCalViewModel : ObservableObject, IDisposable
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(CalibrateCommand), nameof(CheckCommand), nameof(WriteCommand), nameof(RefreshResourcesCommand),
-        nameof(ReadNodeCommand), nameof(StopCommand), nameof(RestoreDefaultsCommand))]
+        nameof(ReadNodeCommand), nameof(StopCommand), nameof(RestoreDefaultsCommand), nameof(ResetSettingsCommand))]
     private bool _isBusy;
 
     [ObservableProperty] private double _progress;
@@ -517,6 +518,18 @@ public sealed partial class MpccAfeCalViewModel : ObservableObject, IDisposable
     {
         Directory.CreateDirectory(AfeCalSettingsStore.ReportDirectory);
         Process.Start(new ProcessStartInfo { FileName = AfeCalSettingsStore.ReportDirectory, UseShellExecute = true });
+    }
+
+    private bool IsIdle() => !IsBusy;
+
+    /// <summary>Przywraca domyślne ustawienia przebiegu; wybrane przyrządy zostają. Niczego nie zapisuje do węzła.</summary>
+    [RelayCommand(CanExecute = nameof(IsIdle))]
+    private void ResetSettings()
+    {
+        Settings = Settings.WithMeasurementDefaults();
+        ChannelOptions.Clear();
+        foreach (var c in AfeModel.Channels) ChannelOptions.Add(new ChannelOptionVm(c, Settings.EnabledChannels[c.Index]));
+        AddLog(ProcedureMessageKind.Info, "Przywrócono domyślne ustawienia przebiegu (przyrządy bez zmian).");
     }
 
     private void SyncChannelOptions() =>

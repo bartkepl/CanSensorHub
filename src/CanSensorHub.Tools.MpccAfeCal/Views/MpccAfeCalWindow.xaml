@@ -234,6 +234,9 @@
                         <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Settings.MaxOffsetCorrectionMv}" Width="60" HorizontalAlignment="Left" />
                     </Grid>
                 </GroupBox>
+
+                <Button Content="Ustawienia domyślne" Command="{Binding ResetSettingsCommand}" HorizontalAlignment="Left"
+                        ToolTip="Przywraca domyślne wartości zakresu, punktów, kanałów, uśredniania i akceptacji. Wybrane przyrządy zostają bez zmian." />
             </StackPanel>
         </ScrollViewer>
 

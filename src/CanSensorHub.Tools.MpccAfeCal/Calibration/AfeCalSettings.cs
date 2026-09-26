@@ -58,6 +58,18 @@ public sealed class AfeCalSettings
     public IReadOnlyList<int> EnabledChannelIndices =>
         Enumerable.Range(0, AfeModel.ChannelCount).Where(i => i < EnabledChannels.Length && EnabledChannels[i]).ToList();
 
+    /// <summary>
+    /// Ustawienia przebiegu przywrócone do wartości domyślnych, z zachowaniem konfiguracji stanowiska
+    /// (adresy przyrządów, gniazdo i wyjście DAC) — ta nie jest parametrem pomiaru.
+    /// </summary>
+    public AfeCalSettings WithMeasurementDefaults() => new()
+    {
+        DmmResource = DmmResource,
+        DaqResource = DaqResource,
+        DacSlot = DacSlot,
+        DacOutput = DacOutput,
+    };
+
     public AfeCalSettings Clone() => JsonSerializer.Deserialize(JsonSerializer.Serialize(this, AfeCalSettingsJson.Default.AfeCalSettings), AfeCalSettingsJson.Default.AfeCalSettings)!;
 
     /// <summary>Sprawdza spójność ustawień; zwraca opis pierwszej niezgodności albo <c>null</c>.</summary>

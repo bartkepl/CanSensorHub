@@ -129,6 +129,24 @@ public class CalculatorTests
     }
 
     [Fact]
+    public void Measurement_defaults_keep_bench_configuration()
+    {
+        var s = new AfeCalSettings
+        {
+            DmmResource = "GPIB0::22::INSTR", DaqResource = "GPIB0::9::INSTR", DacSlot = 300, DacOutput = 2,
+            MaxVoltage = 3.0, CalibrationPoints = 9, NodeRounds = 3, SettleMs = 5000, ToleranceMv = 1,
+            EnabledChannels = [true, false, false, false, false, false, false],
+        };
+        var d = s.WithMeasurementDefaults();
+        var defaults = new AfeCalSettings();
+
+        Assert.Equal((s.DmmResource, s.DaqResource, s.DacSlot, s.DacOutput), (d.DmmResource, d.DaqResource, d.DacSlot, d.DacOutput));
+        Assert.Equal((defaults.MaxVoltage, defaults.CalibrationPoints, defaults.NodeRounds, defaults.SettleMs, defaults.ToleranceMv),
+                     (d.MaxVoltage, d.CalibrationPoints, d.NodeRounds, d.SettleMs, d.ToleranceMv));
+        Assert.All(d.EnabledChannels, Assert.True);
+    }
+
+    [Fact]
     public void Timing_defaults_follow_node_measure_period()
     {
         var (round, settle) = AfeCalibrationProcedure.Timing(new AfeCalSettings(), 1000);
