@@ -50,6 +50,21 @@
                 <Button Content="+ Dodaj urządzenie..." Command="{Binding AddDeviceCommand}" Margin="24,0,0,0" Padding="10,4"
                         IsEnabled="{Binding IsConnected}" />
                 <Button Content="Bootloader..." Click="OnOpenBootloaderTool" Margin="8,0,0,0" Padding="10,4" />
+                <!-- Narzędzia serwisowe z zestawów CanSensorHub.Tools.*; przycisk znika, gdy build ich nie zawiera. -->
+                <Button x:Name="ToolsButton" Content="Narzędzia ▾" Click="OnOpenToolsMenu" Margin="8,0,0,0" Padding="10,4"
+                        Visibility="{Binding HasTools, Converter={StaticResource BoolToVis}}">
+                    <Button.ContextMenu>
+                        <ContextMenu ItemsSource="{Binding Tools}">
+                            <ContextMenu.ItemContainerStyle>
+                                <Style TargetType="MenuItem">
+                                    <Setter Property="Header" Value="{Binding DisplayName}" />
+                                    <Setter Property="ToolTip" Value="{Binding Description}" />
+                                    <EventSetter Event="Click" Handler="OnToolMenuItemClick" />
+                                </Style>
+                            </ContextMenu.ItemContainerStyle>
+                        </ContextMenu>
+                    </Button.ContextMenu>
+                </Button>
             </StackPanel>
         </Border>
 

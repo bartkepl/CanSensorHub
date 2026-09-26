@@ -12,7 +12,10 @@ param(
 
     # Wersja pakietu. Domyślnie MAJOR.MINOR z pliku VERSION + ".0" — numer poprawki
     # w prawdziwych wydaniach pochodzi z numeru przebiegu GitHub Actions.
-    [string]$Version
+    [string]$Version,
+
+    # Pomija narzędzia serwisowe (zestawy CanSensorHub.Tools.*) - aplikacja bez menu "Narzędzia".
+    [switch]$NoTools
 )
 
 $ErrorActionPreference = 'Stop'
@@ -37,7 +40,7 @@ if (Test-Path $outDir) {
 }
 
 Write-Host "Publikowanie CanSensorHub.App (Release $Version, $Runtime, self-contained=$selfContainedEffective) -> $outDir" -ForegroundColor Cyan
-dotnet publish $appProject -c Release -r $Runtime --self-contained $selfContainedEffective -o $outDir -p:Version=$Version
+dotnet publish $appProject -c Release -r $Runtime --self-contained $selfContainedEffective -o $outDir -p:Version=$Version -p:WithTools=$(if ($NoTools) { 'false' } else { 'true' })
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Build nie powiódł się (kod $LASTEXITCODE)." -ForegroundColor Red

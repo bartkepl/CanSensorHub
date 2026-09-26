@@ -1,4 +1,7 @@
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using CanSensorHub.Core.Tools;
 using CanSensorHub.App.ViewModels;
 using CanSensorHub.App.Views;
 
@@ -37,6 +40,28 @@ public partial class MainWindow : Window
         // Independent, non-blocking tool window: unlike AddDeviceDialog this one is meant to stay open
         // and usable alongside the rest of the app while a flash is in progress, so the owner is not disabled.
         _bootloaderWindow.Show();
+    }
+
+    private void OnOpenToolsMenu(object sender, RoutedEventArgs e)
+    {
+        if (ToolsButton.ContextMenu is not { } menu) return;
+        menu.DataContext = _vm;
+        menu.PlacementTarget = ToolsButton;
+        menu.Placement = PlacementMode.Bottom;
+        menu.IsOpen = true;
+    }
+
+    private void OnToolMenuItemClick(object sender, RoutedEventArgs e)
+    {
+        if (_vm is null || (sender as MenuItem)?.DataContext is not IHubTool tool) return;
+        try
+        {
+            tool.Open(_vm.CreateToolContext(this));
+        }
+        catch (Exception ex)
+        {
+            _vm.LastError = $"Nie udało się otworzyć narzędzia „{tool.DisplayName}”: {ex.Message}";
+        }
     }
 
     private void OnAddDeviceRequested(object? sender, EventArgs e)

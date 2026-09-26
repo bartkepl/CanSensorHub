@@ -11,6 +11,12 @@
     <AssemblyName>CanSensorHub</AssemblyName>
     <RootNamespace>CanSensorHub.App</RootNamespace>
     <ApplicationIcon>Resources\CanSensorHub.ico</ApplicationIcon>
+
+    <!-- Narzędzia serwisowe (CanSensorHub.Tools.*) trafiają do katalogu wynikowego wyłącznie
+         przez warunkowe referencje poniżej; powłoka wykrywa je w czasie działania i nie ma do
+         nich referencji w kodzie. -p:WithTools=false daje aplikację bez menu "Narzędzia"
+         (docs/adr/0001). -->
+    <WithTools Condition="'$(WithTools)' == ''">true</WithTools>
   </PropertyGroup>
 
   <ItemGroup>

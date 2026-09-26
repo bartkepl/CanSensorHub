@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CanSensorHub.Core.Can;
 using CanSensorHub.Core.Modules;
+using CanSensorHub.Core.Tools;
 using CanSensorHub.Modules.Mpcc;
 using CanSensorHub.Modules.Mpswp;
 using CanSensorHub.App.Services;
@@ -25,6 +26,10 @@ public partial class MainViewModel : ObservableObject, IDisposable
     public ModuleRegistry Registry { get; } = new();
     public BusMonitorViewModel BusMonitor { get; }
     public ObservableCollection<DeviceEntry> Devices { get; } = [];
+
+    /// <summary>Narzędzia wykryte w katalogu aplikacji (zestawy <c>CanSensorHub.Tools.*</c>). Pusta lista, gdy build pominął narzędzia.</summary>
+    public IReadOnlyList<IHubTool> Tools { get; }
+    public bool HasTools => Tools.Count > 0;
 
     /// <summary>
     /// What the shell's single TabControl actually binds to: <see cref="BusMonitor"/> pinned as item 0
@@ -76,6 +81,9 @@ public partial class MainViewModel : ObservableObject, IDisposable
         Registry.Register(new MpccModuleDescriptor());
         Registry.Register(new MpswpModuleDescriptor());
         BusMonitor = new BusMonitorViewModel(Bus);
+        var toolErrors = new List<string>();
+        Tools = HubToolDiscovery.DiscoverInDirectory(AppContext.BaseDirectory, toolErrors.Add);
+        if (toolErrors.Count > 0) LastError = $"Nie wczytano narzędzia: {string.Join("; ", toolErrors)}";
         TabItems.Add(BusMonitor);
         SelectedTabItem = BusMonitor;
         Devices.CollectionChanged += OnDevicesChanged;
@@ -184,6 +192,16 @@ public partial class MainViewModel : ObservableObject, IDisposable
         SelectedTabItem = entry;
         SaveSettings();
     }
+
+    /// <summary>Kontekst dla narzędzia: wspólna magistrala i migawka dodanych urządzeń w chwili zapytania.</summary>
+    public HubToolContext CreateToolContext(object? owner) => new()
+    {
+        Bus = Bus,
+        GetDevices = () => Devices
+            .Select(d => new HubToolDevice(d.Descriptor.ModuleId, d.Instance.NodeId, d.Instance.InstanceName))
+            .ToList(),
+        Owner = owner,
+    };
 
     [RelayCommand]
     private void RemoveDevice(DeviceEntry? entry)
