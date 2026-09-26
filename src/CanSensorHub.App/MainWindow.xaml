@@ -19,53 +19,62 @@
     <DockPanel>
         <!-- ===================== Connection toolbar ===================== -->
         <Border DockPanel.Dock="Top" Background="{DynamicResource Brush.Panel}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="0,0,0,1">
-            <StackPanel Orientation="Horizontal" Margin="8" VerticalAlignment="Center">
-                <TextBlock Text="Połączenie:" VerticalAlignment="Center" Margin="0,0,4,0" />
-                <ComboBox ItemsSource="{Binding TransportKinds}" DisplayMemberPath="Label" SelectedValuePath="Key"
-                          SelectedValue="{Binding SelectedTransportKind}" Width="230" Margin="0,0,10,0"
-                          IsEnabled="{Binding IsConnected, Converter={StaticResource InverseBool}}" />
+            <!-- Grupy paska zawijają się do kolejnego wiersza, gdy okno jest za wąskie. Teksty stanu i błędu
+                 mają zmienną długość, więc mają ograniczoną szerokość — w jednym poziomym StackPanelu
+                 wypychały przyciski akcji poza okno. -->
+            <WrapPanel Margin="8,6">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,2,16,2">
+                    <TextBlock Text="Połączenie:" VerticalAlignment="Center" Margin="0,0,4,0" />
+                    <ComboBox ItemsSource="{Binding TransportKinds}" DisplayMemberPath="Label" SelectedValuePath="Key"
+                              SelectedValue="{Binding SelectedTransportKind}" Width="230" Margin="0,0,10,0"
+                              IsEnabled="{Binding IsConnected, Converter={StaticResource InverseBool}}" />
 
-                <TextBlock Text="Port:" VerticalAlignment="Center" Margin="0,0,4,0"
-                           Visibility="{Binding IsSlcanMode, Converter={StaticResource BoolToVis}}" />
-                <ComboBox ItemsSource="{Binding AvailablePorts}" SelectedItem="{Binding SelectedPort}" Width="90" Margin="0,0,4,0"
-                          Visibility="{Binding IsSlcanMode, Converter={StaticResource BoolToVis}}"
-                          IsEnabled="{Binding IsConnected, Converter={StaticResource InverseBool}}" />
-                <Button Content="⟳" ToolTip="Odśwież listę portów COM" Command="{Binding RefreshPortsCommand}" Style="{StaticResource ToolbarButton}"
-                        Visibility="{Binding IsSlcanMode, Converter={StaticResource BoolToVis}}" />
+                    <TextBlock Text="Port:" VerticalAlignment="Center" Margin="0,0,4,0"
+                               Visibility="{Binding IsSlcanMode, Converter={StaticResource BoolToVis}}" />
+                    <ComboBox ItemsSource="{Binding AvailablePorts}" SelectedItem="{Binding SelectedPort}" Width="90" Margin="0,0,4,0"
+                              Visibility="{Binding IsSlcanMode, Converter={StaticResource BoolToVis}}"
+                              IsEnabled="{Binding IsConnected, Converter={StaticResource InverseBool}}" />
+                    <Button Content="⟳" ToolTip="Odśwież listę portów COM" Command="{Binding RefreshPortsCommand}" Style="{StaticResource ToolbarButton}"
+                            Visibility="{Binding IsSlcanMode, Converter={StaticResource BoolToVis}}" />
 
-                <TextBlock Text="Bitrate:" VerticalAlignment="Center" Margin="10,0,4,0"
-                           Visibility="{Binding IsSlcanMode, Converter={StaticResource BoolToVis}}" />
-                <ComboBox ItemsSource="{Binding AvailableBitrates}" SelectedItem="{Binding SelectedBitrate}" Width="90" Margin="0,0,10,0"
-                          Visibility="{Binding IsSlcanMode, Converter={StaticResource BoolToVis}}"
-                          IsEnabled="{Binding IsConnected, Converter={StaticResource InverseBool}}" />
+                    <TextBlock Text="Bitrate:" VerticalAlignment="Center" Margin="10,0,4,0"
+                               Visibility="{Binding IsSlcanMode, Converter={StaticResource BoolToVis}}" />
+                    <ComboBox ItemsSource="{Binding AvailableBitrates}" SelectedItem="{Binding SelectedBitrate}" Width="90" Margin="0,0,10,0"
+                              Visibility="{Binding IsSlcanMode, Converter={StaticResource BoolToVis}}"
+                              IsEnabled="{Binding IsConnected, Converter={StaticResource InverseBool}}" />
 
-                <Button Content="Połącz" Command="{Binding ConnectCommand}" Style="{StaticResource ToolbarButton}" />
-                <Button Content="Rozłącz" Command="{Binding DisconnectCommand}" Style="{StaticResource ToolbarButton}" />
-
-                <Ellipse Width="10" Height="10" Margin="12,0,4,0" VerticalAlignment="Center"
-                         Fill="{Binding IsConnected, Converter={StaticResource ConnectionDotConverter}}" />
-                <TextBlock Text="{Binding ConnectionStatusText}" VerticalAlignment="Center" FontWeight="Bold" />
-                <TextBlock Text="{Binding LastError}" VerticalAlignment="Center" Margin="12,0,0,0" Foreground="{DynamicResource Brush.Danger}" />
-
-                <Button Content="+ Dodaj urządzenie..." Command="{Binding AddDeviceCommand}" Margin="24,0,0,0" Padding="10,4"
-                        IsEnabled="{Binding IsConnected}" />
-                <Button Content="Bootloader..." Click="OnOpenBootloaderTool" Margin="8,0,0,0" Padding="10,4" />
-                <!-- Narzędzia serwisowe z zestawów CanSensorHub.Tools.*; przycisk znika, gdy build ich nie zawiera. -->
-                <Button x:Name="ToolsButton" Content="Narzędzia ▾" Click="OnOpenToolsMenu" Margin="8,0,0,0" Padding="10,4"
-                        Visibility="{Binding HasTools, Converter={StaticResource BoolToVis}}">
-                    <Button.ContextMenu>
-                        <ContextMenu ItemsSource="{Binding Tools}">
-                            <ContextMenu.ItemContainerStyle>
-                                <Style TargetType="MenuItem">
-                                    <Setter Property="Header" Value="{Binding DisplayName}" />
-                                    <Setter Property="ToolTip" Value="{Binding Description}" />
-                                    <EventSetter Event="Click" Handler="OnToolMenuItemClick" />
-                                </Style>
-                            </ContextMenu.ItemContainerStyle>
-                        </ContextMenu>
-                    </Button.ContextMenu>
-                </Button>
-            </StackPanel>
+                    <Button Content="Połącz" Command="{Binding ConnectCommand}" Style="{StaticResource ToolbarButton}" />
+                    <Button Content="Rozłącz" Command="{Binding DisconnectCommand}" Style="{StaticResource ToolbarButton}" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,2,16,2">
+                    <Ellipse Width="10" Height="10" Margin="0,0,4,0" VerticalAlignment="Center"
+                             Fill="{Binding IsConnected, Converter={StaticResource ConnectionDotConverter}}" />
+                    <TextBlock Text="{Binding ConnectionStatusText}" VerticalAlignment="Center" FontWeight="Bold" MaxWidth="340"
+                               TextTrimming="CharacterEllipsis" ToolTip="{Binding ConnectionStatusText}" />
+                    <TextBlock Text="{Binding LastError}" VerticalAlignment="Center" Margin="12,0,0,0" Foreground="{DynamicResource Brush.Danger}"
+                               MaxWidth="360" TextTrimming="CharacterEllipsis" ToolTip="{Binding LastError}" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,2">
+                    <Button Content="+ Dodaj urządzenie..." Command="{Binding AddDeviceCommand}" Margin="0,0,0,0" Padding="10,4"
+                            IsEnabled="{Binding IsConnected}" />
+                    <Button Content="Bootloader..." Click="OnOpenBootloaderTool" Margin="8,0,0,0" Padding="10,4" />
+                    <!-- Narzędzia serwisowe z zestawów CanSensorHub.Tools.*; przycisk znika, gdy build ich nie zawiera. -->
+                    <Button x:Name="ToolsButton" Content="Narzędzia ▾" Click="OnOpenToolsMenu" Margin="8,0,0,0" Padding="10,4"
+                            Visibility="{Binding HasTools, Converter={StaticResource BoolToVis}}">
+                        <Button.ContextMenu>
+                            <ContextMenu ItemsSource="{Binding Tools}">
+                                <ContextMenu.ItemContainerStyle>
+                                    <Style TargetType="MenuItem">
+                                        <Setter Property="Header" Value="{Binding DisplayName}" />
+                                        <Setter Property="ToolTip" Value="{Binding Description}" />
+                                        <EventSetter Event="Click" Handler="OnToolMenuItemClick" />
+                                    </Style>
+                                </ContextMenu.ItemContainerStyle>
+                            </ContextMenu>
+                        </Button.ContextMenu>
+                    </Button>
+                </StackPanel>
+            </WrapPanel>
         </Border>
 
         <!-- ===================== Tabs: pinned "Monitor magistrali" (index 0, not closable) + device tabs =====================
