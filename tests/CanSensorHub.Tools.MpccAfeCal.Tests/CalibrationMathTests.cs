@@ -135,7 +135,12 @@ public class CalculatorTests
         Assert.Equal(TimeSpan.FromSeconds(1), round);
         Assert.Equal(TimeSpan.FromMilliseconds(2500), settle);
 
-        var (r2, s2) = AfeCalibrationProcedure.Timing(new AfeCalSettings { NodeRoundIntervalMs = 200, SettleMs = 700 }, 1000);
-        Assert.Equal((TimeSpan.FromMilliseconds(200), TimeSpan.FromMilliseconds(700)), (r2, s2));
+        var (r2, s2) = AfeCalibrationProcedure.Timing(new AfeCalSettings { NodeRoundIntervalMs = 200, SettleMs = 3000 }, 1000);
+        Assert.Equal((TimeSpan.FromMilliseconds(200), TimeSpan.FromMilliseconds(3000)), (r2, s2));
+
+        // Ustalanie krótsze niż dwa okresy pomiaru jest podnoszone — przy 1000 ms na stanowisku
+        // pierwsza runda odczytywała wartość z poprzedniego punktu.
+        var (_, s3) = AfeCalibrationProcedure.Timing(new AfeCalSettings { SettleMs = 1000 }, 1000);
+        Assert.Equal(TimeSpan.FromMilliseconds(2000), s3);
     }
 }

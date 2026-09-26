@@ -95,7 +95,10 @@ skalibrowanego daje `a ≈ 1` i `b ≈ 0`.
    współczynniki, `MEASURE_PERIOD`, `Tref` i stan blokady `CAL_LOCK`.
 4. **Kalibracja.** Dla każdego punktu: nastawa DAC, ustalenie, równoległa seria
    odczytów multimetru i rundy `READ_ADC` wszystkich wybranych kanałów, kontrola
-   rozrzutu wzorca (z powtórzeniem punktu), temperatura płytki. Po ostatnim
+   rozrzutu wzorca (z powtórzeniem punktu), temperatura płytki. Próbki węzła
+   odstające od mediany serii (próg: 6 σ z MAD, nie mniej niż 10 mV) są
+   odrzucane i zgłaszane w dzienniku — typowo jest to odczyt sprzed zmiany
+   nastawy, gdy ustalanie było zbyt krótkie. Po ostatnim
    punkcie DAC wraca do 0 V — również po przerwaniu i po błędzie.
 5. **Zestawienie.** Tabela pokazuje dla każdego kanału `a`, `b`, residua
    dopasowania oraz współczynniki bieżące i nowe. Kanał jest odrzucany z opisem
@@ -154,7 +157,7 @@ wszystkich parametrów, w tym adresu węzła.
 | Autozero | wł. | kompensacja dryfu offsetu, dwukrotnie dłuższy odczyt |
 | Węzeł — rundy odczytu | 10 | rundy `READ_ADC` na punkt |
 | Odstęp rund | 0 = `MEASURE_PERIOD` | krótszy odstęp odczytuje wielokrotnie tę samą próbkę |
-| Ustalanie | 0 = 2 × `MEASURE_PERIOD` + 500 ms | czas po zmianie nastawy |
+| Ustalanie | 0 = 2 × `MEASURE_PERIOD` + 500 ms | czas po zmianie nastawy; nigdy krócej niż 2 × `MEASURE_PERIOD` |
 | Maks. σ wzorca | 0,5 mV | powyżej — powtórzenie punktu |
 | Maks. prób punktu | 3 | po wyczerpaniu punkt jest przyjmowany z ostrzeżeniem |
 | Tolerancja sprawdzenia | 5 mV | kryterium PASS; także największe dopuszczalne residuum dopasowania |

@@ -206,7 +206,7 @@
                                  ToolTip="0 = okres pomiaru węzła (MEASURE_PERIOD). Krótszy odstęp powtarza tę samą próbkę." />
                         <TextBlock Grid.Row="3" Text="Ustalanie [ms]:" />
                         <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding Settings.SettleMs}" Width="60" HorizontalAlignment="Left"
-                                 ToolTip="0 = dwa okresy pomiaru węzła + 500 ms." />
+                                 ToolTip="0 = dwa okresy pomiaru węzła + 500 ms. Wartość krótsza niż dwa okresy jest podnoszona — węzeł przelicza AFE raz na okres, więc pierwsza runda mogłaby odczytać wartość sprzed zmiany nastawy." />
                         <TextBlock Grid.Row="4" Text="Maks. σ wzorca [mV]:" />
                         <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding Settings.MaxReferenceStdDevMv}" Width="60" HorizontalAlignment="Left" />
                         <TextBlock Grid.Row="5" Text="Maks. prób punktu:" />

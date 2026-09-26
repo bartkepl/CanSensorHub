@@ -28,13 +28,23 @@ public sealed class AfeCalibrationProcedure(
     private const int NotReadyRetries = 3;
 
     /// <summary>
+    /// Najmniejszy próg odrzucenia próbki węzła [V]. Odczyty są skwantowane do 1 mV, a szum kanałów
+    /// 30 V sięga kilku mV; próbka sprzed zmiany nastawy odstaje o cały krok między punktami.
+    /// </summary>
+    private const double OutlierMinThresholdVolts = 0.010;
+
+    /// <summary>
     /// Odstępy wynikające z okresu pomiaru węzła. Kolejne rundy odczytu muszą być rozdzielone co
     /// najmniej okresem pomiaru — inaczej narzędzie wielokrotnie odczyta tę samą próbkę i zaniży
-    /// rozrzut. Ustalanie obejmuje dwa okresy: próbka w toku może pochodzić sprzed zmiany nastawy.
+    /// rozrzut. Ustalanie trwa co najmniej dwa okresy: węzeł przelicza AFE raz na okres, więc przy
+    /// ustalaniu równym jednemu okresowi pierwsza runda bywa odczytem sprzed zmiany nastawy
+    /// (zaobserwowane na stanowisku: jedna z dziesięciu próbek z poprzedniego punktu).
     /// </summary>
     public static (TimeSpan RoundInterval, TimeSpan Settle) Timing(AfeCalSettings s, double measurePeriodMs) =>
         (TimeSpan.FromMilliseconds(s.NodeRoundIntervalMs > 0 ? s.NodeRoundIntervalMs : measurePeriodMs),
-         TimeSpan.FromMilliseconds(s.SettleMs > 0 ? s.SettleMs : 2 * measurePeriodMs + 500));
+         TimeSpan.FromMilliseconds(s.SettleMs > 0 ? Math.Max(s.SettleMs, MinSettleMs(measurePeriodMs)) : MinSettleMs(measurePeriodMs) + 500));
+
+    public static double MinSettleMs(double measurePeriodMs) => 2 * measurePeriodMs;
 
     public async Task<IReadOnlyList<PointMeasurement>> MeasureAsync(
         IReadOnlyList<double> setpoints, IProgress<ProcedureProgress>? progress, CancellationToken ct)
@@ -62,8 +72,14 @@ public sealed class AfeCalibrationProcedure(
                     await Task.WhenAll(refTask, nodeTask).ConfigureAwait(false);
                     var temperature = await node.ReadBoardTemperatureAsync(ct).ConfigureAwait(false);
 
+                    var (nodeStats, rejected) = nodeTask.Result;
+                    foreach (var (ch, values) in rejected)
+                        Report(ProcedureMessageKind.Warning,
+                            $"Punkt {sp:0.000} V, CH{ch}: odrzucono {values.Count} z {settings.NodeRounds} próbek odstających " +
+                            $"({string.Join("; ", values.Select(v => $"{v:0.000} V"))}) — zwykle odczyt sprzed zmiany nastawy; rozważyć dłuższe ustalanie.", fraction);
+
                     var refStats = SampleStats.From(refTask.Result);
-                    point = new PointMeasurement(i, sp, refStats, nodeTask.Result, temperature, DateTimeOffset.Now, attempt);
+                    point = new PointMeasurement(i, sp, refStats, nodeStats, temperature, DateTimeOffset.Now, attempt);
                     if (refStats.StdDev * 1000.0 <= settings.MaxReferenceStdDevMv) break;
 
                     Report(ProcedureMessageKind.Warning,
@@ -88,8 +104,11 @@ public sealed class AfeCalibrationProcedure(
         return results;
     }
 
-    /// <summary>Rundy odczytu wszystkich wybranych kanałów; wynik w woltach, <c>null</c> dla kanału bez ważnych próbek.</summary>
-    private async Task<IReadOnlyList<SampleStats?>> ReadNodeRoundsAsync(CancellationToken ct)
+    /// <summary>
+    /// Rundy odczytu wszystkich wybranych kanałów; wynik w woltach, <c>null</c> dla kanału bez ważnych
+    /// próbek. Próbki odstające (<see cref="OutlierFilter"/>) są odrzucane i zwracane osobno.
+    /// </summary>
+    private async Task<(IReadOnlyList<SampleStats?> Stats, IReadOnlyDictionary<int, IReadOnlyList<double>> Rejected)> ReadNodeRoundsAsync(CancellationToken ct)
     {
         var channels = settings.EnabledChannelIndices;
         var samples = Enumerable.Range(0, AfeModel.ChannelCount).Select(_ => new List<double>()).ToArray();
@@ -106,6 +125,15 @@ public sealed class AfeCalibrationProcedure(
                 }
             }
         }
-        return samples.Select(s => s.Count > 0 ? SampleStats.From(s) : (SampleStats?)null).ToList();
+        var stats = new SampleStats?[AfeModel.ChannelCount];
+        var rejected = new Dictionary<int, IReadOnlyList<double>>();
+        for (var ch = 0; ch < AfeModel.ChannelCount; ch++)
+        {
+            if (samples[ch].Count == 0) continue;
+            var (kept, outliers) = OutlierFilter.Apply(samples[ch], OutlierMinThresholdVolts);
+            stats[ch] = SampleStats.From(kept);
+            if (outliers.Count > 0) rejected[ch] = outliers;
+        }
+        return (stats, rejected);
     }
 }

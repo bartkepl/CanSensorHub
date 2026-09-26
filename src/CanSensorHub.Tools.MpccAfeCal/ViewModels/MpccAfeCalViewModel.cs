@@ -414,6 +414,9 @@ public sealed partial class MpccAfeCalViewModel : ObservableObject, IDisposable
         MpccNodeLink link, Bench bench, AfeNodeState state, IReadOnlyList<double> setpoints, string phase)
     {
         var (round, settle) = AfeCalibrationProcedure.Timing(Settings, state.MeasurePeriodMs);
+        if (Settings.SettleMs > 0 && Settings.SettleMs < AfeCalibrationProcedure.MinSettleMs(state.MeasurePeriodMs))
+            AddLog(ProcedureMessageKind.Warning,
+                $"Ustalanie {Settings.SettleMs} ms jest krótsze niż dwa okresy pomiaru węzła — użyto {settle.TotalMilliseconds:0} ms.");
         var progress = new Progress<ProcedureProgress>(p =>
         {
             Progress = p.Fraction;

@@ -41,7 +41,7 @@ public sealed class AfeCalSettings
     public int NodeRounds { get; set; } = 10;
     /// <summary>Odstęp rund odczytu węzła w ms; 0 — okres pomiaru węzła (<c>MEASURE_PERIOD</c>).</summary>
     public int NodeRoundIntervalMs { get; set; }
-    /// <summary>Czas ustalania po zmianie nastawy w ms; 0 — dwa okresy pomiaru węzła plus 500 ms.</summary>
+    /// <summary>Czas ustalania po zmianie nastawy w ms; 0 — dwa okresy pomiaru węzła plus 500 ms. Nigdy krócej niż dwa okresy.</summary>
     public int SettleMs { get; set; }
     /// <summary>Największe dopuszczalne odchylenie standardowe odczytów wzorca; powyżej punkt jest powtarzany.</summary>
     public double MaxReferenceStdDevMv { get; set; } = 0.5;

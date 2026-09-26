@@ -23,6 +23,39 @@ public class SampleStatsTests
     public void Empty_series_is_rejected() => Assert.Throws<ArgumentException>(() => SampleStats.From([]));
 }
 
+public class OutlierFilterTests
+{
+    [Fact]
+    public void Rejects_single_stale_sample_from_previous_setpoint()
+    {
+        // Przypadek ze stanowiska: 9 odczytów 1.049 V i jeden z poprzedniego punktu (0.108 V).
+        double[] s = [0.108, 1.049, 1.049, 1.049, 1.049, 1.049, 1.049, 1.049, 1.049, 1.049];
+        var (kept, rejected) = OutlierFilter.Apply(s, minThreshold: 0.010);
+        Assert.Equal([0.108], rejected);
+        Assert.Equal(1.049, SampleStats.From(kept).Mean, 9);
+    }
+
+    [Fact]
+    public void Keeps_ordinary_noise_and_quantization()
+    {
+        double[] s = [2.401, 2.403, 2.402, 2.398, 2.404, 2.400, 2.402, 2.399, 2.403, 2.401];
+        var (kept, rejected) = OutlierFilter.Apply(s, minThreshold: 0.010);
+        Assert.Empty(rejected);
+        Assert.Equal(10, kept.Count);
+    }
+
+    [Fact]
+    public void Short_series_is_left_untouched() =>
+        Assert.Empty(OutlierFilter.Apply([1.0, 5.0], 0.01).Rejected);
+
+    [Fact]
+    public void Median_of_even_and_odd_series()
+    {
+        Assert.Equal(2.0, OutlierFilter.Median([3.0, 1.0, 2.0]));
+        Assert.Equal(2.5, OutlierFilter.Median([4.0, 1.0, 2.0, 3.0]));
+    }
+}
+
 public class LinearFitTests
 {
     [Fact]
