@@ -27,6 +27,8 @@ public sealed partial class MpccAfeCalViewModel : ObservableObject, IDisposable
     private string? _visaError;
     private CancellationTokenSource? _cts;
     private AfeCalibrationSession? _session;
+    private IReadOnlyList<CoefficientChange> _pendingChanges = [];
+    private bool _pendingDefaults;
 
     public AfeCalSettings Settings { get; }
     public bool IsSimulation => _context.Bus.Kind == ConnectionKind.Simulated;
@@ -56,7 +58,7 @@ public sealed partial class MpccAfeCalViewModel : ObservableObject, IDisposable
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(CalibrateCommand), nameof(CheckCommand), nameof(WriteCommand), nameof(RefreshResourcesCommand),
-        nameof(ReadNodeCommand), nameof(StopCommand))]
+        nameof(ReadNodeCommand), nameof(StopCommand), nameof(RestoreDefaultsCommand))]
     private bool _isBusy;
 
     [ObservableProperty] private double _progress;
@@ -233,6 +235,7 @@ public sealed partial class MpccAfeCalViewModel : ObservableObject, IDisposable
         CalibrateCommand.NotifyCanExecuteChanged();
         CheckCommand.NotifyCanExecuteChanged();
         ReadNodeCommand.NotifyCanExecuteChanged();
+        RestoreDefaultsCommand.NotifyCanExecuteChanged();
     }
 
     private MpccNodeLink OpenLink() => new(_context.Bus, SelectedDevice!.NodeId);
@@ -293,20 +296,60 @@ public sealed partial class MpccAfeCalViewModel : ObservableObject, IDisposable
         foreach (var ch in Settings.EnabledChannelIndices.Where(ch => _session.Calibrations.All(c => c.Channel != ch)))
             Rows[ch].CalibrationStatus = "za mało punktów poza nasyceniem ADC";
 
-        HasPendingCalibration = _session.Calibrations.Any(c => c.Accepted);
+        _pendingChanges = CoefficientChange.From(_session.Calibrations);
+        _pendingDefaults = false;
+        _session.Operation = "kalibracja";
+        HasPendingCalibration = _pendingChanges.Count > 0;
         AddLog(ProcedureMessageKind.Info, HasPendingCalibration
             ? "Współczynniki wyznaczone. Sprawdź zestawienie, zatwierdź i zapisz do węzła."
             : "Żaden kanał nie ma przyjętych współczynników — zapis niemożliwy.");
         return true;
     });
 
+    /// <summary>
+    /// Przygotowanie przywrócenia wartości domyślnych c0/c1/tc wybranych kanałów. Zapis idzie tą samą
+    /// ścieżką co kalibracja — zestawienie, zatwierdzenie, sekwencja z CAL_LOCK — i nie wymaga przyrządów.
+    /// </summary>
+    [RelayCommand(CanExecute = nameof(CanRun))]
+    private Task RestoreDefaults() => RunAsync("Przywrócenie domyślnych", async (link, _) =>
+    {
+        HasPendingCalibration = false;
+        WriteConfirmed = false;
+        foreach (var r in Rows) { r.ClearCalibration(); r.ClearCheck(); }
+
+        var state = await ReadNodeStateAsync(link, _cts!.Token);
+        _session!.CoefficientsBefore = state.Coefficients;
+        (_session.Tref, _session.MeasurePeriodMs) = (state.Tref, state.MeasurePeriodMs);
+
+        var changes = CoefficientChange.Defaults(Settings.EnabledChannelIndices, state.Coefficients)
+            .Where(c => c.Before != c.After).ToList();
+        foreach (var c in changes)
+        {
+            var row = Rows[c.Channel];
+            (row.C0After, row.C1After) = (c.After.C0, c.After.C1);
+            row.CalibrationStatus = "domyślne — do zapisu";
+        }
+        foreach (var ch in Settings.EnabledChannelIndices.Where(ch => changes.All(c => c.Channel != ch)))
+            Rows[ch].CalibrationStatus = "już domyślne";
+
+        _pendingChanges = changes;
+        _pendingDefaults = true;
+        _session.Operation = "przywrócenie domyślnych";
+        HasPendingCalibration = changes.Count > 0;
+        AddLog(ProcedureMessageKind.Info, changes.Count > 0
+            ? $"Wartości domyślne przygotowane dla {string.Join(", ", changes.Select(c => $"CH{c.Channel}"))}. Zatwierdź i zapisz do węzła."
+            : "Wybrane kanały mają już wartości domyślne — nic do zapisu.");
+        return true;
+    }, needsBench: false);
+
     private bool CanWrite() => CanRun() && HasPendingCalibration && WriteConfirmed;
 
     [RelayCommand(CanExecute = nameof(CanWrite))]
-    private Task Write() => RunAsync("Zapis i sprawdzenie", async (link, bench) =>
+    private Task Write() => RunAsync(_pendingDefaults ? "Zapis wartości domyślnych" : "Zapis i sprawdzenie", async (link, bench) =>
     {
         var session = _session!;
-        var outcome = await new MpccCalibrationWriter(link).WriteAsync(session.Calibrations, _cts!.Token);
+        session.Changes = _pendingChanges;
+        var outcome = await new MpccCalibrationWriter(link).WriteAsync(_pendingChanges, _cts!.Token);
         session.Write = outcome;
         foreach (var line in outcome.Log) AddLog(outcome.Success ? ProcedureMessageKind.Info : ProcedureMessageKind.Warning, line);
         HasPendingCalibration = false;
@@ -316,10 +359,16 @@ public sealed partial class MpccAfeCalViewModel : ObservableObject, IDisposable
             AddLog(ProcedureMessageKind.Error, "Zapis nie powiódł się — węzeł pozostał przy poprzednich współczynnikach.");
             return false;
         }
-        foreach (var c in session.Calibrations.Where(c => c.Accepted)) Rows[c.Channel].CalibrationStatus = "zapisano";
+        foreach (var c in _pendingChanges) Rows[c.Channel].CalibrationStatus = _pendingDefaults ? "przywrócono domyślne" : "zapisano";
+        if (_pendingDefaults)
+        {
+            await ReadNodeStateAsync(link, _cts.Token);
+            AddLog(ProcedureMessageKind.Info, "Wartości domyślne zapisane. Sprawdzenie wymaga przyrządów — „Tylko sprawdzenie”.");
+            return true;
+        }
         await RunCheckAsync(link, bench!, session);
         return true;
-    }, keepSession: true);
+    }, needsBench: !_pendingDefaults, keepSession: true);
 
     [RelayCommand(CanExecute = nameof(CanRun))]
     private Task Check() => RunAsync("Sprawdzenie", async (link, bench) =>
@@ -435,7 +484,7 @@ public sealed partial class MpccAfeCalViewModel : ObservableObject, IDisposable
             _cts = null;
             IsBusy = false;
             Progress = 0;
-            if (needsBench) SaveReport();
+            SaveReport();
         }
     }
 
@@ -444,7 +493,7 @@ public sealed partial class MpccAfeCalViewModel : ObservableObject, IDisposable
 
     private void SaveReport()
     {
-        if (_session is null || (_session.CalibrationPoints.Count == 0 && _session.CheckPoints.Count == 0)) return;
+        if (_session is null || (_session.CalibrationPoints.Count == 0 && _session.CheckPoints.Count == 0 && _session.Write is null)) return;
         try
         {
             // Nazwa pliku wynika z sesji (UID węzła, chwila rozpoczęcia), więc kolejne operacje tej

@@ -6,9 +6,25 @@ namespace CanSensorHub.Tools.MpccAfeCal.Calibration;
 /// <summary>Wynik zapisu współczynników do węzła.</summary>
 public sealed record WriteOutcome(bool Success, IReadOnlyList<string> Log);
 
+/// <summary>Zmiana współczynników jednego kanału: stan w węźle i stan docelowy.</summary>
+public sealed record CoefficientChange(int Channel, AfeCoefficients Before, AfeCoefficients After)
+{
+    /// <summary>Przyjęte kanały kalibracji jako zmiany do zapisu.</summary>
+    public static IReadOnlyList<CoefficientChange> From(IEnumerable<ChannelCalibration> calibrations) =>
+        calibrations.Where(c => c.Accepted).Select(c => new CoefficientChange(c.Channel, c.Before, c.After)).ToList();
+
+    /// <summary>Przywrócenie wartości domyślnych rejestru parametrów (c0, c1, tc) wskazanych kanałów.</summary>
+    public static IReadOnlyList<CoefficientChange> Defaults(IEnumerable<int> channels, IReadOnlyDictionary<int, AfeCoefficients> current) =>
+        channels.Where(current.ContainsKey).Select(ch =>
+        {
+            var info = AfeModel.Channels[ch];
+            return new CoefficientChange(ch, current[ch], new AfeCoefficients(info.C0.Default, info.C1.Default, info.Tc.Default));
+        }).ToList();
+}
+
 /// <summary>
 /// Zapis współczynników do węzła w kolejności ustalonej w docs/adr/0005:
-/// zdjęcie blokady (RAM) → zapis c1, c0 → odczyt zwrotny → założenie blokady (RAM) → SAVE_CONFIG
+/// zdjęcie blokady (RAM) → zapis c1, c0 (i tc, jeśli się zmienia) → odczyt zwrotny → założenie blokady (RAM) → SAVE_CONFIG
 /// → kontrola blokady. Jedno SAVE_CONFIG utrwala nowe współczynniki razem z założoną blokadą,
 /// więc stan „odblokowany” nigdy nie trafia do pamięci nieulotnej.
 /// Przy niepowodzeniu przed SAVE_CONFIG przywracane są poprzednie współczynniki i blokada, bez
@@ -16,17 +32,20 @@ public sealed record WriteOutcome(bool Success, IReadOnlyList<string> Log);
 /// </summary>
 public sealed class MpccCalibrationWriter(MpccNodeLink node)
 {
-    public async Task<WriteOutcome> WriteAsync(IReadOnlyList<ChannelCalibration> calibrations, CancellationToken ct = default)
+    public Task<WriteOutcome> WriteAsync(IReadOnlyList<ChannelCalibration> calibrations, CancellationToken ct = default) =>
+        WriteAsync(CoefficientChange.From(calibrations), ct);
+
+    public async Task<WriteOutcome> WriteAsync(IReadOnlyList<CoefficientChange> changes, CancellationToken ct = default)
     {
         var log = new List<string>();
-        var accepted = calibrations.Where(c => c.Accepted).ToList();
+        var accepted = changes;
         if (accepted.Count == 0)
         {
-            log.Add("Brak zaakceptowanych kanałów — nic nie zapisano.");
+            log.Add("Brak kanałów do zapisu — nic nie zapisano.");
             return new WriteOutcome(false, log);
         }
 
-        var written = new List<ChannelCalibration>();
+        var written = new List<CoefficientChange>();
         var saved = false;
         try
         {
@@ -38,6 +57,8 @@ public sealed class MpccCalibrationWriter(MpccNodeLink node)
                 written.Add(c);
                 await ExpectOk(info.C1, c.After.C1, $"{info.Name}: c1 = {c.After.C1:0.000000}", log, ct).ConfigureAwait(false);
                 await ExpectOk(info.C0, c.After.C0, $"{info.Name}: c0 = {c.After.C0:+0.000000;-0.000000} V", log, ct).ConfigureAwait(false);
+                if (c.After.Tc != c.Before.Tc)
+                    await ExpectOk(info.Tc, c.After.Tc, $"{info.Name}: tc = {c.After.Tc:0.00000}", log, ct).ConfigureAwait(false);
             }
 
             foreach (var c in accepted)
@@ -45,6 +66,7 @@ public sealed class MpccCalibrationWriter(MpccNodeLink node)
                 var info = AfeModel.Channels[c.Channel];
                 await VerifyReadback(info.C1, c.After.C1, ct).ConfigureAwait(false);
                 await VerifyReadback(info.C0, c.After.C0, ct).ConfigureAwait(false);
+                if (c.After.Tc != c.Before.Tc) await VerifyReadback(info.Tc, c.After.Tc, ct).ConfigureAwait(false);
             }
             log.Add("Odczyt zwrotny zgodny z wartościami zapisanymi.");
 
@@ -89,7 +111,7 @@ public sealed class MpccCalibrationWriter(MpccNodeLink node)
     /// Przywrócenie poprzednich współczynników i blokady bez SAVE_CONFIG. Anulowanie operacji nie
     /// przerywa wycofania — dlatego bez tokenu anulowania.
     /// </summary>
-    private async Task RollbackAsync(IReadOnlyList<ChannelCalibration> written, List<string> log)
+    private async Task RollbackAsync(IReadOnlyList<CoefficientChange> written, List<string> log)
     {
         foreach (var c in written)
         {
@@ -98,6 +120,7 @@ public sealed class MpccCalibrationWriter(MpccNodeLink node)
             {
                 await node.WriteParamAsync(info.C1, c.Before.C1).ConfigureAwait(false);
                 await node.WriteParamAsync(info.C0, c.Before.C0).ConfigureAwait(false);
+                if (c.After.Tc != c.Before.Tc) await node.WriteParamAsync(info.Tc, c.Before.Tc).ConfigureAwait(false);
                 log.Add($"{info.Name}: przywrócono poprzednie współczynniki.");
             }
             catch (Exception ex)

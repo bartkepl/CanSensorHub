@@ -131,6 +131,17 @@ pozostaje wtedy niezmieniony.
     Zmiany innych parametrów węzła wykonane wcześniej w RAM i niezapisane
     zostaną utrwalone razem z kalibracją.
 
+## Przywrócenie wartości domyślnych
+
+*Przywróć domyślne* przygotowuje zapis wartości domyślnych z rejestru
+parametrów węzła (`c0 = 0`, `c1` nominalne dzielnika — 1,6667 dla kanałów 0–3,
+10,0 dla kanałów 4–6 — oraz `tc = 0`) dla kanałów wybranych w ustawieniach.
+Kanały, które już mają wartości domyślne, są pomijane. Zapis wymaga
+zatwierdzenia i przebiega tą samą sekwencją co zapis kalibracji, lecz nie
+wymaga przyrządów. Pozostała konfiguracja węzła nie jest zmieniana — w
+odróżnieniu od komendy `LOAD_DEFAULTS`, która przywraca wartości domyślne
+wszystkich parametrów, w tym adresu węzła.
+
 ## Ustawienia
 
 | Ustawienie | Domyślnie | Znaczenie |

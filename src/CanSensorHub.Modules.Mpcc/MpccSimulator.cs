@@ -123,6 +123,8 @@ public sealed class MpccSimulator : IDisposable
                 RespondOk(op, arg);
                 break;
             case MpccReqOp.LoadDefaults:
+                // Jak firmware: komenda kasuje konfigurację wraz z kalibracją, więc wymaga bajtu zabezpieczającego.
+                if (data.Length < 1 || data[0] != CommandGuard.LoadDefaults) { Respond(op, arg, StatusCode.ErrBadParam); break; }
                 foreach (var p in MpccParams.All) _params[p.Id] = p.Default;
                 RespondOk(op, arg);
                 break;

@@ -242,6 +242,8 @@
             <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
                 <Button Content="Kalibruj" Command="{Binding CalibrateCommand}" FontWeight="Bold" />
                 <Button Content="Tylko sprawdzenie" Command="{Binding CheckCommand}" />
+                <Button Content="Przywróć domyślne" Command="{Binding RestoreDefaultsCommand}"
+                        ToolTip="Przygotowuje zapis wartości domyślnych c0, c1 i tc wybranych kanałów. Zapis po zatwierdzeniu, jak przy kalibracji; nie wymaga przyrządów." />
                 <Button Content="Stop" Command="{Binding StopCommand}" />
                 <ProgressBar Width="220" Height="14" Margin="12,0" Minimum="0" Maximum="1" Value="{Binding Progress}" />
                 <TextBlock Text="{Binding StatusText}" />
@@ -251,10 +253,10 @@
                     BorderBrush="{DynamicResource Brush.Warning}" BorderThickness="1"
                     Visibility="{Binding HasPendingCalibration, Converter={StaticResource BoolToVis}}">
                 <DockPanel>
-                    <Button DockPanel.Dock="Right" Content="Zapisz do węzła i sprawdź" Command="{Binding WriteCommand}" FontWeight="Bold" />
+                    <Button DockPanel.Dock="Right" Content="Zapisz do węzła" Command="{Binding WriteCommand}" FontWeight="Bold" />
                     <CheckBox IsChecked="{Binding WriteConfirmed}" VerticalContentAlignment="Top">
                         <TextBlock TextWrapping="Wrap"
-                                   Text="Zestawienie sprawdzone. Zapisać współczynniki kanałów oznaczonych „do zapisu”. SAVE_CONFIG utrwali całą konfigurację węzła — także niezapisane wcześniej zmiany innych parametrów. Po zapisie blokada CAL_LOCK zostanie założona." />
+                                   Text="Zestawienie sprawdzone. Zapisać nowe współczynniki kanałów oznaczonych „do zapisu” albo „domyślne — do zapisu”. SAVE_CONFIG utrwali całą konfigurację węzła — także niezapisane wcześniej zmiany innych parametrów. Po zapisie blokada CAL_LOCK zostanie założona." />
                     </CheckBox>
                 </DockPanel>
             </Border>

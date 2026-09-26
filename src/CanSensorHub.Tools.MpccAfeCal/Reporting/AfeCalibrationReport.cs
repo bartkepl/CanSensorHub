@@ -20,6 +20,9 @@ public sealed class AfeCalibrationSession
     public IReadOnlyDictionary<int, AfeCoefficients> CoefficientsBefore { get; set; } = new Dictionary<int, AfeCoefficients>();
     public IReadOnlyList<PointMeasurement> CalibrationPoints { get; set; } = [];
     public IReadOnlyList<ChannelCalibration> Calibrations { get; set; } = [];
+    /// <summary>Rodzaj operacji zapisu: kalibracja albo przywrócenie wartości domyślnych.</summary>
+    public string Operation { get; set; } = "kalibracja";
+    public IReadOnlyList<CoefficientChange> Changes { get; set; } = [];
     public WriteOutcome? Write { get; set; }
     public IReadOnlyDictionary<int, AfeCoefficients>? CheckCoefficients { get; set; }
     public IReadOnlyList<PointMeasurement> CheckPoints { get; set; } = [];
@@ -47,6 +50,7 @@ public static class AfeCalibrationReport
         w.KeyValue("narzedzie", $"CanSensorHub.Tools.MpccAfeCal {ver}");
         w.KeyValue("rozpoczecie", s.Started);
         w.KeyValue("tryb", s.Simulated ? "symulacja" : "stanowisko");
+        w.KeyValue("operacja", s.Operation);
         w.KeyValue("wezel_node", $"0x{s.NodeId:X2}");
         if (s.Node is { } n)
         {
@@ -83,6 +87,14 @@ public static class AfeCalibrationReport
             foreach (var c in s.Calibrations)
                 w.Row($"CH{c.Channel}", c.Fit.Slope, c.Fit.Intercept, c.Fit.RSquared, c.Fit.MaxAbsResidual * 1000.0, c.TemperatureFactor,
                     c.Before.C0, c.Before.C1, c.After.C0, c.After.C1, c.Rejection ?? "przyjety");
+        }
+
+        if (s.Changes.Count > 0)
+        {
+            w.Section("Zmiany wspolczynnikow");
+            w.Row("kanal", "c0_przed", "c1_przed", "tc_przed", "c0_po", "c1_po", "tc_po");
+            foreach (var c in s.Changes)
+                w.Row($"CH{c.Channel}", c.Before.C0, c.Before.C1, c.Before.Tc, c.After.C0, c.After.C1, c.After.Tc);
         }
 
         if (s.Write is { } wr)

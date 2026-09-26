@@ -68,6 +68,36 @@ public class EndToEndTests
     }
 
     [Fact]
+    public async Task Restoring_defaults_after_calibration_returns_registry_values_and_relocks()
+    {
+        await using var bench = await SimulatedBench.StartAsync();
+        var s = SimulatedBench.FastSettings(points: 3);
+        var ct = CancellationToken.None;
+        var before = await AfeNodeState.ReadAsync(bench.Link, ct);
+        var points = await bench.Procedure(s).MeasureAsync(Setpoints.Linear(s.MinVoltage, s.MaxVoltage, 3), null, ct);
+        Assert.True((await new MpccCalibrationWriter(bench.Link).WriteAsync(AfeCalibrationCalculator.Compute(points, before.Coefficients, before.Tref, s), ct)).Success);
+
+        var calibrated = await AfeNodeState.ReadAsync(bench.Link, ct);
+        var changes = CoefficientChange.Defaults(s.EnabledChannelIndices, calibrated.Coefficients);
+        var outcome = await new MpccCalibrationWriter(bench.Link).WriteAsync(changes, ct);
+
+        Assert.True(outcome.Success, string.Join(Environment.NewLine, outcome.Log));
+        Assert.Equal(2, SaveConfigRequests(bench.Bus));
+        var after = await AfeNodeState.ReadAsync(bench.Link, ct);
+        Assert.True(after.CalLocked);
+        foreach (var ch in AfeModel.Channels)
+            Assert.Equal(new AfeCoefficients((float)ch.C0.Default, (float)ch.C1.Default, ch.Tc.Default), after.Coefficients[ch.Index]);
+    }
+
+    [Fact]
+    public async Task Load_defaults_requires_guard_byte_like_firmware()
+    {
+        await using var bench = await SimulatedBench.StartAsync();
+        Assert.Equal(StatusCode.ErrBadParam, (await bench.Link.RequestAsync(MpccReqOp.LoadDefaults)).Status);
+        Assert.Equal(StatusCode.Ok, (await bench.Link.RequestAsync(MpccReqOp.LoadDefaults, data: [CommandGuard.LoadDefaults])).Status);
+    }
+
+    [Fact]
     public async Task Locked_node_rejects_calibration_write_directly()
     {
         await using var bench = await SimulatedBench.StartAsync();

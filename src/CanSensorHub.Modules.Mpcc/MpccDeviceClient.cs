@@ -206,7 +206,9 @@ public sealed class MpccDeviceClient : IDisposable
     public Task ReadSensorAsync(MpccSensor sensor, CancellationToken ct = default) => Send(MpccReqOp.ReadSensor, (byte)sensor, ct: ct);
     public Task ListSensorsAsync(CancellationToken ct = default) => Send(MpccReqOp.ListSensors, ct: ct);
     public Task SaveConfigAsync(CancellationToken ct = default) => Send(MpccReqOp.SaveConfig, ct: ct);
-    public Task LoadDefaultsAsync(CancellationToken ct = default) => Send(MpccReqOp.LoadDefaults, ct: ct);
+    // Bez bajtu zabezpieczającego firmware odrzuca LOAD_DEFAULTS kodem ERR_BAD_PARAM (wsc_app.c).
+    public Task LoadDefaultsAsync(CancellationToken ct = default) =>
+        Send(MpccReqOp.LoadDefaults, data: new byte[] { CommandGuard.LoadDefaults }, ct: ct);
     public Task GetTimeAsync(CancellationToken ct = default) => Send(MpccReqOp.GetTime, ct: ct);
     public Task GetStatusAsync(CancellationToken ct = default) => Send(MpccReqOp.GetStatus, ct: ct);
     public Task ResetAsync(CancellationToken ct = default) => Send(MpccReqOp.Reset, data: new byte[] { 0xA5 }, ct: ct);
