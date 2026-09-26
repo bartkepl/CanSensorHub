@@ -1185,7 +1185,7 @@ wszystkich parametrów, w tym adresu węzła.</p>
 <tr>
 <td>Zakres</td>
 <td>0,1 … 4,8 V</td>
-<td>napięcia zadawane; ograniczone też do ±12 V DAC</td>
+<td>napięcia zadawane, 0 … 12 V (DAC); punkt 0 V jest dozwolony — ujemny offset DAC (rzędu 1 mV) ADC odczytuje jako 0, co ogranicza błąd tego punktu do wartości offsetu</td>
 </tr>
 <tr>
 <td>Kalibracja</td>
@@ -1254,8 +1254,12 @@ wszystkich parametrów, w tym adresu węzła.</p>
 </tr>
 </tbody>
 </table>
-<p>Multimetr pracuje na stałym zakresie 10 V z impedancją wejściową powyżej
-10 GΩ (<code>INP:IMP:AUTO ON</code>).</p>
+<p>Multimetr pracuje na stałym zakresie, dobranym do górnej granicy: najmniejszy
+zakres, który mieści ją ze 120 % przekroczeniem zakresu przyrządu (do 11,9 V —
+zakres 10 V, powyżej — 100 V), z impedancją wejściową powyżej 10 GΩ
+(<code>INP:IMP:AUTO ON</code>). Odczyt przekroczenia zakresu („OVLD”, wartość 9,9E+37)
+przerywa pomiar. Przerywa go też wzorzec odbiegający od nastawy o więcej niż
+5 % + 0,1 V — oznacza to błąd połączeń stanowiska, nie błąd węzła.</p>
 <p>Rozdzielczość <code>READ_ADC</code> wynosi 1 mV. Rozdzielczość poniżej 1 mV wynika
 z uśredniania rund, w których szum toru ADC działa jak dither. Wydłużenie
 serii zmniejsza niepewność średniej proporcjonalnie do <code>1/√n</code>.</p>
