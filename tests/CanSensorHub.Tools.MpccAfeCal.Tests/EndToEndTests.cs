@@ -127,6 +127,28 @@ public class EndToEndTests
         Assert.Equal(before.Coefficients[1], after.Coefficients[1]);
     }
 
+    private sealed class FixedVoltmeter(double value) : CanSensorHub.Metrology.Instruments.IVoltmeter
+    {
+        public string Description => "stała";
+        public Task ConfigureAsync(CancellationToken ct = default) => Task.CompletedTask;
+        public Task<IReadOnlyList<double>> ReadSamplesAsync(int count, CancellationToken ct = default) =>
+            Task.FromResult<IReadOnlyList<double>>(Enumerable.Repeat(value, count).ToList());
+    }
+
+    [Theory]
+    [InlineData(9.9e37)]   // OVLD przepuszczony przez inny woltomierz
+    [InlineData(0.0)]      // multimetr niepodłączony do punktu połączeniowego
+    public async Task Reference_inconsistent_with_setpoint_stops_measurement_and_zeroes_source(double reading)
+    {
+        await using var bench = await SimulatedBench.StartAsync();
+        var s = SimulatedBench.FastSettings();
+        var proc = new AfeCalibrationProcedure(bench.Source, new FixedVoltmeter(reading), bench.Link, s, TimeSpan.Zero, TimeSpan.Zero);
+
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => proc.MeasureAsync([2.4], null, CancellationToken.None));
+        Assert.Contains("połączenie multimetru", ex.Message);
+        Assert.Equal(0.0, bench.Bus.SimulatedBus!.AnalogInput.Voltage);
+    }
+
     [Fact]
     public async Task Cancelled_measurement_leaves_source_at_zero()
     {

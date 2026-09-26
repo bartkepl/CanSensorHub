@@ -46,6 +46,9 @@ public sealed class AfeCalibrationProcedure(
 
     public static double MinSettleMs(double measurePeriodMs) => 2 * measurePeriodMs;
 
+    /// <summary>Dopuszczalna rozbieżność wzorca i nastawy: 5 % nastawy + 0,1 V (DAC 34907A ma offset rzędu 10 mV).</summary>
+    public static double ReferenceMismatchVolts(double setpoint) => 0.05 * Math.Abs(setpoint) + 0.1;
+
     public async Task<IReadOnlyList<PointMeasurement>> MeasureAsync(
         IReadOnlyList<double> setpoints, IProgress<ProcedureProgress>? progress, CancellationToken ct)
     {
@@ -79,6 +82,12 @@ public sealed class AfeCalibrationProcedure(
                             $"({string.Join("; ", values.Select(v => $"{v:0.000} V"))}) — zwykle odczyt sprzed zmiany nastawy; rozważyć dłuższe ustalanie.", fraction);
 
                     var refStats = SampleStats.From(refTask.Result);
+                    // Wzorzec rozjechany z nastawą o więcej niż tolerancja DAC i offset oznacza błąd
+                    // stanowiska (odłączony multimetr, zły zakres, inne wyjście DAC), nie błąd węzła —
+                    // taki punkt zafałszowałby dopasowanie, więc pomiar jest przerywany.
+                    if (Math.Abs(refStats.Mean - sp) > ReferenceMismatchVolts(sp))
+                        throw new InvalidOperationException(
+                            $"Wzorzec {refStats.Mean:0.000000} V przy nastawie {sp:0.000} V — sprawdzić połączenie multimetru z punktem połączeniowym i wyjście DAC.");
                     point = new PointMeasurement(i, sp, refStats, nodeStats, temperature, DateTimeOffset.Now, attempt);
                     if (refStats.StdDev * 1000.0 <= settings.MaxReferenceStdDevMv) break;
 

@@ -207,7 +207,9 @@ public sealed partial class MpccAfeCalViewModel : ObservableObject, IDisposable
             }
 
             var source = new Dac34907AChannel(daq, Settings.DacSlot, Settings.DacOutput, Settings.MinVoltage, Settings.MaxVoltage);
-            var dmm = new Dmm34401A(dmmSession, new Dmm34401ASettings { Nplc = Settings.DmmNplc, AutoZero = Settings.DmmAutoZero, RangeVolts = 10 });
+            var range = Dmm34401A.RangeFor(Math.Max(Math.Abs(Settings.MinVoltage), Math.Abs(Settings.MaxVoltage)));
+            var dmm = new Dmm34401A(dmmSession, new Dmm34401ASettings { Nplc = Settings.DmmNplc, AutoZero = Settings.DmmAutoZero, RangeVolts = range });
+            AddLog(ProcedureMessageKind.Info, $"Multimetr: zakres {range:0.###} V (pomiar do {range * Dmm34401A.OverrangeFactor:0.###} V).");
             Settings.DmmResource = SelectedDmm.Address;
             Settings.DaqResource = SelectedDaq.Address;
             return new Bench(source, dmm, $"{daqId} / {source.Description}", dmmId.ToString(), new Sessions(dmmSession, daqSession));

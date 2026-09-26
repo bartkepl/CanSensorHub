@@ -69,6 +69,24 @@ public class Dmm34401ATests
     }
 
     [Fact]
+    public async Task Overload_reading_is_an_error_not_a_value()
+    {
+        // Przypadek ze stanowiska: 12.0077 V na zakresie 10 V, przyrząd zwraca 9.9E+37 („OVLD”).
+        var s = new RecordingScpiSession().Respond("READ?", "+9.90000000E+37,+9.90000000E+37");
+        var ex = await Assert.ThrowsAsync<InstrumentException>(() => new Dmm34401A(s, new Dmm34401ASettings()).ReadSamplesAsync(2));
+        Assert.Contains("OVLD", ex.Message);
+    }
+
+    [Theory]
+    [InlineData(0.9, 1)]
+    [InlineData(4.8, 10)]
+    [InlineData(11.5, 10)]
+    [InlineData(12.0, 100)]     // 12 V + offset DAC nie mieści się w 120 % zakresu 10 V
+    [InlineData(30.0, 100)]
+    public void Picks_smallest_range_that_covers_voltage(double v, double range) =>
+        Assert.Equal(range, Dmm34401A.RangeFor(v));
+
+    [Fact]
     public async Task Rejects_response_with_wrong_sample_count()
     {
         var s = new RecordingScpiSession().Respond("READ?", "+1.0E+00,+1.0E+00");

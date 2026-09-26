@@ -35,6 +35,26 @@ public sealed class Dmm34401A(IScpiSession session, Dmm34401ASettings settings) 
     /// <summary>Pojemność pamięci odczytów przyrządu.</summary>
     public const int MaxSamplesPerTrigger = 512;
 
+    /// <summary>Zakres DCV mierzy do 120 % wartości nominalnej (np. zakres 10 V — do 12 V).</summary>
+    public const double OverrangeFactor = 1.2;
+
+    /// <summary>
+    /// Wartość, którą przyrząd zwraca zamiast odczytu przy przekroczeniu zakresu (na panelu „OVLD”).
+    /// Jest poprawną liczbą, więc bez jawnej kontroli trafiłaby do obliczeń jako wzorzec.
+    /// </summary>
+    public const double OverloadValue = 9.9e37;
+
+    /// <summary>
+    /// Najmniejszy zakres, który obejmie napięcie <paramref name="maxAbsVolts"/> z zapasem 1 % + 20 mV
+    /// na offset zadajnika. Mniejszy zakres ma lepszą rozdzielczość i dokładność, więc wybierany jest
+    /// najmniejszy wystarczający.
+    /// </summary>
+    public static double RangeFor(double maxAbsVolts)
+    {
+        var needed = Math.Abs(maxAbsVolts) * 1.01 + 0.02;
+        return Dmm34401ASettings.AllowedRanges.FirstOrDefault(r => r * OverrangeFactor >= needed, Dmm34401ASettings.AllowedRanges[^1]);
+    }
+
     public Dmm34401ASettings Settings { get; } = settings;
     public string Description => $"34401A ({session.ResourceName})";
 
@@ -65,6 +85,9 @@ public sealed class Dmm34401A(IScpiSession session, Dmm34401ASettings settings) 
         var values = ParseReadings(response);
         if (values.Count != count)
             throw new InstrumentException($"{session.ResourceName}: oczekiwano {count} odczytów, otrzymano {values.Count}.");
+        if (values.Any(v => Math.Abs(v) >= OverloadValue * 0.99))
+            throw new InstrumentException(
+                $"{session.ResourceName}: przekroczenie zakresu (OVLD) — napięcie powyżej {Settings.RangeVolts * OverrangeFactor:0.###} V na zakresie {Settings.RangeVolts:0.###} V.");
         return values;
     }
 

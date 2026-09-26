@@ -125,6 +125,7 @@ public class CalculatorTests
         Assert.NotNull(new AfeCalSettings { MinVoltage = 3, MaxVoltage = 2 }.Validate());
         Assert.NotNull(new AfeCalSettings { MaxVoltage = 13 }.Validate());
         Assert.NotNull(new AfeCalSettings { MinVoltage = -1 }.Validate());
+        Assert.Null(new AfeCalSettings { MinVoltage = 0 }.Validate());   // punkt zerowy jest dozwolony
         Assert.NotNull(new AfeCalSettings { EnabledChannels = new bool[7] }.Validate());
     }
 
