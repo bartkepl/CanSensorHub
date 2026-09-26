@@ -41,6 +41,11 @@ public sealed class ParamDescriptor
     public string Group { get; init; } = "Ogólne";
     /// <summary>True for byte-address-like integer params (e.g. NODE_ID) that read more naturally as hex than decimal.</summary>
     public bool DisplayHex { get; init; }
+    /// <summary>
+    /// Parametr kalibracyjny (flaga <c>calibration</c> w <c>device.yaml</c>): zapis odrzucany przez węzeł
+    /// statusem <see cref="StatusCode.ErrReadonly"/>, dopóki parametr uniwersalny <c>CAL_LOCK</c> jest ustawiony.
+    /// </summary>
+    public bool Calibration { get; init; }
 
     public bool IsReadOnly => Access == ParamAccess.ReadOnly;
 }

@@ -13,3 +13,5 @@ nie zna ograniczenia, które ją wymusiło.
 | [0001](0001-narzedzia-jako-osobne-projekty.md) | Narzędzia serwisowe jako osobne projekty wykrywane w czasie działania, włączane właściwością `WithTools` | przyjęta |
 | [0002](0002-jedno-narzedzie-jedna-wielkosc.md) | Jedno narzędzie obsługuje jeden typ urządzenia i jedną wielkość; przyrządy i obliczenia we wspólnej bibliotece `Metrology` | przyjęta |
 | [0003](0003-dostep-do-przyrzadow-przez-visa.md) | Dostęp do przyrządów przez bezpośrednie wywołania `visa64.dll`; build i testy bez VISA | przyjęta |
+| [0004](0004-wspolczynniki-z-odczytow-skalibrowanych.md) | Współczynniki AFE MPCC wyznaczane przez złożenie z bieżącą korekcją; firmware bez zmian | przyjęta |
+| [0005](0005-sekwencja-zapisu-kalibracji.md) | Zapis współczynników: blokada zdejmowana tylko w RAM, jeden `SAVE_CONFIG`, wycofanie bez zapisu | przyjęta |

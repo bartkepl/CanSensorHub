@@ -38,6 +38,9 @@ public static class MpccParams
             Description = "Uśpienie rdzenia (WFI) między zdarzeniami. Nie wpływa na timing.", Control = ParamControlKind.Checkbox },
         new() { Id = 0x08, Name = "IRQ_MODE", Type = ParamValueType.U8, Min = 0, Max = 2, Default = 1, Unit = "-", Group = "System",
             Description = "Obsługa przerwań PCF8574.", Control = ParamControlKind.ComboBox, Options = IrqModeOptions },
+        new() { Id = 0x09, Name = "CAL_LOCK", Type = ParamValueType.U8, Min = 0, Max = 1, Default = 1, Unit = "0/1", Group = "System",
+            Description = "Blokada zapisu parametrów kalibracyjnych. 1 = zablokowane (zapis CAL_* odrzucany statusem ERR_READONLY).",
+            Control = ParamControlKind.Checkbox },
 
         new() { Id = 0x10, Name = "EN_STS31", Type = ParamValueType.U8, Min = 0, Max = 1, Default = 1, Unit = "-", Group = "Aktywacja czujników",
             Description = "Aktywacja czujnika temperatury STS31-DIS.", Control = ParamControlKind.Checkbox },
@@ -69,24 +72,24 @@ public static class MpccParams
         .. CalTriplet(0x35, 0x45, 0x55, "ADC5", "0..~30 V", 10.0),
         .. CalTriplet(0x36, 0x46, 0x56, "ADC6", "0..~30 V", 10.0),
 
-        new() { Id = 0x57, Name = "CAL_ADC_TREF", Type = ParamValueType.F32, Min = -40.0, Max = 125.0, Default = 25.0, Unit = "°C", Group = "Kalibracja ADC",
+        new() { Id = 0x57, Name = "CAL_ADC_TREF", Type = ParamValueType.F32, Min = -40.0, Max = 125.0, Default = 25.0, Unit = "°C", Group = "Kalibracja ADC", Calibration = true,
             Description = "Temperatura odniesienia Tref kompensacji ADC (z STS31).", Control = ParamControlKind.Numeric, DecimalPlaces = 1 },
 
-        new() { Id = 0x58, Name = "CAL_STS31_C0", Type = ParamValueType.F32, Min = -50.0, Max = 50.0, Default = 0.0, Unit = "°C", Group = "Kalibracja STS31",
+        new() { Id = 0x58, Name = "CAL_STS31_C0", Type = ParamValueType.F32, Min = -50.0, Max = 50.0, Default = 0.0, Unit = "°C", Group = "Kalibracja STS31", Calibration = true,
             Description = "STS31: c0 (przesunięcie). T_skor = c0 + c1·T + c2·T².", Control = ParamControlKind.Numeric, DecimalPlaces = 3 },
-        new() { Id = 0x59, Name = "CAL_STS31_C1", Type = ParamValueType.F32, Min = 0.5, Max = 1.5, Default = 1.0, Unit = "-", Group = "Kalibracja STS31",
+        new() { Id = 0x59, Name = "CAL_STS31_C1", Type = ParamValueType.F32, Min = 0.5, Max = 1.5, Default = 1.0, Unit = "-", Group = "Kalibracja STS31", Calibration = true,
             Description = "STS31: c1 (wzmocnienie).", Control = ParamControlKind.Numeric, DecimalPlaces = 4 },
-        new() { Id = 0x5A, Name = "CAL_STS31_C2", Type = ParamValueType.F32, Min = -0.01, Max = 0.01, Default = 0.0, Unit = "1/°C", Group = "Kalibracja STS31",
+        new() { Id = 0x5A, Name = "CAL_STS31_C2", Type = ParamValueType.F32, Min = -0.01, Max = 0.01, Default = 0.0, Unit = "1/°C", Group = "Kalibracja STS31", Calibration = true,
             Description = "STS31: c2 (krzywizna).", Control = ParamControlKind.Numeric, DecimalPlaces = 5 },
     ];
 
     private static IEnumerable<ParamDescriptor> CalTriplet(byte c0Id, byte c1Id, byte tcId, string channel, string range, double c1Default) =>
     [
-        new() { Id = c0Id, Name = $"CAL_{channel}_C0", Type = ParamValueType.F32, Min = -100.0, Max = 100.0, Default = 0.0, Unit = "V", Group = "Kalibracja ADC",
+        new() { Id = c0Id, Name = $"CAL_{channel}_C0", Type = ParamValueType.F32, Min = -100.0, Max = 100.0, Default = 0.0, Unit = "V", Group = "Kalibracja ADC", Calibration = true,
             Description = $"{channel}: offset c0 [V] (zakres wejścia {range}). V_skor = c0 + c1·V_adc, z kompensacją temp.", Control = ParamControlKind.Numeric, DecimalPlaces = 4 },
-        new() { Id = c1Id, Name = $"CAL_{channel}_C1", Type = ParamValueType.F32, Min = 0.0, Max = 1000.0, Default = c1Default, Unit = "-", Group = "Kalibracja ADC",
+        new() { Id = c1Id, Name = $"CAL_{channel}_C1", Type = ParamValueType.F32, Min = 0.0, Max = 1000.0, Default = c1Default, Unit = "-", Group = "Kalibracja ADC", Calibration = true,
             Description = $"{channel}: wzmocnienie c1 (odwrotność dzielnika rezystorowego).", Control = ParamControlKind.Numeric, DecimalPlaces = 4 },
-        new() { Id = tcId, Name = $"CAL_{channel}_TC", Type = ParamValueType.F32, Min = -0.01, Max = 0.01, Default = 0.0, Unit = "1/°C", Group = "Kalibracja ADC",
+        new() { Id = tcId, Name = $"CAL_{channel}_TC", Type = ParamValueType.F32, Min = -0.01, Max = 0.01, Default = 0.0, Unit = "1/°C", Group = "Kalibracja ADC", Calibration = true,
             Description = $"{channel}: współczynnik kompensacji temperaturowej tc (V *= 1 + tc·(T-Tref)).", Control = ParamControlKind.Numeric, DecimalPlaces = 5 },
     ];
 }

@@ -11,6 +11,13 @@ public sealed class SimulatedCanBus
 {
     private readonly ConcurrentDictionary<SimulatedTransport, byte> _endpoints = new();
 
+    /// <summary>
+    /// Wspólny punkt połączeniowy wejść analogowych symulowanych węzłów. Symulowane przyrządy
+    /// narzędzi kalibracyjnych wymuszają na nim napięcie, a symulowane węzły je mierzą — dzięki
+    /// temu procedura kalibracji przebiega w trybie symulatora tak samo jak na stanowisku.
+    /// </summary>
+    public SimulatedAnalogInput AnalogInput { get; } = new();
+
     public SimulatedTransport CreateEndpoint(string name) => new(this, name);
 
     internal void Attach(SimulatedTransport ep) => _endpoints.TryAdd(ep, 0);
@@ -58,5 +65,18 @@ public sealed class SimulatedTransport : ICanTransport
         if (_disposed) return;
         _disposed = true;
         _bus.Detach(this);
+    }
+}
+
+/// <summary>Napięcie wymuszone na wejściach analogowych symulowanych węzłów; <c>null</c> — wejścia niepodłączone.</summary>
+public sealed class SimulatedAnalogInput
+{
+    private readonly Lock _gate = new();
+    private double? _voltage;
+
+    public double? Voltage
+    {
+        get { lock (_gate) return _voltage; }
+        set { lock (_gate) _voltage = value; }
     }
 }

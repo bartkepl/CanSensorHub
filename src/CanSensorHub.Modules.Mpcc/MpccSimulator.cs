@@ -12,16 +12,27 @@ namespace CanSensorHub.Modules.Mpcc;
 /// </summary>
 public sealed class MpccSimulator : IDisposable
 {
+    private readonly SimulatedCanBus _bus;
     private readonly SimulatedTransport _ep;
     private readonly byte _node;
     private readonly Timer _timer;
     private readonly Dictionary<byte, double> _params;
     private readonly DateTime _start = DateTime.UtcNow;
+    private readonly Random _noise = new(0x4D5043);
     private bool _outputOn;
     private byte _seq;
 
+    // Rzeczywiste (nieznane węzłowi) odchyłki toru AFE względem wartości nominalnych c1: błąd
+    // wzmocnienia dzielnika i przesunięcie sprowadzone do wejścia. Rzędu tolerancji rezystorów 0.5 %,
+    // żeby kalibracja w trybie symulatora miała co korygować.
+    private static readonly double[] AfeGainError = [+0.0042, -0.0031, +0.0018, -0.0025, +0.0060, -0.0044, +0.0030];
+    private static readonly double[] AfeOffsetVolts = [+0.004, -0.006, +0.002, 0.000, +0.015, -0.010, +0.008];
+    private static readonly double[] AfeNominalC1 = [1.6667, 1.6667, 1.6667, 1.6667, 10.0, 10.0, 10.0];
+    private const double AdcFullScaleVolts = 3.0;
+
     public MpccSimulator(SimulatedCanBus bus, byte node)
     {
+        _bus = bus;
         _node = node;
         _params = MpccParams.All.ToDictionary(p => p.Id, p => p.Default);
         _ep = bus.CreateEndpoint($"MPCC (symulator) NODE=0x{node:X2}");
@@ -43,13 +54,22 @@ public sealed class MpccSimulator : IDisposable
         }
 
         Emit(MpccChannel.Temp, 23.0 + 3.0 * Math.Sin(T / 30.0));
-        Emit(MpccChannel.VoltageCh0, 3.30 + 0.20 * Math.Sin(T / 12.0));
-        Emit(MpccChannel.VoltageCh1, 2.50 + 0.15 * Math.Sin(T / 14.0 + 1));
-        Emit(MpccChannel.VoltageCh2, 4.10 + 0.10 * Math.Sin(T / 16.0 + 2));
-        Emit(MpccChannel.VoltageCh3, 1.80 + 0.05 * Math.Sin(T / 18.0 + 3));
-        Emit(MpccChannel.VoltageCh4, 12.0 + 1.0 * Math.Sin(T / 20.0));
-        Emit(MpccChannel.VoltageCh5, 24.0 + 0.5 * Math.Sin(T / 22.0 + 1));
-        Emit(MpccChannel.VoltageCh6, 5.0 + 0.3 * Math.Sin(T / 24.0 + 2));
+        if (_bus.AnalogInput.Voltage.HasValue)
+        {
+            MpccChannel[] afe = [MpccChannel.VoltageCh0, MpccChannel.VoltageCh1, MpccChannel.VoltageCh2, MpccChannel.VoltageCh3,
+                MpccChannel.VoltageCh4, MpccChannel.VoltageCh5, MpccChannel.VoltageCh6];
+            for (var i = 0; i < afe.Length; i++) Emit(afe[i], AfeReportedMillivolts(i) * 0.001);
+        }
+        else
+        {
+            Emit(MpccChannel.VoltageCh0, 3.30 + 0.20 * Math.Sin(T / 12.0));
+            Emit(MpccChannel.VoltageCh1, 2.50 + 0.15 * Math.Sin(T / 14.0 + 1));
+            Emit(MpccChannel.VoltageCh2, 4.10 + 0.10 * Math.Sin(T / 16.0 + 2));
+            Emit(MpccChannel.VoltageCh3, 1.80 + 0.05 * Math.Sin(T / 18.0 + 3));
+            Emit(MpccChannel.VoltageCh4, 12.0 + 1.0 * Math.Sin(T / 20.0));
+            Emit(MpccChannel.VoltageCh5, 24.0 + 0.5 * Math.Sin(T / 22.0 + 1));
+            Emit(MpccChannel.VoltageCh6, 5.0 + 0.3 * Math.Sin(T / 24.0 + 2));
+        }
         Emit(MpccChannel.Vdda, 3.00 + 0.005 * Math.Sin(T / 40.0));
         Emit(MpccChannel.McuTemp, 32.0 + 2.0 * Math.Sin(T / 35.0 + 0.5));
         unchecked { _seq++; }
@@ -84,9 +104,13 @@ public sealed class MpccSimulator : IDisposable
             case MpccReqOp.WriteParam:
                 var wpd = FindParam(arg);
                 if (wpd is null) { Respond(op, arg, StatusCode.ErrBadParam); break; }
+                // Blokada kalibracji jak w firmware (wsc_app.c, MPC_REQ_WRITE_PARAM).
+                if (wpd.Calibration && _params.TryGetValue(CalLockId, out var locked) && locked != 0)
+                { Respond(op, arg, StatusCode.ErrReadonly); break; }
                 var value = ParamCodec.Decode(wpd.Type, data);
                 if (value < wpd.Min || value > wpd.Max) { Respond(op, arg, StatusCode.ErrOutOfRange); break; }
-                _params[arg] = value;
+                // Węzeł przechowuje f32, więc odczyt zwrotny ma zwracać wartość po zaokrągleniu do float.
+                _params[arg] = wpd.Type == ParamValueType.F32 ? (float)value : value;
                 RespondOk(op, arg);
                 break;
             case MpccReqOp.ListSensors:
@@ -136,7 +160,10 @@ public sealed class MpccSimulator : IDisposable
                 RespondOk(op, arg);
                 break;
             case MpccReqOp.ReadAdc:
-                var mv = 3300 + (int)(200 * Math.Sin(T / 10.0 + arg));
+                if (arg >= AfeNominalC1.Length) { Respond(op, arg, StatusCode.ErrBadParam); break; }
+                var mv = _bus.AnalogInput.Voltage.HasValue
+                    ? AfeReportedMillivolts(arg)
+                    : 3300 + (int)(200 * Math.Sin(T / 10.0 + arg));
                 RespondOk(op, arg, BitConverter.GetBytes(mv));
                 break;
             case MpccReqOp.EnterBootloader:
@@ -160,7 +187,7 @@ public sealed class MpccSimulator : IDisposable
         switch (sensor)
         {
             case MpccSensor.Sts31Cpu:
-                Add(MpccQuantity.Temp, 23.0 + 3.0 * Math.Sin(T / 30.0));
+                Add(MpccQuantity.Temp, BoardTemperature);
                 break;
             case MpccSensor.Mcu:
                 Add(MpccQuantity.McuTemp, 32.0 + 2.0 * Math.Sin(T / 35.0));
@@ -199,6 +226,33 @@ public sealed class MpccSimulator : IDisposable
         d[DeviceIdentity.OffProfileVersion] = MpccInfo.ProfileVersion;
         BitConverter.GetBytes(MpccCapabilities.Mask).CopyTo(d, DeviceIdentity.OffCapabilities);
         return d;
+    }
+
+    private const byte CalLockId = 0x09;
+
+    private double BoardTemperature => 23.0 + 3.0 * Math.Sin(T / 30.0);
+
+    /// <summary>
+    /// Tor AFE jak w firmware (wsc_afe.c): napięcie na pinie wynika z rzeczywistego dzielnika,
+    /// ADC dodaje szum i kwantyzację, a wynik przelicza się przez c0/c1/tc z parametrów węzła.
+    /// </summary>
+    private int AfeReportedMillivolts(int ch)
+    {
+        var vin = _bus.AnalogInput.Voltage ?? 0.0;
+        double gaussian;
+        lock (_noise)
+            gaussian = Math.Sqrt(-2.0 * Math.Log(1.0 - _noise.NextDouble())) * Math.Cos(2.0 * Math.PI * _noise.NextDouble());
+        var pin = (vin - AfeOffsetVolts[ch]) / (AfeNominalC1[ch] * (1.0 + AfeGainError[ch]));
+        pin = Math.Clamp(pin + 0.0003 * gaussian, 0.0, AdcFullScaleVolts);
+        pin = Math.Round(pin * 1e6) * 1e-6;
+
+        var c0 = _params[(byte)(0x30 + ch)];
+        var c1 = _params[(byte)(0x40 + ch)];
+        var tc = _params[(byte)(0x50 + ch)];
+        var tref = _params[0x57];
+        var v = c1 * pin + c0;
+        if (tc != 0.0) v *= 1.0 + tc * (BoardTemperature - tref);
+        return (int)Math.Round(v * 1000.0);
     }
 
     private ParamDescriptor? FindParam(byte id) => MpccParams.All.FirstOrDefault(p => p.Id == id);

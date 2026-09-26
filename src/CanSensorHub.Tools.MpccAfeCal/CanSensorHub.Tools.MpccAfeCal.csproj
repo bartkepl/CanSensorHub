@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <!-- Prefiks nazwy zestawu jest częścią kontraktu: powłoka wykrywa narzędzia
+         po wzorcu CanSensorHub.Tools.*.dll (docs/adr/0001). -->
+    <AssemblyName>CanSensorHub.Tools.MpccAfeCal</AssemblyName>
+    <RootNamespace>CanSensorHub.Tools.MpccAfeCal</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="CanSensorHub.Tools.MpccAfeCal.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CanSensorHub.Core\CanSensorHub.Core.csproj" />
+    <ProjectReference Include="..\CanSensorHub.Metrology\CanSensorHub.Metrology.csproj" />
+    <ProjectReference Include="..\CanSensorHub.Modules.Mpcc\CanSensorHub.Modules.Mpcc.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="ScottPlot.WPF" Version="5.1.59" />
+    <PackageReference Include="SkiaSharp.Views.WPF" Version="4.150.1" />
+  </ItemGroup>
+
+</Project>
