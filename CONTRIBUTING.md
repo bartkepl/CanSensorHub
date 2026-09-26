@@ -33,9 +33,11 @@ Pełny opis wariantów budowania — w [`docs/budowanie.md`](docs/budowanie.md).
 
 1. **Jedna zmiana na pull request.** Refaktor i poprawka błędu w jednym PR sprawiają, że
    nie da się ocenić ani jednego, ani drugiego.
-2. **Testy dla warstwy Core.** Protokół, CRC i parser obrazu firmware są pokryte testami
-   w `tests/CanSensorHub.Core.Tests` — nowa logika w Core powinna trafić tam razem ze
-   zmianą. Warstwa WPF testów nie ma i nie jest to wymagane.
+2. **Testy dla logiki.** Protokół, CRC i parser obrazu firmware są pokryte testami
+   w `tests/CanSensorHub.Core.Tests`, przyrządy i obliczenia — w
+   `tests/CanSensorHub.Metrology.Tests`, logika narzędzi — w `tests/CanSensorHub.Tools.*.Tests`.
+   Nowa logika powinna trafić tam razem ze zmianą. Widoki WPF testów nie mają i nie jest
+   to wymagane.
 3. **Build bez ostrzeżeń.** `dotnet build -c Release` kończy się zerem błędów i zerem
    ostrzeżeń; nowy kod ma ten stan utrzymać.
 4. **Opisz, jak to sprawdziłeś.** Symulator czy prawdziwy sprzęt? Jaki węzeł, jaka wersja

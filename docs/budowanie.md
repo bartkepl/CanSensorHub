@@ -23,6 +23,7 @@ Wersja przenośna nie aktualizuje się sama.
 |---|---|
 | Środowisko | .NET 10 SDK, Windows |
 | Sprzęt (opcjonalnie) | adapter WeActStudio USB2CANFDV1 we firmware **slcan**, podłączony jako port COM |
+| Kalibracja (opcjonalnie) | NI-VISA albo Keysight IO Libraries (`visa64.dll`) i przyrządy stanowiska — zob. [Kalibracja wejść MPCC](kalibracja-mpcc-afe.md) |
 
 Bez adaptera aplikacja działa w pełni w **trybie symulatora**: fałszywe węzły
 pracują w procesie aplikacji i generują realistyczną telemetrię.
@@ -41,7 +42,12 @@ pracują w procesie aplikacji i generują realistyczną telemetrię.
 ./build_release.ps1                  # publikacja Release do CanSensorHub\build\
 ./build_release.ps1 -SelfContained   # z dołączonym środowiskiem uruchomieniowym
 ./build_release.ps1 -Pack            # jw. + instalator Velopack w artifacts\releases
+./build_release.ps1 -NoTools         # bez narzędzi serwisowych (menu „Narzędzia” znika)
 ```
+
+Narzędzia serwisowe są dołączane domyślnie, także w wydaniach z CI. Właściwość
+MSBuild `WithTools=false` (przełącznik `-NoTools` obu skryptów) pomija je bez
+zmian w kodzie powłoki — [ADR 0001](adr/0001-narzedzia-jako-osobne-projekty.md).
 
 Bezpośrednio przez `dotnet`:
 
@@ -53,17 +59,18 @@ dotnet test
 
 ## Testy
 
-Warstwa `CanSensorHub.Core` jest pokryta testami jednostkowymi w
-`tests/CanSensorHub.Core.Tests` — układ 29-bitowego identyfikatora, kody FUNC i statusu,
-kodowanie ładunków telemetrii i statusu, składanie transferów segmentowanych, obie sumy
-kontrolne oraz parser obrazu firmware (`.bin` i Intel HEX).
+| Projekt | Zakres | Platforma |
+|---|---|---|
+| `tests/CanSensorHub.Core.Tests` | układ 29-bitowego identyfikatora, kody FUNC i statusu, ładunki telemetrii i statusu, składanie transferów segmentowanych, sumy kontrolne, parser obrazu firmware (`.bin`, Intel HEX), wykrywanie narzędzi | `net10.0` |
+| `tests/CanSensorHub.Metrology.Tests` | komendy SCPI sterowników 34401A i 34970A/34907A (sesja rejestrująca), statystyka, dopasowanie prostej, punkty, raport CSV | `net10.0` |
+| `tests/CanSensorHub.Tools.MpccAfeCal.Tests` | złożenie współczynników, pełna kalibracja, zapis z `CAL_LOCK`, wycofanie, anulowanie — na magistrali symulowanej z symulatorem MPCC | `net10.0-windows` |
 
 ```powershell
 dotnet test
 ```
 
-Projekt testowy celuje w `net10.0` bez WPF, więc testy nie wymagają ani sprzętu, ani
-Windows Desktop SDK. Uruchamiają się w CI przy każdym pushu i pull requeście.
+Żaden test nie wymaga sprzętu ani biblioteki VISA. Testy uruchamiają się w CI przy
+każdym pushu i pull requeście.
 
 !!! note "Dlaczego akurat te obszary"
     Testy pilnują tego, co musi zgadzać się co do bitu z firmware węzła. Błąd w tej

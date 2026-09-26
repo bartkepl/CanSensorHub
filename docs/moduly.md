@@ -59,6 +59,22 @@ Skutkiem ubocznym jest to, że host generyczny dekoduje telemetrię modułu bez
 znajomości modułu. Własność ta jest wykorzystana przez rejestrator
 `CanSensorLoggerPi`.
 
+## Narzędzie serwisowe urządzenia
+
+Czynności okazjonalne dla danego typu urządzenia — np. kalibracja — należą do
+osobnego projektu narzędzia, nie do modułu
+([ADR 0001](adr/0001-narzedzia-jako-osobne-projekty.md),
+[ADR 0002](adr/0002-jedno-narzedzie-jedna-wielkosc.md)):
+
+1. Projekt `CanSensorHub.Tools.<Urządzenie><Wielkość>Cal`; nazwa zestawu musi
+   zaczynać się od `CanSensorHub.Tools.`.
+2. Klasa implementująca `IHubTool` i atrybut zestawu
+   `[assembly: HubTool(typeof(...))]`.
+3. Warunkowa referencja w `CanSensorHub.App.csproj`, w grupie
+   `Condition="'$(WithTools)' == 'true'"`.
+4. Przyrządy i obliczenia z `CanSensorHub.Metrology`. Nowy sterownik przyrządu
+   trafia tam, a nie do projektu narzędzia.
+
 ## Rejestracja
 
 Deskryptor rejestruje się w `MainViewModel`, obok modułów istniejących.

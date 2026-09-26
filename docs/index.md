@@ -26,6 +26,12 @@ log ruchu, a każde urządzenie obsługuje przez osobny, wpinany moduł.
     Surowy log ramek nadawanych i odbieranych, niezależny od modułów,
     z pauzą, filtrem i eksportem do CSV.
 
+-   :material-tune-vertical: __Narzędzia serwisowe__
+
+    Kalibracja wejść napięciowych MPCC zadajnikiem 34907A i multimetrem
+    34401A przez VISA, z zapisem do węzła i sprawdzeniem wielopunktowym.
+    Wyłączalne z buildu.
+
 </div>
 
 ## Instalacja
@@ -66,7 +72,8 @@ generowanego z tego samego opisu.
 | Moduł MPCC | w trakcie migracji wraz z firmware węzła |
 | Narzędzie bootloadera | odczyt typu urządzenia z odpowiedzi `HELLO` wersji 1.1, odmowa wgrania obrazu niewłaściwego typu |
 | Składanie transferów segmentowanych | odporne na kolejność, transfer niekompletny porzucany |
-| Testy warstwy Core | protokół, sumy kontrolne, parser obrazu firmware |
+| Narzędzie kalibracji AFE MPCC | procedura, zapis z `CAL_LOCK` i sprawdzenie zweryfikowane na stanowisku symulowanym |
+| Testy | warstwa Core, biblioteka przyrządów, logika narzędzia kalibracji |
 | Wydania | budowane automatycznie, instalator z autoaktualizacją |
 | Kompilacja rozwiązania | 0 błędów, 0 ostrzeżeń |
 

@@ -47,7 +47,15 @@ nav:
   - Narzędzie bootloadera: bootloader.md
   - Niezawodność wgrywania: BOOTLOADER_ROBUSTNESS.md
   - Dodawanie modułu urządzenia: moduly.md
+  - Kalibracja wejść MPCC: kalibracja-mpcc-afe.md
   - Budowanie i uruchamianie: budowanie.md
+  - Decyzje architektoniczne:
+      - adr/README.md
+      - 0001 Narzędzia jako osobne projekty: adr/0001-narzedzia-jako-osobne-projekty.md
+      - 0002 Jedno narzędzie, jedna wielkość: adr/0002-jedno-narzedzie-jedna-wielkosc.md
+      - 0003 Dostęp do przyrządów przez VISA: adr/0003-dostep-do-przyrzadow-przez-visa.md
+      - 0004 Współczynniki z odczytów skalibrowanych: adr/0004-wspolczynniki-z-odczytow-skalibrowanych.md
+      - 0005 Sekwencja zapisu kalibracji: adr/0005-sekwencja-zapisu-kalibracji.md
 
 markdown_extensions:
   - admonition

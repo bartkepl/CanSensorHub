@@ -40,6 +40,12 @@ src/
   CanSensorHub.Modules.Mpswp/     moduł MPSWP — lustrzana struktura, plus autokalibracja
                                     anteny AS3935; bez zakładki Sterowanie (brak wyjścia)
 
+  CanSensorHub.Metrology/         biblioteka przyrządów (bez WPF): VISA, 34401A, 34970A/34907A,
+                                    przyrządy symulowane, statystyka, dopasowanie, raport CSV
+
+  CanSensorHub.Tools.MpccAfeCal/  narzędzie: kalibracja wejść napięciowych MPCC (menu Narzędzia);
+                                    wyłączalne z buildu (-p:WithTools=false / -NoTools)
+
   CanSensorHub.App/               powłoka WPF (uruchamialna)
     MainWindow.xaml                pasek połączenia, zakładki urządzeń, Monitor magistrali
     Views/AddDeviceDialog.xaml     dodawanie urządzenia (typ modułu + adres NODE)
@@ -97,6 +103,7 @@ dotyczy budowania ze źródeł:
 ./build_release.ps1        # publikuj wersję Release do CanSensorHub\build\ (gotowy .exe, bez szukania w bin/obj)
 ./build_release.ps1 -SelfContained   # jw., z dołączonym runtime .NET (nie wymaga .NET na maszynie docelowej)
 ./build_release.ps1 -Pack            # jw. + instalator Velopack w artifacts\releases (to samo, co robi CI)
+./build_release.ps1 -NoTools         # bez narzędzi serwisowych (menu „Narzędzia” znika)
 ```
 
 Albo bezpośrednio przez `dotnet`:
@@ -165,7 +172,8 @@ dostarcza tylko to, co u niego rzeczywiście inne.
 ## Dokumentacja
 
 Pełna dokumentacja: **<https://bartkepl.github.io/CanSensorHub/>** — architektura, warstwa
-protokołu, narzędzie bootloadera, dodawanie modułu urządzenia.
+protokołu, narzędzie bootloadera, dodawanie modułu urządzenia, kalibracja wejść MPCC,
+rejestr decyzji architektonicznych (`docs/adr`).
 
 Źródła strony leżą w katalogu `docs/` (MkDocs Material) i publikują się same przy każdej
 zmianie na `main`:
@@ -178,15 +186,17 @@ mkdocs build     # statyczna strona w site/
 
 ## Testy
 
-Warstwa `CanSensorHub.Core` — protokół, sumy kontrolne, składanie transferów
-segmentowanych i parser obrazu firmware — jest pokryta testami jednostkowymi:
+Testami jednostkowymi są pokryte: warstwa `CanSensorHub.Core` (protokół, sumy kontrolne,
+składanie transferów segmentowanych, parser obrazu firmware, wykrywanie narzędzi),
+biblioteka `CanSensorHub.Metrology` (komendy SCPI, statystyka, dopasowanie) oraz logika
+narzędzia kalibracji na magistrali symulowanej:
 
 ```powershell
 dotnet test
 ```
 
-Testy nie wymagają sprzętu ani WPF i przechodzą w CI przy każdym pushu i pull requeście.
-Warstwa WPF testów nie ma.
+Testy nie wymagają sprzętu ani biblioteki VISA i przechodzą w CI przy każdym pushu i pull
+requeście. Widoki WPF testów nie mają.
 
 ## Licencja
 

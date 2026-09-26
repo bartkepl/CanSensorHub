@@ -59,7 +59,8 @@ jobs:
         run: |
           $exe = "artifacts/app/CanSensorHub.exe"
           if (-not (Test-Path $exe)) { throw "Brak $exe - sprawdz AssemblyName w CanSensorHub.App.csproj" }
-          foreach ($dll in @("CanSensorHub.Core.dll", "CanSensorHub.Modules.Mpcc.dll", "CanSensorHub.Modules.Mpswp.dll")) {
+          foreach ($dll in @("CanSensorHub.Core.dll", "CanSensorHub.Modules.Mpcc.dll", "CanSensorHub.Modules.Mpswp.dll",
+                             "CanSensorHub.Metrology.dll", "CanSensorHub.Tools.MpccAfeCal.dll")) {
             if (-not (Test-Path "artifacts/app/$dll")) { throw "Brak $dll w katalogu publikacji" }
           }
           Write-Host "Katalog publikacji kompletny."
