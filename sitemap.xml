@@ -2,30 +2,58 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://bartkepl.github.io/CanSensorHub/</loc>
-         <lastmod>2026-09-24</lastmod>
+         <lastmod>2026-09-26</lastmod>
     </url>
     <url>
          <loc>https://bartkepl.github.io/CanSensorHub/BOOTLOADER_ROBUSTNESS/</loc>
-         <lastmod>2026-09-24</lastmod>
+         <lastmod>2026-09-26</lastmod>
     </url>
     <url>
          <loc>https://bartkepl.github.io/CanSensorHub/architektura/</loc>
-         <lastmod>2026-09-24</lastmod>
+         <lastmod>2026-09-26</lastmod>
     </url>
     <url>
          <loc>https://bartkepl.github.io/CanSensorHub/bootloader/</loc>
-         <lastmod>2026-09-24</lastmod>
+         <lastmod>2026-09-26</lastmod>
     </url>
     <url>
          <loc>https://bartkepl.github.io/CanSensorHub/budowanie/</loc>
-         <lastmod>2026-09-24</lastmod>
+         <lastmod>2026-09-26</lastmod>
+    </url>
+    <url>
+         <loc>https://bartkepl.github.io/CanSensorHub/kalibracja-mpcc-afe/</loc>
+         <lastmod>2026-09-26</lastmod>
     </url>
     <url>
          <loc>https://bartkepl.github.io/CanSensorHub/moduly/</loc>
-         <lastmod>2026-09-24</lastmod>
+         <lastmod>2026-09-26</lastmod>
     </url>
     <url>
          <loc>https://bartkepl.github.io/CanSensorHub/protokol/</loc>
-         <lastmod>2026-09-24</lastmod>
+         <lastmod>2026-09-26</lastmod>
+    </url>
+    <url>
+         <loc>https://bartkepl.github.io/CanSensorHub/adr/</loc>
+         <lastmod>2026-09-26</lastmod>
+    </url>
+    <url>
+         <loc>https://bartkepl.github.io/CanSensorHub/adr/0001-narzedzia-jako-osobne-projekty/</loc>
+         <lastmod>2026-09-26</lastmod>
+    </url>
+    <url>
+         <loc>https://bartkepl.github.io/CanSensorHub/adr/0002-jedno-narzedzie-jedna-wielkosc/</loc>
+         <lastmod>2026-09-26</lastmod>
+    </url>
+    <url>
+         <loc>https://bartkepl.github.io/CanSensorHub/adr/0003-dostep-do-przyrzadow-przez-visa/</loc>
+         <lastmod>2026-09-26</lastmod>
+    </url>
+    <url>
+         <loc>https://bartkepl.github.io/CanSensorHub/adr/0004-wspolczynniki-z-odczytow-skalibrowanych/</loc>
+         <lastmod>2026-09-26</lastmod>
+    </url>
+    <url>
+         <loc>https://bartkepl.github.io/CanSensorHub/adr/0005-sekwencja-zapisu-kalibracji/</loc>
+         <lastmod>2026-09-26</lastmod>
     </url>
 </urlset>

@@ -15,8 +15,10 @@
         <link rel="canonical" href="https://bartkepl.github.io/CanSensorHub/budowanie/">
       
       
-        <link rel="prev" href="../moduly/">
+        <link rel="prev" href="../kalibracja-mpcc-afe/">
       
+      
+        <link rel="next" href="../adr/">
       
       
         
@@ -421,6 +423,33 @@
       
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../kalibracja-mpcc-afe/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kalibracja wejść MPCC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
     
   
   
@@ -613,6 +642,230 @@
     </ul>
   
 </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../adr/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decyzje architektoniczne
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_9" id="__nav_9_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Decyzje architektoniczne
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0001-narzedzia-jako-osobne-projekty/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0001 Narzędzia jako osobne projekty
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0002-jedno-narzedzie-jedna-wielkosc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0002 Jedno narzędzie, jedna wielkość
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0003-dostep-do-przyrzadow-przez-visa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0003 Dostęp do przyrządów przez VISA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0004-wspolczynniki-z-odczytow-skalibrowanych/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0004 Współczynniki z odczytów skalibrowanych
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0005-sekwencja-zapisu-kalibracji/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0005 Sekwencja zapisu kalibracji
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
       
     </li>
   
@@ -823,6 +1076,10 @@ Wersja przenośna nie aktualizuje się sama.</p>
 <td>Sprzęt (opcjonalnie)</td>
 <td>adapter WeActStudio USB2CANFDV1 we firmware <strong>slcan</strong>, podłączony jako port COM</td>
 </tr>
+<tr>
+<td>Kalibracja (opcjonalnie)</td>
+<td>NI-VISA albo Keysight IO Libraries (<code>visa64.dll</code>) i przyrządy stanowiska — zob. <a href="../kalibracja-mpcc-afe/">Kalibracja wejść MPCC</a></td>
+</tr>
 </tbody>
 </table>
 <p>Bez adaptera aplikacja działa w pełni w <strong>trybie symulatora</strong>: fałszywe węzły
@@ -839,21 +1096,47 @@ pracują w procesie aplikacji i generują realistyczną telemetrię.</p>
 <a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="p">./</span><span class="n">build_release</span><span class="p">.</span><span class="n">ps1</span>                  <span class="c"># publikacja Release do CanSensorHub\build\</span>
 <a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="p">./</span><span class="n">build_release</span><span class="p">.</span><span class="n">ps1</span> <span class="n">-SelfContained</span>   <span class="c"># z dołączonym środowiskiem uruchomieniowym</span>
 <a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="p">./</span><span class="n">build_release</span><span class="p">.</span><span class="n">ps1</span> <span class="n">-Pack</span>            <span class="c"># jw. + instalator Velopack w artifacts\releases</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="p">./</span><span class="n">build_release</span><span class="p">.</span><span class="n">ps1</span> <span class="n">-NoTools</span>         <span class="c"># bez narzędzi serwisowych (menu „Narzędzia” znika)</span>
 </code></pre></div>
+<p>Narzędzia serwisowe są dołączane domyślnie, także w wydaniach z CI. Właściwość
+MSBuild <code>WithTools=false</code> (przełącznik <code>-NoTools</code> obu skryptów) pomija je bez
+zmian w kodzie powłoki — <a href="../adr/0001-narzedzia-jako-osobne-projekty/">ADR 0001</a>.</p>
 <p>Bezpośrednio przez <code>dotnet</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">dotnet</span> <span class="n">build</span> <span class="n">CanSensorHub</span><span class="p">.</span><span class="n">slnx</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">dotnet</span> <span class="n">run</span> <span class="p">-</span><span class="n">-project</span> <span class="n">src</span><span class="p">/</span><span class="n">CanSensorHub</span><span class="p">.</span><span class="n">App</span><span class="p">/</span><span class="n">CanSensorHub</span><span class="p">.</span><span class="n">App</span><span class="p">.</span><span class="n">csproj</span>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">dotnet</span> <span class="n">test</span>
 </code></pre></div>
 <h2 id="testy">Testy<a class="headerlink" href="#testy" title="Permanent link">&para;</a></h2>
-<p>Warstwa <code>CanSensorHub.Core</code> jest pokryta testami jednostkowymi w
-<code>tests/CanSensorHub.Core.Tests</code> — układ 29-bitowego identyfikatora, kody FUNC i statusu,
-kodowanie ładunków telemetrii i statusu, składanie transferów segmentowanych, obie sumy
-kontrolne oraz parser obrazu firmware (<code>.bin</code> i Intel HEX).</p>
+<table>
+<thead>
+<tr>
+<th>Projekt</th>
+<th>Zakres</th>
+<th>Platforma</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tests/CanSensorHub.Core.Tests</code></td>
+<td>układ 29-bitowego identyfikatora, kody FUNC i statusu, ładunki telemetrii i statusu, składanie transferów segmentowanych, sumy kontrolne, parser obrazu firmware (<code>.bin</code>, Intel HEX), wykrywanie narzędzi</td>
+<td><code>net10.0</code></td>
+</tr>
+<tr>
+<td><code>tests/CanSensorHub.Metrology.Tests</code></td>
+<td>komendy SCPI sterowników 34401A i 34970A/34907A (sesja rejestrująca), statystyka, dopasowanie prostej, punkty, raport CSV</td>
+<td><code>net10.0</code></td>
+</tr>
+<tr>
+<td><code>tests/CanSensorHub.Tools.MpccAfeCal.Tests</code></td>
+<td>złożenie współczynników, pełna kalibracja, zapis z <code>CAL_LOCK</code>, wycofanie, anulowanie — na magistrali symulowanej z symulatorem MPCC</td>
+<td><code>net10.0-windows</code></td>
+</tr>
+</tbody>
+</table>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">dotnet</span> <span class="n">test</span>
 </code></pre></div>
-<p>Projekt testowy celuje w <code>net10.0</code> bez WPF, więc testy nie wymagają ani sprzętu, ani
-Windows Desktop SDK. Uruchamiają się w CI przy każdym pushu i pull requeście.</p>
+<p>Żaden test nie wymaga sprzętu ani biblioteki VISA. Testy uruchamiają się w CI przy
+każdym pushu i pull requeście.</p>
 <div class="admonition note">
 <p class="admonition-title">Dlaczego akurat te obszary</p>
 <p>Testy pilnują tego, co musi zgadzać się co do bitu z firmware węzła. Błąd w tej

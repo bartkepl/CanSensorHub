@@ -515,6 +515,33 @@
   
   
     <li class="md-nav__item">
+      <a href="kalibracja-mpcc-afe/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kalibracja wejść MPCC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="budowanie/" class="md-nav__link">
         
   
@@ -531,6 +558,230 @@
   
 
       </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="adr/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decyzje architektoniczne
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_9" id="__nav_9_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Decyzje architektoniczne
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="adr/0001-narzedzia-jako-osobne-projekty/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0001 Narzędzia jako osobne projekty
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="adr/0002-jedno-narzedzie-jedna-wielkosc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0002 Jedno narzędzie, jedna wielkość
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="adr/0003-dostep-do-przyrzadow-przez-visa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0003 Dostęp do przyrządów przez VISA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="adr/0004-wspolczynniki-z-odczytow-skalibrowanych/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0004 Współczynniki z odczytów skalibrowanych
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="adr/0005-sekwencja-zapisu-kalibracji/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0005 Sekwencja zapisu kalibracji
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -651,6 +902,12 @@ skasowaniem pamięci.</p>
 <p>Surowy log ramek nadawanych i odbieranych, niezależny od modułów,
 z pauzą, filtrem i eksportem do CSV.</p>
 </li>
+<li>
+<p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7 3H5v6h2zm12 0h-2v10h2zM3 13h2v8h2v-8h2v-2H3zm12-6h-2V3h-2v4H9v2h6zm-4 14h2V11h-2zm4-6v2h2v4h2v-4h2v-2z"/></svg></span> <strong>Narzędzia serwisowe</strong></p>
+<p>Kalibracja wejść napięciowych MPCC zadajnikiem 34907A i multimetrem
+34401A przez VISA, z zapisem do węzła i sprawdzeniem wielopunktowym.
+Wyłączalne z buildu.</p>
+</li>
 </ul>
 </div>
 <h2 id="instalacja">Instalacja<a class="headerlink" href="#instalacja" title="Permanent link">&para;</a></h2>
@@ -703,8 +960,12 @@ generowanego z tego samego opisu.</p>
 <td>odporne na kolejność, transfer niekompletny porzucany</td>
 </tr>
 <tr>
-<td>Testy warstwy Core</td>
-<td>protokół, sumy kontrolne, parser obrazu firmware</td>
+<td>Narzędzie kalibracji AFE MPCC</td>
+<td>procedura, zapis z <code>CAL_LOCK</code> i sprawdzenie zweryfikowane na stanowisku symulowanym</td>
+</tr>
+<tr>
+<td>Testy</td>
+<td>warstwa Core, biblioteka przyrządów, logika narzędzia kalibracji</td>
 </tr>
 <tr>
 <td>Wydania</td>

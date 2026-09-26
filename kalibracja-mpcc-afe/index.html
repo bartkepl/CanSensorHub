@@ -12,13 +12,13 @@
         <meta name="author" content="bartkepl">
       
       
-        <link rel="canonical" href="https://bartkepl.github.io/CanSensorHub/BOOTLOADER_ROBUSTNESS/">
+        <link rel="canonical" href="https://bartkepl.github.io/CanSensorHub/kalibracja-mpcc-afe/">
       
       
-        <link rel="prev" href="../bootloader/">
+        <link rel="prev" href="../moduly/">
       
       
-        <link rel="next" href="../moduly/">
+        <link rel="next" href="../budowanie/">
       
       
         
@@ -29,7 +29,7 @@
     
     
       
-        <title>Niezawodność wgrywania - CanSensorHub — stanowisko obsługi magistrali CAN</title>
+        <title>Kalibracja wejść MPCC - CanSensorHub — stanowisko obsługi magistrali CAN</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#bootloader-can-plan-wzmocnienia-niezawodnosci" class="md-skip">
+        <a href="#kalibracja-wejsc-napieciowych-mpcc" class="md-skip">
           Przejdź do treści
         </a>
       
@@ -116,7 +116,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Niezawodność wgrywania
+              Kalibracja wejść MPCC
             
           </span>
         </div>
@@ -369,37 +369,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Niezawodność wgrywania
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../BOOTLOADER_ROBUSTNESS/" class="md-nav__link">
         
   
   
@@ -415,153 +388,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Spis treści">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Spis treści
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#co-juz-sprawdzono-i-odrzucono-albo-naprawiono-ale-to-nie-by-cay-problem" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Co już sprawdzono i odrzucono (albo naprawiono, ale to nie był cały problem)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#krok-0-najpierw-to-zanim-cokolwiek-wiecej-podejrzyj-ruch-na-magistrali" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Krok 0 (najpierw to, zanim cokolwiek więcej): podejrzyj ruch na magistrali
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#kandydaci-do-dalszego-zbadania" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Kandydaci do dalszego zbadania
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Kandydaci do dalszego zbadania">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#a-echo-nadawanych-ramek-po-slcan" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        A. Echo nadawanych ramek po slcan
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#b-throttling-wysyki-prog_data" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        B. Throttling wysyłki PROG_DATA
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#c-backoff-miedzy-probami-bloku" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        C. Backoff między próbami bloku
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#d-timeout-prog_end-skalowany-do-rozmiaru-bloku" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        D. Timeout PROG_END skalowany do rozmiaru bloku
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#e-ujednolicenie-dopatrywania-odpowiedzi-w-pozostaych-moduach" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        E. Ujednolicenie dopatrywania odpowiedzi w pozostałych modułach
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#f-bogatszy-log-per-proba" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        F. Bogatszy log per-próba
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#g-opcjonalny-podglad-surowych-ramek-bl-w-oknie-bootloadera" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        G. Opcjonalny podgląd surowych ramek BL w oknie Bootloadera
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#kolejnosc-wdrazania-rekomendacja-na-przyszosc" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Kolejność wdrażania (rekomendacja na przyszłość)
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -597,10 +423,37 @@
       
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../kalibracja-mpcc-afe/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kalibracja wejść MPCC
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -616,6 +469,114 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Spis treści">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Spis treści
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#stanowisko" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stanowisko
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#model-korekcji-w-wezle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Model korekcji w węźle
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#przebieg" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Przebieg
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#zapis-do-weza" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Zapis do węzła
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ustawienia" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ustawienia
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#raport" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Raport
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tryb-symulatora" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tryb symulatora
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#budowanie-bez-narzedzia" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Budowanie bez narzędzia
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -898,10 +859,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#co-juz-sprawdzono-i-odrzucono-albo-naprawiono-ale-to-nie-by-cay-problem" class="md-nav__link">
+  <a href="#stanowisko" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Co już sprawdzono i odrzucono (albo naprawiono, ale to nie był cały problem)
+        Stanowisko
       
     </span>
   </a>
@@ -909,10 +870,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#krok-0-najpierw-to-zanim-cokolwiek-wiecej-podejrzyj-ruch-na-magistrali" class="md-nav__link">
+  <a href="#model-korekcji-w-wezle" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Krok 0 (najpierw to, zanim cokolwiek więcej): podejrzyj ruch na magistrali
+        Model korekcji w węźle
       
     </span>
   </a>
@@ -920,104 +881,65 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#kandydaci-do-dalszego-zbadania" class="md-nav__link">
+  <a href="#przebieg" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Kandydaci do dalszego zbadania
+        Przebieg
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Kandydaci do dalszego zbadania">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#a-echo-nadawanych-ramek-po-slcan" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        A. Echo nadawanych ramek po slcan
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#b-throttling-wysyki-prog_data" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        B. Throttling wysyłki PROG_DATA
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#c-backoff-miedzy-probami-bloku" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        C. Backoff między próbami bloku
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#d-timeout-prog_end-skalowany-do-rozmiaru-bloku" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        D. Timeout PROG_END skalowany do rozmiaru bloku
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#e-ujednolicenie-dopatrywania-odpowiedzi-w-pozostaych-moduach" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        E. Ujednolicenie dopatrywania odpowiedzi w pozostałych modułach
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#f-bogatszy-log-per-proba" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        F. Bogatszy log per-próba
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#g-opcjonalny-podglad-surowych-ramek-bl-w-oknie-bootloadera" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        G. Opcjonalny podgląd surowych ramek BL w oknie Bootloadera
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#kolejnosc-wdrazania-rekomendacja-na-przyszosc" class="md-nav__link">
+  <a href="#zapis-do-weza" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Kolejność wdrażania (rekomendacja na przyszłość)
+        Zapis do węzła
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ustawienia" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ustawienia
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#raport" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Raport
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tryb-symulatora" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tryb symulatora
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#budowanie-bez-narzedzia" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Budowanie bez narzędzia
       
     </span>
   </a>
@@ -1044,97 +966,292 @@
   
 
 
-<h1 id="bootloader-can-plan-wzmocnienia-niezawodnosci">Bootloader CAN — plan wzmocnienia niezawodności<a class="headerlink" href="#bootloader-can-plan-wzmocnienia-niezawodnosci" title="Permanent link">&para;</a></h1>
-<blockquote>
-<p><strong>Aktualizacja 2026-09-16.</strong> Od czasu spisania tego dokumentu narzędzie
-wgrało przez CAN dwa obrazy stacji pogodowej (3.0 build 8 oraz 3.1 build 9),
-oba zakończone weryfikacją i startem aplikacji. Objaw opisany poniżej nie
-wystąpił ponownie. Nie przesądza to, że przyczyna została usunięta: poprawki
-1 i 2 mogły ją usunąć, mogła też pozostać utajona. Propozycje z dalszej części
-dokumentu pozostają aktualne jako wzmocnienie, a nie jako naprawa awarii
-bieżącej.</p>
-</blockquote>
-<p>Status: <strong>propozycja, nie zaimplementowana.</strong> Spisane po nieudanej próbie flashowania
-MPSWP przez CAN na prawdziwym sprzęcie (<code>BŁĄD: Brak odpowiedzi PROG_END.</code> przy pierwszym
-bloku), gdy referencyjna aplikacja Pythonowa (<code>MPSWP/app</code>) na tym samym sprzęcie działa
-poprawnie — więc przyczyna leży po stronie klienta C#, nie firmware'u ani magistrali.</p>
-<h2 id="co-juz-sprawdzono-i-odrzucono-albo-naprawiono-ale-to-nie-by-cay-problem">Co już sprawdzono i odrzucono (albo naprawiono, ale to nie był cały problem)<a class="headerlink" href="#co-juz-sprawdzono-i-odrzucono-albo-naprawiono-ale-to-nie-by-cay-problem" title="Permanent link">&para;</a></h2>
-<ol>
-<li><strong>Brak retry przy timeout PROG_END/PROG_START</strong> (naprawione w <code>BootloaderFlasher.
-   ProgramBlockAsync</code>) — timeout wcześniej wylatywał poza pętlę retry zamiast być w niej
-   obsłużony jak status SEQ. Realny bug, ale samodzielnie nie rozwiązał problemu na
-   sprzęcie użytkownika (błąd identyczny po 3 próbach).</li>
-<li><strong>Dopasowywanie odpowiedzi przez UI-thread dispatcher</strong> (naprawione — nowy
-   <code>CanBusService.RawFrameReceived</code>, <code>BlCanLink</code> już go używa zamiast <code>FrameReceived</code>).
-   Realna architektoniczna wada (seria 64 wysyłek PROG_DATA zapycha kolejkę Dispatcher.Post
-   wpisami do Monitora magistrali, przez co dopasowanie odpowiedzi PROG_END mogło czekać
-   w kolejce dłużej niż timeout) — ale też samodzielnie nie usunęła błędu na sprzęcie
-   użytkownika. Zostaje w kodzie, bo to i tak realne ulepszenie, ale nie jest to (jedyna)
-   przyczyna.</li>
-</ol>
-<p>Skoro dwie sensowne architektonicznie poprawki nie usunęły objawu, a Python na tym samym
-sprzęcie działa — kolejny krok <strong>musi</strong> być empiryczny, nie kolejną spekulacją.</p>
-<h2 id="krok-0-najpierw-to-zanim-cokolwiek-wiecej-podejrzyj-ruch-na-magistrali">Krok 0 (najpierw to, zanim cokolwiek więcej): podejrzyj ruch na magistrali<a class="headerlink" href="#krok-0-najpierw-to-zanim-cokolwiek-wiecej-podejrzyj-ruch-na-magistrali" title="Permanent link">&para;</a></h2>
-<p>Aplikacja ma już wbudowany surowy log CAN (zakładka <strong>Monitor magistrali CAN</strong>, przypięta
-zawsze jako pierwsza zakładka) i działa na tym samym <code>CanBusService</code>, co okno Bootloadera —
-więc rejestruje cały ruch TX/RX również podczas flashowania. Po kolejnej nieudanej próbie,
-<strong>przed wyczyszczeniem</strong>, sprawdzić w tym logu:</p>
+<h1 id="kalibracja-wejsc-napieciowych-mpcc">Kalibracja wejść napięciowych MPCC<a class="headerlink" href="#kalibracja-wejsc-napieciowych-mpcc" title="Permanent link">&para;</a></h1>
+<p>Narzędzie wyznacza współczynniki korekcji <code>c0</code> i <code>c1</code> siedmiu wejść
+napięciowych (AFE) węzła MPCC na podstawie pomiarów wzorcowych, zapisuje je do
+węzła i potwierdza wynik sprawdzeniem wielopunktowym. Otwierane jest z menu
+<strong>Narzędzia → Kalibracja wejść napięciowych MPCC…</strong> okna głównego.</p>
+<p>Kalibracja jest czynnością okazjonalną i wymaga stanowiska pomiarowego, dlatego
+narzędzie jest osobnym, wyłączalnym projektem, a nie zakładką modułu
+(<a href="../adr/0001-narzedzia-jako-osobne-projekty/">ADR 0001</a>).</p>
+<h2 id="stanowisko">Stanowisko<a class="headerlink" href="#stanowisko" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Element</th>
+<th>Rola</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Agilent 34970A z kartą 34907A</td>
+<td>zadajnik: wyjście DAC (±12 V, rozdzielczość 1 mV)</td>
+</tr>
+<tr>
+<td>HP 34401A</td>
+<td>wzorzec: pomiar napięcia w punkcie połączeniowym</td>
+</tr>
+<tr>
+<td>Adapter USB–GPIB</td>
+<td>dostęp do obu przyrządów przez VISA</td>
+</tr>
+<tr>
+<td>NI-VISA albo Keysight IO Libraries</td>
+<td>biblioteka <code>visa64.dll</code></td>
+</tr>
+<tr>
+<td>Adapter CAN (slcan)</td>
+<td>połączenie z węzłem, jak przy zwykłej pracy</td>
+</tr>
+</tbody>
+</table>
+<pre class="mermaid"><code>flowchart LR
+    DAC["34970A / 34907A&lt;br/&gt;DAC1 (s04)"] --&gt;|HI| J(("punkt&lt;br/&gt;połączeniowy"))
+    J --&gt; AFE["MPCC&lt;br/&gt;CH0 … CH6"]
+    J --&gt;|HI| DMM["34401A&lt;br/&gt;DCV"]
+    DAC -. LO .-&gt; G(("GND MPCC"))
+    DMM -. LO .-&gt; G
+    PC["CanSensorHub"] --&gt;|VISA / GPIB| DAC &amp; DMM
+    PC &lt;--&gt;|CAN| AFE</code></pre>
+<p>Wymagania dotyczące połączeń:</p>
 <ul>
-<li>Czy <code>PROG_END</code> (OBJ w ID = <code>0x74</code>, pole FUNC=<code>0x08</code>/REQUEST) w ogóle poszedł jako TX?</li>
-<li>Czy cokolwiek wróciło jako RX z tym samym OBJ (<code>0x74</code>) i FUNC=<code>0x09</code>/RESPONSE — może
-  wróciło, ale z jakiegoś powodu klient go nie skonsumował (inny błąd, nie brak ramki)?</li>
-<li>Ile realnie ramek TX poszło między <code>PROG_START</code> a <code>PROG_END</code> — dokładnie 64, czy mniej
-  (co wskazywałoby na problem po stronie wysyłki, nie odbioru)?</li>
+<li><strong>Multimetr mierzy w punkcie połączeniowym</strong>, bezpośrednio przy zaciskach
+  węzła. Spadek napięcia na przewodzie od zadajnika nie wchodzi wtedy do wyniku,
+  bo wzorcem jest napięcie faktycznie obecne na wejściach.</li>
+<li><strong>Zaciski LO obu przyrządów są dołączone do masy węzła w jednym punkcie.</strong>
+  Oddzielne ścieżki powrotne tworzą pętlę masy, której spadek napięcia dodaje
+  się do mierzonego.</li>
+<li><strong>Wszystkie kalibrowane wejścia są połączone równolegle.</strong> Jeden przebieg
+  kalibruje wszystkie wybrane kanały. Górna granica zakresu nie może przekraczać
+  zakresu najmniejszego z dołączonych wejść.</li>
 </ul>
-<p>To rozstrzygnie, czy problem jest po stronie <em>wysyłania</em> (ramki nie docierają na magistralę),
-<em>odbioru</em> (odpowiedź przychodzi, ale gubi się w kliencie) czy <em>firmware'u</em> (naprawdę nie
-odpowiada). Dalsze punkty poniżej zakładają, że to się jeszcze nie stało — każdy z nich
-warto zweryfikować dopiero w świetle tego, co pokaże log, żeby nie strzelać po ciemku.</p>
-<h2 id="kandydaci-do-dalszego-zbadania">Kandydaci do dalszego zbadania<a class="headerlink" href="#kandydaci-do-dalszego-zbadania" title="Permanent link">&para;</a></h2>
-<h3 id="a-echo-nadawanych-ramek-po-slcan">A. Echo nadawanych ramek po slcan<a class="headerlink" href="#a-echo-nadawanych-ramek-po-slcan" title="Permanent link">&para;</a></h3>
-<p>Wiele implementacji firmware slcan odsyła echo wysłanej komendy <code>T........</code> z powrotem po
-tym samym porcie szeregowym (potwierdzenie zapisu, nie odbioru z magistrali). Jeśli WeAct
-tak robi, każda z 64 ramek PROG_DATA wygenerowałaby dodatkowo "przychodzącą" ramkę w
-<code>SlcanTransport.ReaderLoop</code> — filtr <code>FUNC != RESPONSE</code> w <code>BlCanLink.OnFrameReceived</code>
-powinien to poprawnie odsiewać, ale warto sprawdzić w Monitorze magistrali, czy faktycznie
-tak jest (nadmiar wpisów RX o FUNC=REQUEST tuż po serii PROG_DATA) — a jeśli tak, czy
-<code>SlcanTransport.ReaderLoop</code> (odczyt bajt-po-bajcie, pojedynczy wątek) nadąża z takim
-przepływem bez gubienia/mieszania ramek z prawdziwymi odpowiedziami.</p>
-<h3 id="b-throttling-wysyki-prog_data">B. Throttling wysyłki PROG_DATA<a class="headerlink" href="#b-throttling-wysyki-prog_data" title="Permanent link">&para;</a></h3>
-<p>Firmware (<code>bl_can.c</code>) jawnie zaznacza w komentarzu, że odbiór jest tylko-pollingowy z
-3-głębokim FIFO. Klient obecnie wysyła 64 ramki PROG_DATA jedna po drugiej bez żadnego
-opóźnienia. Nawet jeśli punkt 0 pokaże, że to nie jest (jedyna) przyczyna obecnego błędu,
-dodanie throttlingu (np. krótka pauza co 3 ramki, dopasowana do głębokości FIFO) to tania
-prewencja na przyszłość — nie polegać wyłącznie na mechanizmie SEQ-retry.</p>
-<h3 id="c-backoff-miedzy-probami-bloku">C. Backoff między próbami bloku<a class="headerlink" href="#c-backoff-miedzy-probami-bloku" title="Permanent link">&para;</a></h3>
-<p>Nieudana próba bloku dziś natychmiast powtarza cały PROG_START. Krótkie opóźnienie
-(50–100 ms) przed ponowieniem dałoby firmware'owi czas na pełne wybudzenie się z
-poprzedniej operacji (np. zapis flash w handlerze PROG_END), zamiast odpalać dokładnie ten
-sam wzorzec obciążenia od razu ponownie.</p>
-<h3 id="d-timeout-prog_end-skalowany-do-rozmiaru-bloku">D. Timeout PROG_END skalowany do rozmiaru bloku<a class="headerlink" href="#d-timeout-prog_end-skalowany-do-rozmiaru-bloku" title="Permanent link">&para;</a></h3>
-<p><code>bl_flash_program()</code> wykonuje się synchronicznie w handlerze PROG_END przed wysłaniem
-odpowiedzi — stały timeout 2 s może nie dawać marginesu przy większych blokach/wolniejszej
-geometrii flasha. Rozważyć timeout zależny od rozmiaru bloku zamiast stałej.</p>
-<h3 id="e-ujednolicenie-dopatrywania-odpowiedzi-w-pozostaych-moduach">E. Ujednolicenie dopatrywania odpowiedzi w pozostałych modułach<a class="headerlink" href="#e-ujednolicenie-dopatrywania-odpowiedzi-w-pozostaych-moduach" title="Permanent link">&para;</a></h3>
-<p><code>MpccDeviceClient</code>/<code>MpswpDeviceClient</code> nadal subskrybują <code>FrameReceived</code> (kolejkowane przez
-UI thread), tak jak wcześniej robił <code>BlCanLink</code>. Nie demonstrowały dotąd tego samego objawu
-(nie poprzedza ich seria 64 wysyłek pod rząd), ale to ta sama potencjalna wada architektury
-— warto ujednolicić na <code>RawFrameReceived</code> przy okazji, dla spójności.</p>
-<h3 id="f-bogatszy-log-per-proba">F. Bogatszy log per-próba<a class="headerlink" href="#f-bogatszy-log-per-proba" title="Permanent link">&para;</a></h3>
-<p>Dziś log Bootloadera pokazuje tylko przejścia etapów + błąd końcowy. Dodanie linii per
-próba bloku ("blok @0x000: próba 2/3 — retry po SEQ/timeout") ułatwiłoby diagnozę kolejnych
-przypadków bez konieczności odtwarzania tego z kodu źródłowego, tak jak teraz.</p>
-<h3 id="g-opcjonalny-podglad-surowych-ramek-bl-w-oknie-bootloadera">G. Opcjonalny podgląd surowych ramek BL w oknie Bootloadera<a class="headerlink" href="#g-opcjonalny-podglad-surowych-ramek-bl-w-oknie-bootloadera" title="Permanent link">&para;</a></h3>
-<p>Checkbox "loguj każdą ramkę protokołu BL" w oknie Bootloadera, dublujący do loga okna to,
-co i tak widać w Monitorze magistrali — wygodniejsze przy diagnozie w terenie bez
-przełączania zakładek.</p>
-<h2 id="kolejnosc-wdrazania-rekomendacja-na-przyszosc">Kolejność wdrażania (rekomendacja na przyszłość)<a class="headerlink" href="#kolejnosc-wdrazania-rekomendacja-na-przyszosc" title="Permanent link">&para;</a></h2>
+<div class="admonition warning">
+<p class="admonition-title">Kanały 0–3 a pełna skala ADC</p>
+<p>Dzielnik 25k/15k przy 5 V na wejściu daje na pinie ~3,0 V, czyli pełną skalę
+ADC (VDDA ≈ 3,0 V, referencja LM4040). Tolerancja dzielnika może wprowadzić
+przetwornik w nasycenie przed osiągnięciem 5 V. Domyślna górna granica
+zakresu wynosi 4,8 V. Punkty w nasyceniu są wykrywane i pomijane.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Kanały 4–6 przy zakresie 5 V</p>
+<p>Kanały o zakresie ~30 V, kalibrowane napięciem do 5 V, są skorygowane
+w dolnej jednej szóstej zakresu. Korekcja wzmocnienia ekstrapoluje się na
+cały zakres, ale jej niepewność powyżej 5 V nie jest potwierdzona
+sprawdzeniem.</p>
+</div>
+<h2 id="model-korekcji-w-wezle">Model korekcji w węźle<a class="headerlink" href="#model-korekcji-w-wezle" title="Permanent link">&para;</a></h2>
+<p>Firmware MPCC przelicza napięcie na pinie ADC na napięcie wejściowe według
+modelu</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>V = k · (c1 · V_pin + c0),    k = 1 + tc · (T − Tref)
+</code></pre></div>
+<p>z parametrami kanału <code>CAL_ADCn_C0</code>, <code>CAL_ADCn_C1</code>, <code>CAL_ADCn_TC</code>, wspólnym
+<code>CAL_ADC_TREF</code> i temperaturą płytki <code>T</code> z czujnika STS31.</p>
+<p>Węzeł udostępnia wyłącznie wynik przeliczenia (<code>READ_ADC</code>, 1 mV). Narzędzie
+dopasowuje prostą <code>V_ref = a · V + b</code> do odczytów wykonanych przy bieżących
+współczynnikach i wylicza nowe przez złożenie:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>c1' = a · c1
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>c0' = a · c0 + b / k
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>tc' = tc
+</code></pre></div>
+<p>Uzasadnienie i odrzucone warianty:
+<a href="../adr/0004-wspolczynniki-z-odczytow-skalibrowanych/">ADR 0004</a>. Wynik nie
+zależy od stanu wyjściowego współczynników. Ponowna kalibracja węzła już
+skalibrowanego daje <code>a ≈ 1</code> i <code>b ≈ 0</code>.</p>
+<h2 id="przebieg">Przebieg<a class="headerlink" href="#przebieg" title="Permanent link">&para;</a></h2>
 <ol>
-<li>Krok 0 — zebrać log Monitora magistrali z nieudanej próby (rozstrzyga resztę).</li>
-<li>W zależności od wyniku: A (jeśli echo miesza się z odpowiedziami) albo bezpośrednio
-   B+C (jeśli to jednak przeciążenie/timing).</li>
-<li>D, E, F, G — niezależne usprawnienia, do zrobienia przy okazji, nie blokują diagnozy.</li>
+<li><strong>Połączenie i urządzenie.</strong> W oknie głównym nawiązać połączenie z magistralą
+   i dodać urządzenie MPCC. Narzędzie korzysta z tego samego połączenia.</li>
+<li><strong>Przyrządy.</strong> <em>Wyszukaj przyrządy</em> — narzędzie wyszukuje adresy GPIB, USB
+   i LAN, wysyła do każdego <code>*IDN?</code> i podpowiada przypisanie 34401A oraz 34970A.
+   Porty szeregowe są pomijane, chyba że operator zaznaczy je jawnie.
+   Zapytanie identyfikacyjne na porcie innego urządzenia, w tym adaptera CAN,
+   zakłóca jego pracę. Przed pomiarem narzędzie sprawdza, czy we wskazanym
+   gnieździe jest karta 34907A.</li>
+<li><strong>Węzeł.</strong> <em>Odczytaj</em> — identyfikacja węzła (UID, wersja firmware), bieżące
+   współczynniki, <code>MEASURE_PERIOD</code>, <code>Tref</code> i stan blokady <code>CAL_LOCK</code>.</li>
+<li><strong>Kalibracja.</strong> Dla każdego punktu: nastawa DAC, ustalenie, równoległa seria
+   odczytów multimetru i rundy <code>READ_ADC</code> wszystkich wybranych kanałów, kontrola
+   rozrzutu wzorca (z powtórzeniem punktu), temperatura płytki. Po ostatnim
+   punkcie DAC wraca do 0 V — również po przerwaniu i po błędzie.</li>
+<li><strong>Zestawienie.</strong> Tabela pokazuje dla każdego kanału <code>a</code>, <code>b</code>, residua
+   dopasowania oraz współczynniki bieżące i nowe. Kanał jest odrzucany z opisem
+   przyczyny, gdy:<ul>
+<li>residuum dopasowania przekracza tolerancję sprawdzenia — tor nie jest
+  liniowy w zakresie kalibracji, a korekcja liniowa tego nie usunie;</li>
+<li>korekcja jest nierealna (domyślnie powyżej 5 % wzmocnienia albo 100 mV
+  przesunięcia), co wskazuje zwykle błąd połączeń.</li>
+</ul>
+</li>
+<li><strong>Zapis.</strong> Po zaznaczeniu pola zatwierdzenia — <em>Zapisz do węzła i sprawdź</em>.</li>
+<li><strong>Sprawdzenie.</strong> Automatycznie po zapisie, w punktach leżących między punktami
+   kalibracji. Wynik PASS/FAIL na kanał względem tolerancji. Sprawdzenie można
+   też uruchomić samodzielnie (<em>Tylko sprawdzenie</em>) jako weryfikację okresową,
+   bez zmiany współczynników.</li>
 </ol>
+<h2 id="zapis-do-weza">Zapis do węzła<a class="headerlink" href="#zapis-do-weza" title="Permanent link">&para;</a></h2>
+<p>Kolejność kroków
+(<a href="../adr/0005-sekwencja-zapisu-kalibracji/">ADR 0005</a>):</p>
+<ol>
+<li><code>CAL_LOCK = 0</code> (tylko RAM).</li>
+<li><code>c1</code> i <code>c0</code> każdego przyjętego kanału; każdy zapis musi zwrócić <code>OK</code>.</li>
+<li>Odczyt zwrotny i porównanie z wartościami wysłanymi (na poziomie <code>float</code>).</li>
+<li><code>CAL_LOCK = 1</code>.</li>
+<li><code>SAVE_CONFIG</code> — nowe współczynniki i blokada trafiają do pamięci
+   nieulotnej jednocześnie.</li>
+<li>Kontrola <code>CAL_LOCK = 1</code>.</li>
+</ol>
+<p>Niepowodzenie przed <code>SAVE_CONFIG</code> przywraca poprzednie współczynniki
+i blokadę, bez zapisu do pamięci nieulotnej. Stan pamięci nieulotnej węzła
+pozostaje wtedy niezmieniony.</p>
+<div class="admonition warning">
+<p class="admonition-title"><code>SAVE_CONFIG</code> utrwala całą konfigurację</p>
+<p>Zmiany innych parametrów węzła wykonane wcześniej w RAM i niezapisane
+zostaną utrwalone razem z kalibracją.</p>
+</div>
+<h2 id="ustawienia">Ustawienia<a class="headerlink" href="#ustawienia" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Ustawienie</th>
+<th>Domyślnie</th>
+<th>Znaczenie</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Zakres</td>
+<td>0,1 … 4,8 V</td>
+<td>napięcia zadawane; ograniczone też do ±12 V DAC</td>
+</tr>
+<tr>
+<td>Kalibracja</td>
+<td>wielopunktowa, 5 pkt</td>
+<td>dwupunktowa: krańce zakresu, prosta dokładna; wielopunktowa: najmniejsze kwadraty, residua ujawniają nieliniowość</td>
+</tr>
+<tr>
+<td>Punkty sprawdzenia</td>
+<td>6</td>
+<td>leżą w połowie między punktami siatki</td>
+</tr>
+<tr>
+<td>Wzorzec — próbki</td>
+<td>10</td>
+<td>seria jednym wyzwoleniem (<code>SAMP:COUN</code>), maks. 512</td>
+</tr>
+<tr>
+<td>NPLC</td>
+<td>10</td>
+<td>od 10 wzwyż tłumienie przydźwięku sieci</td>
+</tr>
+<tr>
+<td>Autozero</td>
+<td>wł.</td>
+<td>kompensacja dryfu offsetu, dwukrotnie dłuższy odczyt</td>
+</tr>
+<tr>
+<td>Węzeł — rundy odczytu</td>
+<td>10</td>
+<td>rundy <code>READ_ADC</code> na punkt</td>
+</tr>
+<tr>
+<td>Odstęp rund</td>
+<td>0 = <code>MEASURE_PERIOD</code></td>
+<td>krótszy odstęp odczytuje wielokrotnie tę samą próbkę</td>
+</tr>
+<tr>
+<td>Ustalanie</td>
+<td>0 = 2 × <code>MEASURE_PERIOD</code> + 500 ms</td>
+<td>czas po zmianie nastawy</td>
+</tr>
+<tr>
+<td>Maks. σ wzorca</td>
+<td>0,5 mV</td>
+<td>powyżej — powtórzenie punktu</td>
+</tr>
+<tr>
+<td>Maks. prób punktu</td>
+<td>3</td>
+<td>po wyczerpaniu punkt jest przyjmowany z ostrzeżeniem</td>
+</tr>
+<tr>
+<td>Tolerancja sprawdzenia</td>
+<td>5 mV</td>
+<td>kryterium PASS; także największe dopuszczalne residuum dopasowania</td>
+</tr>
+<tr>
+<td>Maks. korekcja wzmocnienia</td>
+<td>0,05</td>
+<td>|a − 1|; powyżej — kanał odrzucony</td>
+</tr>
+<tr>
+<td>Maks. korekcja przesunięcia</td>
+<td>100 mV</td>
+<td>|b|; powyżej — kanał odrzucony</td>
+</tr>
+</tbody>
+</table>
+<p>Multimetr pracuje na stałym zakresie 10 V z impedancją wejściową powyżej
+10 GΩ (<code>INP:IMP:AUTO ON</code>).</p>
+<p>Rozdzielczość <code>READ_ADC</code> wynosi 1 mV. Rozdzielczość poniżej 1 mV wynika
+z uśredniania rund, w których szum toru ADC działa jak dither. Wydłużenie
+serii zmniejsza niepewność średniej proporcjonalnie do <code>1/√n</code>.</p>
+<p>Ustawienia są zapisywane w <code>%AppData%\CanSensorHub\tools\mpcc-afe-cal.json</code>.</p>
+<h2 id="raport">Raport<a class="headerlink" href="#raport" title="Permanent link">&para;</a></h2>
+<p>Każda operacja zapisuje raport CSV w <code>%AppData%\CanSensorHub\calibration\</code>,
+o nazwie <code>MPCC-AFE_&lt;UID&gt;_&lt;data&gt;-&lt;czas&gt;.csv</code>. Kolejne operacje jednej sesji
+(kalibracja, zapis i sprawdzenie) uzupełniają ten sam plik.</p>
+<table>
+<thead>
+<tr>
+<th>Sekcja</th>
+<th>Zawartość</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>[Sesja]</code></td>
+<td>wersja narzędzia, tryb, węzeł (NODE, UID, firmware), przyrządy (<code>*IDN?</code>), <code>Tref</code>, <code>MEASURE_PERIOD</code></td>
+</tr>
+<tr>
+<td><code>[Ustawienia]</code></td>
+<td>parametry przebiegu</td>
+</tr>
+<tr>
+<td><code>[Wspolczynniki przed]</code></td>
+<td>stan węzła przed operacją</td>
+</tr>
+<tr>
+<td><code>[Punkty kalibracji]</code></td>
+<td>nastawa, średnia i σ wzorca, temperatura, średnia, σ i liczność serii każdego kanału</td>
+</tr>
+<tr>
+<td><code>[Dopasowanie]</code></td>
+<td><code>a</code>, <code>b</code>, R², residuum maksymalne, <code>k</code>, współczynniki przed i po, decyzja</td>
+</tr>
+<tr>
+<td><code>[Zapis do wezla]</code></td>
+<td>wynik i dziennik kroków</td>
+</tr>
+<tr>
+<td><code>[Punkty sprawdzenia]</code>, <code>[Sprawdzenie]</code></td>
+<td>dane surowe i wynik PASS/FAIL na kanał</td>
+</tr>
+</tbody>
+</table>
+<p>Raport zawiera dane surowe, co pozwala przeliczyć kalibrację innym modelem bez
+powtarzania pomiarów.</p>
+<h2 id="tryb-symulatora">Tryb symulatora<a class="headerlink" href="#tryb-symulatora" title="Permanent link">&para;</a></h2>
+<p>W trybie symulatora zadajnik i multimetr są symulowane i dołączone do wejścia
+analogowego magistrali symulowanej. Symulowany węzeł MPCC ma dzielniki
+z błędami rzędu 0,5 % i przesunięciami rzędu miliwoltów, szum toru ADC oraz
+egzekwuje blokadę <code>CAL_LOCK</code> jak firmware. Przebieg, zapis i raport są
+identyczne jak na stanowisku.</p>
+<h2 id="budowanie-bez-narzedzia">Budowanie bez narzędzia<a class="headerlink" href="#budowanie-bez-narzedzia" title="Permanent link">&para;</a></h2>
+<p>Narzędzie jest dołączane domyślnie. Build bez narzędzi serwisowych:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">./</span><span class="n">build_release</span><span class="p">.</span><span class="n">ps1</span> <span class="n">-NoTools</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">dotnet</span> <span class="n">publish</span> <span class="n">src</span><span class="p">/</span><span class="n">CanSensorHub</span><span class="p">.</span><span class="n">App</span><span class="p">/</span><span class="n">CanSensorHub</span><span class="p">.</span><span class="n">App</span><span class="p">.</span><span class="n">csproj</span> <span class="n">-c</span> <span class="n">Release</span> <span class="n">-p</span><span class="p">:</span><span class="n">WithTools</span><span class="p">=</span><span class="n">false</span>
+</code></pre></div>
+<p>Aplikacja zbudowana w ten sposób nie pokazuje przycisku „Narzędzia”.</p>
 
 
 

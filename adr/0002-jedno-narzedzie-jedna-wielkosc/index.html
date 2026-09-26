@@ -12,31 +12,31 @@
         <meta name="author" content="bartkepl">
       
       
-        <link rel="canonical" href="https://bartkepl.github.io/CanSensorHub/architektura/">
+        <link rel="canonical" href="https://bartkepl.github.io/CanSensorHub/adr/0002-jedno-narzedzie-jedna-wielkosc/">
       
       
-        <link rel="prev" href="..">
+        <link rel="prev" href="../0001-narzedzia-jako-osobne-projekty/">
       
       
-        <link rel="next" href="../protokol/">
+        <link rel="next" href="../0003-dostep-do-przyrzadow-przez-visa/">
       
       
         
       
       
-      <link rel="icon" href="../assets/images/favicon.png">
+      <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
-        <title>Architektura - CanSensorHub — stanowisko obsługi magistrali CAN</title>
+        <title>0002 Jedno narzędzie, jedna wielkość - CanSensorHub — stanowisko obsługi magistrali CAN</title>
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -55,7 +55,7 @@
       
     
     
-    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#architektura" class="md-skip">
+        <a href="#0002-jedno-narzedzie-jeden-typ-urzadzenia-i-jedna-wielkosc" class="md-skip">
           Przejdź do treści
         </a>
       
@@ -96,7 +96,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Nagłówek">
-    <a href=".." title="CanSensorHub — stanowisko obsługi magistrali CAN" class="md-header__button md-logo" aria-label="CanSensorHub — stanowisko obsługi magistrali CAN" data-md-component="logo">
+    <a href="../.." title="CanSensorHub — stanowisko obsługi magistrali CAN" class="md-header__button md-logo" aria-label="CanSensorHub — stanowisko obsługi magistrali CAN" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -116,7 +116,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Architektura
+              0002 Jedno narzędzie, jedna wielkość
             
           </span>
         </div>
@@ -234,7 +234,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Nawigacja" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="CanSensorHub — stanowisko obsługi magistrali CAN" class="md-nav__button md-logo" aria-label="CanSensorHub — stanowisko obsługi magistrali CAN" data-md-component="logo">
+    <a href="../.." title="CanSensorHub — stanowisko obsługi magistrali CAN" class="md-nav__button md-logo" aria-label="CanSensorHub — stanowisko obsługi magistrali CAN" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -264,7 +264,7 @@
   
   
     <li class="md-nav__item">
-      <a href=".." class="md-nav__link">
+      <a href="../.." class="md-nav__link">
         
   
   
@@ -288,37 +288,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Architektura
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../architektura/" class="md-nav__link">
         
   
   
@@ -334,92 +307,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Spis treści">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Spis treści
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#cansensorhubcore" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        CanSensorHub.Core
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#poaczenie-z-magistrala" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Połączenie z magistralą
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#modu-urzadzenia" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Moduł urządzenia
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#narzedzia-serwisowe" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Narzędzia serwisowe
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#monitor-magistrali" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Monitor magistrali
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#trwaosc-ustawien" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Trwałość ustawień
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -431,7 +318,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../protokol/" class="md-nav__link">
+      <a href="../../protokol/" class="md-nav__link">
         
   
   
@@ -458,7 +345,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../bootloader/" class="md-nav__link">
+      <a href="../../bootloader/" class="md-nav__link">
         
   
   
@@ -485,7 +372,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../BOOTLOADER_ROBUSTNESS/" class="md-nav__link">
+      <a href="../../BOOTLOADER_ROBUSTNESS/" class="md-nav__link">
         
   
   
@@ -512,7 +399,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../moduly/" class="md-nav__link">
+      <a href="../../moduly/" class="md-nav__link">
         
   
   
@@ -539,7 +426,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../kalibracja-mpcc-afe/" class="md-nav__link">
+      <a href="../../kalibracja-mpcc-afe/" class="md-nav__link">
         
   
   
@@ -566,7 +453,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../budowanie/" class="md-nav__link">
+      <a href="../../budowanie/" class="md-nav__link">
         
   
   
@@ -590,6 +477,8 @@
       
   
   
+    
+  
   
   
     
@@ -618,15 +507,15 @@
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" checked>
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../adr/" class="md-nav__link ">
+            <a href="../" class="md-nav__link ">
               
   
   
@@ -650,7 +539,7 @@
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_9">
             <span class="md-nav__icon md-icon"></span>
             
@@ -670,7 +559,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/0001-narzedzia-jako-osobne-projekty/" class="md-nav__link">
+      <a href="../0001-narzedzia-jako-osobne-projekty/" class="md-nav__link">
         
   
   
@@ -695,10 +584,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../adr/0002-jedno-narzedzie-jedna-wielkosc/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0002 Jedno narzędzie, jedna wielkość
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -714,6 +630,70 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Spis treści">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Spis treści
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#kontekst" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kontekst
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rozwazane-warianty" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rozważane warianty
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decyzja" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decyzja
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#konsekwencje" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Konsekwencje
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -726,7 +706,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/0003-dostep-do-przyrzadow-przez-visa/" class="md-nav__link">
+      <a href="../0003-dostep-do-przyrzadow-przez-visa/" class="md-nav__link">
         
   
   
@@ -754,7 +734,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/0004-wspolczynniki-z-odczytow-skalibrowanych/" class="md-nav__link">
+      <a href="../0004-wspolczynniki-z-odczytow-skalibrowanych/" class="md-nav__link">
         
   
   
@@ -782,7 +762,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/0005-sekwencja-zapisu-kalibracji/" class="md-nav__link">
+      <a href="../0005-sekwencja-zapisu-kalibracji/" class="md-nav__link">
         
   
   
@@ -837,10 +817,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#cansensorhubcore" class="md-nav__link">
+  <a href="#kontekst" class="md-nav__link">
     <span class="md-ellipsis">
       
-        CanSensorHub.Core
+        Kontekst
       
     </span>
   </a>
@@ -848,10 +828,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#poaczenie-z-magistrala" class="md-nav__link">
+  <a href="#rozwazane-warianty" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Połączenie z magistralą
+        Rozważane warianty
       
     </span>
   </a>
@@ -859,10 +839,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#modu-urzadzenia" class="md-nav__link">
+  <a href="#decyzja" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Moduł urządzenia
+        Decyzja
       
     </span>
   </a>
@@ -870,32 +850,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#narzedzia-serwisowe" class="md-nav__link">
+  <a href="#konsekwencje" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Narzędzia serwisowe
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#monitor-magistrali" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Monitor magistrali
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#trwaosc-ustawien" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Trwałość ustawień
+        Konsekwencje
       
     </span>
   </a>
@@ -922,199 +880,50 @@
   
 
 
-<h1 id="architektura">Architektura<a class="headerlink" href="#architektura" title="Permanent link">&para;</a></h1>
-<p>Rozwiązanie dzieli się na warstwy: rdzeń niezależny od interfejsu
-graficznego, moduły urządzeń, narzędzia serwisowe z biblioteką przyrządów
-oraz powłokę aplikacji.</p>
-<pre class="mermaid"><code>flowchart TB
-    subgraph APP["CanSensorHub.App — powłoka WPF"]
-        MW[MainWindow: pasek połączenia, zakładki, monitor magistrali]
-    end
-    subgraph MOD["Moduły urządzeń"]
-        M1[Modules.Mpswp]
-        M2[Modules.Mpcc]
-    end
-    subgraph TOOLS["Narzędzia serwisowe — wyłączalne (WithTools)"]
-        T1[Tools.MpccAfeCal]
-        MET[Metrology: VISA, przyrządy, statystyka, raporty]
-    end
-    subgraph CORE["CanSensorHub.Core — bez WPF"]
-        CAN[Can: transporty, CanBusService]
-        PROT[Protocol: identyfikator, STREAM, tożsamość urządzenia]
-        BL[Bootloader: CRC, obraz, flasher]
-        LOG[Logging: LiveValueStore, logger CSV]
-    end
-    MW --&gt; M1 &amp; M2
-    M1 &amp; M2 --&gt; CAN &amp; PROT &amp; BL
-    MW --&gt; CAN &amp; LOG
-    MW -. wykrywanie w czasie działania .-&gt; T1
-    T1 --&gt; MET
-    T1 --&gt; M2 &amp; CAN &amp; PROT</code></pre>
-<h2 id="cansensorhubcore"><code>CanSensorHub.Core</code><a class="headerlink" href="#cansensorhubcore" title="Permanent link">&para;</a></h2>
-<p>Biblioteka klas bez zależności od WPF. Zawiera wszystko, co jest wspólne dla
-każdego węzła magistrali.</p>
-<table>
-<thead>
-<tr>
-<th>Przestrzeń</th>
-<th>Zawartość</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>Can</code></td>
-<td><code>CanFrame</code>, transporty <code>SlcanTransport</code> i <code>SimulatedTransport</code>, <code>CanBusService</code></td>
-</tr>
-<tr>
-<td><code>Protocol</code></td>
-<td><code>CanId</code>, <code>Messages</code>, <code>Params</code>, <code>DeviceIdentity</code></td>
-</tr>
-<tr>
-<td><code>Modules</code></td>
-<td>kontrakt modułu i rejestr typów modułów</td>
-</tr>
-<tr>
-<td><code>Tools</code></td>
-<td>kontrakt narzędzia serwisowego i wykrywanie narzędzi</td>
-</tr>
-<tr>
-<td><code>Logging</code></td>
-<td><code>LiveValueStore</code>, <code>WideCsvLogger</code></td>
-</tr>
-<tr>
-<td><code>Bootloader</code></td>
-<td><code>Crc32</code>, <code>Crc16CcittFalse</code>, <code>FirmwareImage</code>, <code>BlCanLink</code>, <code>BootloaderFlasher</code></td>
-</tr>
-</tbody>
-</table>
-<div class="admonition note">
-<p class="admonition-title">Dlaczego rdzeń nie zna WPF</p>
-<p>Interfejs <code>IDeviceModuleInstance</code> udostępnia widok modułu jako <code>object</code>,
-a nie <code>UIElement</code>. Dzięki temu projekt rdzenia nie musi odwoływać się do
-WPF, a rzutowanie wykonują projekty, które i tak od WPF zależą. Rozdział
-umożliwia testowanie warstwy protokołu bez uruchamiania interfejsu.</p>
-</div>
-<h2 id="poaczenie-z-magistrala">Połączenie z magistralą<a class="headerlink" href="#poaczenie-z-magistrala" title="Permanent link">&para;</a></h2>
-<p>W danej chwili aktywne jest <strong>jedno</strong> połączenie, współdzielone przez wszystkie
-dodane urządzenia. Tryby:</p>
-<table>
-<thead>
-<tr>
-<th>Tryb</th>
-<th>Zastosowanie</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Adapter WeAct (slcan)</td>
-<td>praca ze sprzętem, port COM, domyślnie 500 kbit/s</td>
-</tr>
-<tr>
-<td>Symulator</td>
-<td>praca bez sprzętu — fałszywe węzły w procesie aplikacji</td>
-</tr>
-</tbody>
-</table>
-<p>Dodanie urządzenia w trybie symulatora automatycznie uruchamia jego
-odpowiednik na magistrali wirtualnej. Magistrala wirtualna ma też wspólne
-wejście analogowe, na którym symulowane przyrządy narzędzi wymuszają napięcie
-mierzone przez symulowane węzły. Symulowany węzeł korzysta z tego samego
-kodeka co węzeł rzeczywisty, więc rozbieżność między nimi nie jest możliwa —
-poza zakresem celowo niezasymulowanym.</p>
-<h2 id="modu-urzadzenia">Moduł urządzenia<a class="headerlink" href="#modu-urzadzenia" title="Permanent link">&para;</a></h2>
-<p>Moduł jest osobnym projektem odwołującym się do rdzenia. Dostarcza:</p>
-<table>
-<thead>
-<tr>
-<th>Element</th>
-<th>Rola</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>tablice protokołu</td>
-<td>kanały, czujniki, opcode'y, zdarzenia, rejestr parametrów</td>
-</tr>
-<tr>
-<td><code>XxxDeviceClient</code></td>
-<td>typowana warstwa żądań i odpowiedzi dla jednego węzła</td>
-</tr>
-<tr>
-<td><code>XxxDeviceViewModel</code></td>
-<td>implementacja <code>IDeviceModuleInstance</code> — widok i nagłówek zakładki</td>
-</tr>
-<tr>
-<td><code>XxxModuleDescriptor</code></td>
-<td>implementacja <code>IDeviceModuleDescriptor</code> — wpis w katalogu modułów</td>
-</tr>
-<tr>
-<td><code>XxxSimulator</code></td>
-<td>opcjonalnie: fałszywy węzeł do pracy bez sprzętu</td>
-</tr>
-</tbody>
-</table>
-<p>Każdy moduł udostępnia komplet podzakładek: pulpit z kartami wartości
-i nagrywaniem CSV, wykresy na żywo, parametry, czujniki, status, czas RTC, log
-zdarzeń oraz bootloader. Moduł MPCC ma dodatkowo zakładkę sterowania wyjściami,
-moduł MPSWP — autokalibrację anteny detektora wyładowań.</p>
-<h2 id="narzedzia-serwisowe">Narzędzia serwisowe<a class="headerlink" href="#narzedzia-serwisowe" title="Permanent link">&para;</a></h2>
-<p>Czynności okazjonalne, wymagające stanowiska pomiarowego — przede wszystkim
-kalibracje — są realizowane przez narzędzia otwierane z menu „Narzędzia”
-okna głównego, a nie przez zakładki modułów
-(<a href="../adr/0001-narzedzia-jako-osobne-projekty/">ADR 0001</a>).</p>
-<table>
-<thead>
-<tr>
-<th>Element</th>
-<th>Rola</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>IHubTool</code></td>
-<td>kontrakt narzędzia: nazwa, moduł docelowy, <code>Open(HubToolContext)</code></td>
-</tr>
-<tr>
-<td><code>HubToolContext</code></td>
-<td>wspólne połączenie CAN, bieżąca lista dodanych urządzeń, okno właściciela</td>
-</tr>
-<tr>
-<td><code>[assembly: HubTool(...)]</code></td>
-<td>deklaracja narzędzia w zestawie <code>CanSensorHub.Tools.*</code></td>
-</tr>
-<tr>
-<td><code>CanSensorHub.Metrology</code></td>
-<td>VISA, sterowniki przyrządów, przyrządy symulowane, statystyka, dopasowanie, raport CSV</td>
-</tr>
-</tbody>
-</table>
-<p>Powłoka nie odwołuje się do typów narzędzi. Zestawy narzędzi trafiają do
-katalogu aplikacji przez referencje projektowe warunkowane właściwością
-<code>WithTools</code>, a przy starcie są wykrywane po nazwie pliku i atrybucie zestawu.
-Każde narzędzie obsługuje jeden typ urządzenia i jedną wielkość
-(<a href="../adr/0002-jedno-narzedzie-jedna-wielkosc/">ADR 0002</a>).</p>
-<table>
-<thead>
-<tr>
-<th>Narzędzie</th>
-<th>Opis</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>Tools.MpccAfeCal</code></td>
-<td><a href="../kalibracja-mpcc-afe/">kalibracja wejść napięciowych MPCC</a></td>
-</tr>
-</tbody>
-</table>
-<h2 id="monitor-magistrali">Monitor magistrali<a class="headerlink" href="#monitor-magistrali" title="Permanent link">&para;</a></h2>
-<p>Log wszystkich ramek nadanych i odebranych, <strong>niezależny od modułów</strong>: dekoduje
-wyłącznie wspólną otoczkę <code>FUNC</code>/<code>NODE</code>/<code>OBJ</code>/<code>ARG</code>. Ruch węzła, dla którego nie
-dodano modułu, jest zatem nadal widoczny i czytelny w zakresie warstwy wspólnej.</p>
-<h2 id="trwaosc-ustawien">Trwałość ustawień<a class="headerlink" href="#trwaosc-ustawien" title="Permanent link">&para;</a></h2>
-<p>Tryb połączenia, port, przepływność i lista dodanych urządzeń zapisywane są
-w <code>%AppData%\CanSensorHub\settings.json</code> i przywracane przy starcie, po
-ponownym nawiązaniu połączenia.</p>
+<h1 id="0002-jedno-narzedzie-jeden-typ-urzadzenia-i-jedna-wielkosc">0002. Jedno narzędzie — jeden typ urządzenia i jedna wielkość<a class="headerlink" href="#0002-jedno-narzedzie-jeden-typ-urzadzenia-i-jedna-wielkosc" title="Permanent link">&para;</a></h1>
+<p><strong>Stan:</strong> przyjęta · <strong>Data:</strong> 2026-09-26
+<strong>Dotyczy:</strong> projekty <code>CanSensorHub.Tools.*</code>, <code>CanSensorHub.Metrology</code></p>
+<h2 id="kontekst">Kontekst<a class="headerlink" href="#kontekst" title="Permanent link">&para;</a></h2>
+<p>Pierwszym narzędziem serwisowym jest kalibracja siedmiu wejść napięciowych
+(AFE) węzła MPCC. Przewidywane są kolejne: kalibracja czujników temperatury
+(MPCC — STS31, MPSWP — zestaw czujników środowiskowych) z użyciem komory
+klimatycznej, a w dalszej perspektywie kalibracje nowych węzłów.</p>
+<p>Poszczególne kalibracje różnią się niemal wszystkim, co widzi operator:
+wielkością, modelem korekcji w firmware, parametrami węzła, procedurą,
+kryteriami akceptacji i zestawem przyrządów. Wspólne są natomiast:
+komunikacja z przyrządami, statystyka serii pomiarów, dopasowanie modelu
+i zapis raportu.</p>
+<h2 id="rozwazane-warianty">Rozważane warianty<a class="headerlink" href="#rozwazane-warianty" title="Permanent link">&para;</a></h2>
+<p><strong>A. Jedno ogólne narzędzie kalibracyjne</strong> z wyborem urządzenia i wielkości.
+Wymaga warstwy abstrakcji nad modelami korekcji różnych węzłów, zanim
+istnieje drugi przypadek, który by ją weryfikował. Interfejs musi obsłużyć
+wszystkie warianty naraz, co utrudnia pracę w najczęstszym z nich.</p>
+<p><strong>B. Jedno narzędzie na parę urządzenie–wielkość</strong>, z częścią wspólną
+wydzieloną do biblioteki.</p>
+<h2 id="decyzja">Decyzja<a class="headerlink" href="#decyzja" title="Permanent link">&para;</a></h2>
+<p>Wariant <strong>B</strong>.</p>
+<ul>
+<li>Projekt narzędzia nosi nazwę <code>CanSensorHub.Tools.&lt;Urządzenie&gt;&lt;Wielkość&gt;Cal</code>,
+  np. <code>CanSensorHub.Tools.MpccAfeCal</code>. Pole <code>TargetModuleId</code> wskazuje moduł
+  urządzenia, którego narzędzie dotyczy.</li>
+<li>Biblioteka <code>CanSensorHub.Metrology</code> (bez WPF i bez zależności od warstwy
+  CAN) zawiera: dostęp do przyrządów przez VISA, sterowniki przyrządów,
+  przyrządy symulowane, statystykę serii, dopasowanie liniowe i zapis raportu
+  CSV.</li>
+<li>Wiedza o urządzeniu — parametry kalibracyjne, model korekcji, sekwencja
+  zapisu do węzła — należy wyłącznie do projektu narzędzia.</li>
+</ul>
+<h2 id="konsekwencje">Konsekwencje<a class="headerlink" href="#konsekwencje" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Nowe narzędzie nie zmienia narzędzi istniejących; może zostać usunięte
+  z buildu niezależnie od pozostałych przez usunięcie jego referencji
+  w powłoce.</li>
+<li>Sterownik przyrządu dodany dla jednego narzędzia (np. komora klimatyczna)
+  jest od razu dostępny dla pozostałych.</li>
+<li>Uogólnienie procedur kalibracyjnych jest odłożone do chwili, w której
+  istnieją co najmniej dwa narzędzia o wspólnym przebiegu; wtedy wspólna
+  część przechodzi do <code>Metrology</code> na podstawie rzeczywistych przypadków.</li>
+</ul>
 
 
 
@@ -1174,10 +983,10 @@ ponownym nawiązaniu połączenia.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.top", "navigation.indexes", "navigation.tracking", "content.code.copy", "content.code.annotate", "toc.follow", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Skopiowano do schowka", "clipboard.copy": "Kopiuj do schowka", "search.result.more.one": "1 wi\u0119cej na tej stronie", "search.result.more.other": "# wi\u0119cej na tej stronie", "search.result.none": "Brak wynik\u00f3w wyszukiwania", "search.result.one": "Wyniki wyszukiwania: 1", "search.result.other": "Wyniki wyszukiwania: #", "search.result.placeholder": "Zacznij pisa\u0107, aby szuka\u0107", "search.result.term.missing": "Brak", "select.version": "Wybierz wersj\u0119"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.top", "navigation.indexes", "navigation.tracking", "content.code.copy", "content.code.annotate", "toc.follow", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Skopiowano do schowka", "clipboard.copy": "Kopiuj do schowka", "search.result.more.one": "1 wi\u0119cej na tej stronie", "search.result.more.other": "# wi\u0119cej na tej stronie", "search.result.none": "Brak wynik\u00f3w wyszukiwania", "search.result.one": "Wyniki wyszukiwania: 1", "search.result.other": "Wyniki wyszukiwania: #", "search.result.placeholder": "Zacznij pisa\u0107, aby szuka\u0107", "search.result.term.missing": "Brak", "select.version": "Wybierz wersj\u0119"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

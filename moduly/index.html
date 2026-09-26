@@ -18,7 +18,7 @@
         <link rel="prev" href="../BOOTLOADER_ROBUSTNESS/">
       
       
-        <link rel="next" href="../budowanie/">
+        <link rel="next" href="../kalibracja-mpcc-afe/">
       
       
         
@@ -503,6 +503,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#narzedzie-serwisowe-urzadzenia" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Narzędzie serwisowe urządzenia
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#rejestracja" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -517,6 +528,33 @@
   
 </nav>
       
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kalibracja-mpcc-afe/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kalibracja wejść MPCC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -544,6 +582,230 @@
   
 
       </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../adr/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decyzje architektoniczne
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_9" id="__nav_9_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Decyzje architektoniczne
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0001-narzedzia-jako-osobne-projekty/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0001 Narzędzia jako osobne projekty
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0002-jedno-narzedzie-jedna-wielkosc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0002 Jedno narzędzie, jedna wielkość
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0003-dostep-do-przyrzadow-przez-visa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0003 Dostęp do przyrządów przez VISA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0004-wspolczynniki-z-odczytow-skalibrowanych/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0004 Współczynniki z odczytów skalibrowanych
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0005-sekwencja-zapisu-kalibracji/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0005 Sekwencja zapisu kalibracji
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -612,6 +874,17 @@
     <span class="md-ellipsis">
       
         Identyfikatory kanałów telemetrii
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#narzedzie-serwisowe-urzadzenia" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Narzędzie serwisowe urządzenia
       
     </span>
   </a>
@@ -769,6 +1042,21 @@ fizycznej</strong> z rejestru warstwy wspólnej. Moduł nie nadaje własnych num
 <p>Skutkiem ubocznym jest to, że host generyczny dekoduje telemetrię modułu bez
 znajomości modułu. Własność ta jest wykorzystana przez rejestrator
 <code>CanSensorLoggerPi</code>.</p>
+<h2 id="narzedzie-serwisowe-urzadzenia">Narzędzie serwisowe urządzenia<a class="headerlink" href="#narzedzie-serwisowe-urzadzenia" title="Permanent link">&para;</a></h2>
+<p>Czynności okazjonalne dla danego typu urządzenia — np. kalibracja — należą do
+osobnego projektu narzędzia, nie do modułu
+(<a href="../adr/0001-narzedzia-jako-osobne-projekty/">ADR 0001</a>,
+<a href="../adr/0002-jedno-narzedzie-jedna-wielkosc/">ADR 0002</a>):</p>
+<ol>
+<li>Projekt <code>CanSensorHub.Tools.&lt;Urządzenie&gt;&lt;Wielkość&gt;Cal</code>; nazwa zestawu musi
+   zaczynać się od <code>CanSensorHub.Tools.</code>.</li>
+<li>Klasa implementująca <code>IHubTool</code> i atrybut zestawu
+   <code>[assembly: HubTool(typeof(...))]</code>.</li>
+<li>Warunkowa referencja w <code>CanSensorHub.App.csproj</code>, w grupie
+   <code>Condition="'$(WithTools)' == 'true'"</code>.</li>
+<li>Przyrządy i obliczenia z <code>CanSensorHub.Metrology</code>. Nowy sterownik przyrządu
+   trafia tam, a nie do projektu narzędzia.</li>
+</ol>
 <h2 id="rejestracja">Rejestracja<a class="headerlink" href="#rejestracja" title="Permanent link">&para;</a></h2>
 <p>Deskryptor rejestruje się w <code>MainViewModel</code>, obok modułów istniejących.
 <code>ModuleRegistry</code> udostępnia go w oknie dodawania urządzenia; lista jest zamknięta,

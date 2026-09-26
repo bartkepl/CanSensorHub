@@ -12,13 +12,13 @@
         <meta name="author" content="bartkepl">
       
       
-        <link rel="canonical" href="https://bartkepl.github.io/CanSensorHub/BOOTLOADER_ROBUSTNESS/">
+        <link rel="canonical" href="https://bartkepl.github.io/CanSensorHub/adr/">
       
       
-        <link rel="prev" href="../bootloader/">
+        <link rel="prev" href="../budowanie/">
       
       
-        <link rel="next" href="../moduly/">
+        <link rel="next" href="0001-narzedzia-jako-osobne-projekty/">
       
       
         
@@ -29,7 +29,7 @@
     
     
       
-        <title>Niezawodność wgrywania - CanSensorHub — stanowisko obsługi magistrali CAN</title>
+        <title>Rejestr decyzji architektonicznych - CanSensorHub — stanowisko obsługi magistrali CAN</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#bootloader-can-plan-wzmocnienia-niezawodnosci" class="md-skip">
+        <a href="#rejestr-decyzji-architektonicznych" class="md-skip">
           Przejdź do treści
         </a>
       
@@ -116,7 +116,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Niezawodność wgrywania
+              Rejestr decyzji architektonicznych
             
           </span>
         </div>
@@ -369,37 +369,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Niezawodność wgrywania
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../BOOTLOADER_ROBUSTNESS/" class="md-nav__link">
         
   
   
@@ -415,153 +388,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Spis treści">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Spis treści
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#co-juz-sprawdzono-i-odrzucono-albo-naprawiono-ale-to-nie-by-cay-problem" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Co już sprawdzono i odrzucono (albo naprawiono, ale to nie był cały problem)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#krok-0-najpierw-to-zanim-cokolwiek-wiecej-podejrzyj-ruch-na-magistrali" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Krok 0 (najpierw to, zanim cokolwiek więcej): podejrzyj ruch na magistrali
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#kandydaci-do-dalszego-zbadania" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Kandydaci do dalszego zbadania
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Kandydaci do dalszego zbadania">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#a-echo-nadawanych-ramek-po-slcan" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        A. Echo nadawanych ramek po slcan
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#b-throttling-wysyki-prog_data" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        B. Throttling wysyłki PROG_DATA
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#c-backoff-miedzy-probami-bloku" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        C. Backoff między próbami bloku
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#d-timeout-prog_end-skalowany-do-rozmiaru-bloku" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        D. Timeout PROG_END skalowany do rozmiaru bloku
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#e-ujednolicenie-dopatrywania-odpowiedzi-w-pozostaych-moduach" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        E. Ujednolicenie dopatrywania odpowiedzi w pozostałych modułach
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#f-bogatszy-log-per-proba" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        F. Bogatszy log per-próba
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#g-opcjonalny-podglad-surowych-ramek-bl-w-oknie-bootloadera" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        G. Opcjonalny podgląd surowych ramek BL w oknie Bootloadera
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#kolejnosc-wdrazania-rekomendacja-na-przyszosc" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Kolejność wdrażania (rekomendacja na przyszłość)
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -651,6 +477,8 @@
       
   
   
+    
+  
   
   
     
@@ -679,15 +507,15 @@
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" checked>
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../adr/" class="md-nav__link ">
+            <a href="./" class="md-nav__link md-nav__link--active">
               
   
   
@@ -705,13 +533,13 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_9" id="__nav_9_label" tabindex="">
+              <label class="md-nav__link md-nav__link--active" for="__nav_9" id="__nav_9_label" tabindex="">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_9">
             <span class="md-nav__icon md-icon"></span>
             
@@ -731,7 +559,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/0001-narzedzia-jako-osobne-projekty/" class="md-nav__link">
+      <a href="0001-narzedzia-jako-osobne-projekty/" class="md-nav__link">
         
   
   
@@ -759,7 +587,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/0002-jedno-narzedzie-jedna-wielkosc/" class="md-nav__link">
+      <a href="0002-jedno-narzedzie-jedna-wielkosc/" class="md-nav__link">
         
   
   
@@ -787,7 +615,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/0003-dostep-do-przyrzadow-przez-visa/" class="md-nav__link">
+      <a href="0003-dostep-do-przyrzadow-przez-visa/" class="md-nav__link">
         
   
   
@@ -815,7 +643,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/0004-wspolczynniki-z-odczytow-skalibrowanych/" class="md-nav__link">
+      <a href="0004-wspolczynniki-z-odczytow-skalibrowanych/" class="md-nav__link">
         
   
   
@@ -843,7 +671,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/0005-sekwencja-zapisu-kalibracji/" class="md-nav__link">
+      <a href="0005-sekwencja-zapisu-kalibracji/" class="md-nav__link">
         
   
   
@@ -891,141 +719,6 @@
     
   
   
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Spis treści
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#co-juz-sprawdzono-i-odrzucono-albo-naprawiono-ale-to-nie-by-cay-problem" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Co już sprawdzono i odrzucono (albo naprawiono, ale to nie był cały problem)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#krok-0-najpierw-to-zanim-cokolwiek-wiecej-podejrzyj-ruch-na-magistrali" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Krok 0 (najpierw to, zanim cokolwiek więcej): podejrzyj ruch na magistrali
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#kandydaci-do-dalszego-zbadania" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Kandydaci do dalszego zbadania
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Kandydaci do dalszego zbadania">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#a-echo-nadawanych-ramek-po-slcan" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        A. Echo nadawanych ramek po slcan
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#b-throttling-wysyki-prog_data" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        B. Throttling wysyłki PROG_DATA
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#c-backoff-miedzy-probami-bloku" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        C. Backoff między próbami bloku
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#d-timeout-prog_end-skalowany-do-rozmiaru-bloku" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        D. Timeout PROG_END skalowany do rozmiaru bloku
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#e-ujednolicenie-dopatrywania-odpowiedzi-w-pozostaych-moduach" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        E. Ujednolicenie dopatrywania odpowiedzi w pozostałych modułach
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#f-bogatszy-log-per-proba" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        F. Bogatszy log per-próba
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#g-opcjonalny-podglad-surowych-ramek-bl-w-oknie-bootloadera" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        G. Opcjonalny podgląd surowych ramek BL w oknie Bootloadera
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#kolejnosc-wdrazania-rekomendacja-na-przyszosc" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Kolejność wdrażania (rekomendacja na przyszłość)
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
 </nav>
                   </div>
                 </div>
@@ -1044,97 +737,49 @@
   
 
 
-<h1 id="bootloader-can-plan-wzmocnienia-niezawodnosci">Bootloader CAN — plan wzmocnienia niezawodności<a class="headerlink" href="#bootloader-can-plan-wzmocnienia-niezawodnosci" title="Permanent link">&para;</a></h1>
-<blockquote>
-<p><strong>Aktualizacja 2026-09-16.</strong> Od czasu spisania tego dokumentu narzędzie
-wgrało przez CAN dwa obrazy stacji pogodowej (3.0 build 8 oraz 3.1 build 9),
-oba zakończone weryfikacją i startem aplikacji. Objaw opisany poniżej nie
-wystąpił ponownie. Nie przesądza to, że przyczyna została usunięta: poprawki
-1 i 2 mogły ją usunąć, mogła też pozostać utajona. Propozycje z dalszej części
-dokumentu pozostają aktualne jako wzmocnienie, a nie jako naprawa awarii
-bieżącej.</p>
-</blockquote>
-<p>Status: <strong>propozycja, nie zaimplementowana.</strong> Spisane po nieudanej próbie flashowania
-MPSWP przez CAN na prawdziwym sprzęcie (<code>BŁĄD: Brak odpowiedzi PROG_END.</code> przy pierwszym
-bloku), gdy referencyjna aplikacja Pythonowa (<code>MPSWP/app</code>) na tym samym sprzęcie działa
-poprawnie — więc przyczyna leży po stronie klienta C#, nie firmware'u ani magistrali.</p>
-<h2 id="co-juz-sprawdzono-i-odrzucono-albo-naprawiono-ale-to-nie-by-cay-problem">Co już sprawdzono i odrzucono (albo naprawiono, ale to nie był cały problem)<a class="headerlink" href="#co-juz-sprawdzono-i-odrzucono-albo-naprawiono-ale-to-nie-by-cay-problem" title="Permanent link">&para;</a></h2>
-<ol>
-<li><strong>Brak retry przy timeout PROG_END/PROG_START</strong> (naprawione w <code>BootloaderFlasher.
-   ProgramBlockAsync</code>) — timeout wcześniej wylatywał poza pętlę retry zamiast być w niej
-   obsłużony jak status SEQ. Realny bug, ale samodzielnie nie rozwiązał problemu na
-   sprzęcie użytkownika (błąd identyczny po 3 próbach).</li>
-<li><strong>Dopasowywanie odpowiedzi przez UI-thread dispatcher</strong> (naprawione — nowy
-   <code>CanBusService.RawFrameReceived</code>, <code>BlCanLink</code> już go używa zamiast <code>FrameReceived</code>).
-   Realna architektoniczna wada (seria 64 wysyłek PROG_DATA zapycha kolejkę Dispatcher.Post
-   wpisami do Monitora magistrali, przez co dopasowanie odpowiedzi PROG_END mogło czekać
-   w kolejce dłużej niż timeout) — ale też samodzielnie nie usunęła błędu na sprzęcie
-   użytkownika. Zostaje w kodzie, bo to i tak realne ulepszenie, ale nie jest to (jedyna)
-   przyczyna.</li>
-</ol>
-<p>Skoro dwie sensowne architektonicznie poprawki nie usunęły objawu, a Python na tym samym
-sprzęcie działa — kolejny krok <strong>musi</strong> być empiryczny, nie kolejną spekulacją.</p>
-<h2 id="krok-0-najpierw-to-zanim-cokolwiek-wiecej-podejrzyj-ruch-na-magistrali">Krok 0 (najpierw to, zanim cokolwiek więcej): podejrzyj ruch na magistrali<a class="headerlink" href="#krok-0-najpierw-to-zanim-cokolwiek-wiecej-podejrzyj-ruch-na-magistrali" title="Permanent link">&para;</a></h2>
-<p>Aplikacja ma już wbudowany surowy log CAN (zakładka <strong>Monitor magistrali CAN</strong>, przypięta
-zawsze jako pierwsza zakładka) i działa na tym samym <code>CanBusService</code>, co okno Bootloadera —
-więc rejestruje cały ruch TX/RX również podczas flashowania. Po kolejnej nieudanej próbie,
-<strong>przed wyczyszczeniem</strong>, sprawdzić w tym logu:</p>
-<ul>
-<li>Czy <code>PROG_END</code> (OBJ w ID = <code>0x74</code>, pole FUNC=<code>0x08</code>/REQUEST) w ogóle poszedł jako TX?</li>
-<li>Czy cokolwiek wróciło jako RX z tym samym OBJ (<code>0x74</code>) i FUNC=<code>0x09</code>/RESPONSE — może
-  wróciło, ale z jakiegoś powodu klient go nie skonsumował (inny błąd, nie brak ramki)?</li>
-<li>Ile realnie ramek TX poszło między <code>PROG_START</code> a <code>PROG_END</code> — dokładnie 64, czy mniej
-  (co wskazywałoby na problem po stronie wysyłki, nie odbioru)?</li>
-</ul>
-<p>To rozstrzygnie, czy problem jest po stronie <em>wysyłania</em> (ramki nie docierają na magistralę),
-<em>odbioru</em> (odpowiedź przychodzi, ale gubi się w kliencie) czy <em>firmware'u</em> (naprawdę nie
-odpowiada). Dalsze punkty poniżej zakładają, że to się jeszcze nie stało — każdy z nich
-warto zweryfikować dopiero w świetle tego, co pokaże log, żeby nie strzelać po ciemku.</p>
-<h2 id="kandydaci-do-dalszego-zbadania">Kandydaci do dalszego zbadania<a class="headerlink" href="#kandydaci-do-dalszego-zbadania" title="Permanent link">&para;</a></h2>
-<h3 id="a-echo-nadawanych-ramek-po-slcan">A. Echo nadawanych ramek po slcan<a class="headerlink" href="#a-echo-nadawanych-ramek-po-slcan" title="Permanent link">&para;</a></h3>
-<p>Wiele implementacji firmware slcan odsyła echo wysłanej komendy <code>T........</code> z powrotem po
-tym samym porcie szeregowym (potwierdzenie zapisu, nie odbioru z magistrali). Jeśli WeAct
-tak robi, każda z 64 ramek PROG_DATA wygenerowałaby dodatkowo "przychodzącą" ramkę w
-<code>SlcanTransport.ReaderLoop</code> — filtr <code>FUNC != RESPONSE</code> w <code>BlCanLink.OnFrameReceived</code>
-powinien to poprawnie odsiewać, ale warto sprawdzić w Monitorze magistrali, czy faktycznie
-tak jest (nadmiar wpisów RX o FUNC=REQUEST tuż po serii PROG_DATA) — a jeśli tak, czy
-<code>SlcanTransport.ReaderLoop</code> (odczyt bajt-po-bajcie, pojedynczy wątek) nadąża z takim
-przepływem bez gubienia/mieszania ramek z prawdziwymi odpowiedziami.</p>
-<h3 id="b-throttling-wysyki-prog_data">B. Throttling wysyłki PROG_DATA<a class="headerlink" href="#b-throttling-wysyki-prog_data" title="Permanent link">&para;</a></h3>
-<p>Firmware (<code>bl_can.c</code>) jawnie zaznacza w komentarzu, że odbiór jest tylko-pollingowy z
-3-głębokim FIFO. Klient obecnie wysyła 64 ramki PROG_DATA jedna po drugiej bez żadnego
-opóźnienia. Nawet jeśli punkt 0 pokaże, że to nie jest (jedyna) przyczyna obecnego błędu,
-dodanie throttlingu (np. krótka pauza co 3 ramki, dopasowana do głębokości FIFO) to tania
-prewencja na przyszłość — nie polegać wyłącznie na mechanizmie SEQ-retry.</p>
-<h3 id="c-backoff-miedzy-probami-bloku">C. Backoff między próbami bloku<a class="headerlink" href="#c-backoff-miedzy-probami-bloku" title="Permanent link">&para;</a></h3>
-<p>Nieudana próba bloku dziś natychmiast powtarza cały PROG_START. Krótkie opóźnienie
-(50–100 ms) przed ponowieniem dałoby firmware'owi czas na pełne wybudzenie się z
-poprzedniej operacji (np. zapis flash w handlerze PROG_END), zamiast odpalać dokładnie ten
-sam wzorzec obciążenia od razu ponownie.</p>
-<h3 id="d-timeout-prog_end-skalowany-do-rozmiaru-bloku">D. Timeout PROG_END skalowany do rozmiaru bloku<a class="headerlink" href="#d-timeout-prog_end-skalowany-do-rozmiaru-bloku" title="Permanent link">&para;</a></h3>
-<p><code>bl_flash_program()</code> wykonuje się synchronicznie w handlerze PROG_END przed wysłaniem
-odpowiedzi — stały timeout 2 s może nie dawać marginesu przy większych blokach/wolniejszej
-geometrii flasha. Rozważyć timeout zależny od rozmiaru bloku zamiast stałej.</p>
-<h3 id="e-ujednolicenie-dopatrywania-odpowiedzi-w-pozostaych-moduach">E. Ujednolicenie dopatrywania odpowiedzi w pozostałych modułach<a class="headerlink" href="#e-ujednolicenie-dopatrywania-odpowiedzi-w-pozostaych-moduach" title="Permanent link">&para;</a></h3>
-<p><code>MpccDeviceClient</code>/<code>MpswpDeviceClient</code> nadal subskrybują <code>FrameReceived</code> (kolejkowane przez
-UI thread), tak jak wcześniej robił <code>BlCanLink</code>. Nie demonstrowały dotąd tego samego objawu
-(nie poprzedza ich seria 64 wysyłek pod rząd), ale to ta sama potencjalna wada architektury
-— warto ujednolicić na <code>RawFrameReceived</code> przy okazji, dla spójności.</p>
-<h3 id="f-bogatszy-log-per-proba">F. Bogatszy log per-próba<a class="headerlink" href="#f-bogatszy-log-per-proba" title="Permanent link">&para;</a></h3>
-<p>Dziś log Bootloadera pokazuje tylko przejścia etapów + błąd końcowy. Dodanie linii per
-próba bloku ("blok @0x000: próba 2/3 — retry po SEQ/timeout") ułatwiłoby diagnozę kolejnych
-przypadków bez konieczności odtwarzania tego z kodu źródłowego, tak jak teraz.</p>
-<h3 id="g-opcjonalny-podglad-surowych-ramek-bl-w-oknie-bootloadera">G. Opcjonalny podgląd surowych ramek BL w oknie Bootloadera<a class="headerlink" href="#g-opcjonalny-podglad-surowych-ramek-bl-w-oknie-bootloadera" title="Permanent link">&para;</a></h3>
-<p>Checkbox "loguj każdą ramkę protokołu BL" w oknie Bootloadera, dublujący do loga okna to,
-co i tak widać w Monitorze magistrali — wygodniejsze przy diagnozie w terenie bez
-przełączania zakładek.</p>
-<h2 id="kolejnosc-wdrazania-rekomendacja-na-przyszosc">Kolejność wdrażania (rekomendacja na przyszłość)<a class="headerlink" href="#kolejnosc-wdrazania-rekomendacja-na-przyszosc" title="Permanent link">&para;</a></h2>
-<ol>
-<li>Krok 0 — zebrać log Monitora magistrali z nieudanej próby (rozstrzyga resztę).</li>
-<li>W zależności od wyniku: A (jeśli echo miesza się z odpowiedziami) albo bezpośrednio
-   B+C (jeśli to jednak przeciążenie/timing).</li>
-<li>D, E, F, G — niezależne usprawnienia, do zrobienia przy okazji, nie blokują diagnozy.</li>
-</ol>
+<h1 id="rejestr-decyzji-architektonicznych">Rejestr decyzji architektonicznych<a class="headerlink" href="#rejestr-decyzji-architektonicznych" title="Permanent link">&para;</a></h1>
+<p>Decyzje dotyczące wyłącznie aplikacji CanSensorHub, których uzasadnienie
+przestałoby być oczywiste po kilku miesiącach. Decyzje wiążące więcej niż jedno
+repozytorium rodziny CANbusSensors są zapisywane w repozytorium <code>CanBusCommon</code>.</p>
+<p>Zapis obejmuje <strong>kontekst, rozważane warianty i konsekwencje</strong>, nie samą treść
+decyzji. Decyzja bez zapisanego powodu bywa po czasie odwracana przez kogoś, kto
+nie zna ograniczenia, które ją wymusiło.</p>
+<table>
+<thead>
+<tr>
+<th>Nr</th>
+<th>Decyzja</th>
+<th>Stan</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="0001-narzedzia-jako-osobne-projekty/">0001</a></td>
+<td>Narzędzia serwisowe jako osobne projekty wykrywane w czasie działania, włączane właściwością <code>WithTools</code></td>
+<td>przyjęta</td>
+</tr>
+<tr>
+<td><a href="0002-jedno-narzedzie-jedna-wielkosc/">0002</a></td>
+<td>Jedno narzędzie obsługuje jeden typ urządzenia i jedną wielkość; przyrządy i obliczenia we wspólnej bibliotece <code>Metrology</code></td>
+<td>przyjęta</td>
+</tr>
+<tr>
+<td><a href="0003-dostep-do-przyrzadow-przez-visa/">0003</a></td>
+<td>Dostęp do przyrządów przez bezpośrednie wywołania <code>visa64.dll</code>; build i testy bez VISA</td>
+<td>przyjęta</td>
+</tr>
+<tr>
+<td><a href="0004-wspolczynniki-z-odczytow-skalibrowanych/">0004</a></td>
+<td>Współczynniki AFE MPCC wyznaczane przez złożenie z bieżącą korekcją; firmware bez zmian</td>
+<td>przyjęta</td>
+</tr>
+<tr>
+<td><a href="0005-sekwencja-zapisu-kalibracji/">0005</a></td>
+<td>Zapis współczynników: blokada zdejmowana tylko w RAM, jeden <code>SAVE_CONFIG</code>, wycofanie bez zapisu</td>
+<td>przyjęta</td>
+</tr>
+</tbody>
+</table>
 
 
 
