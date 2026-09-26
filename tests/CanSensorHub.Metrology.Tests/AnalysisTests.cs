@@ -126,7 +126,7 @@ public class CsvReportWriterTests
                 w.Row("kanał", 1.25, double.NaN, 3);
             }
             var lines = File.ReadAllLines(path);
-            Assert.Contains("[Przyrządy]", lines);
+            Assert.Equal("[Przyrządy]", lines[0]);
             Assert.Contains("DMM,\"HEWLETT-PACKARD,34401A,0,11-5-2\"", lines);
             Assert.Contains("kanał,1.25,,3", lines);
         }

@@ -37,6 +37,10 @@
     <ProjectReference Include="..\CanSensorHub.Modules.Mpswp\CanSensorHub.Modules.Mpswp.csproj" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(WithTools)' == 'true'">
+    <ProjectReference Include="..\CanSensorHub.Tools.MpccAfeCal\CanSensorHub.Tools.MpccAfeCal.csproj" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
     <PackageReference Include="Velopack" Version="1.2.0" />

@@ -6,12 +6,13 @@ namespace CanSensorHub.Metrology.Reporting;
 /// <summary>
 /// Raport kalibracji w jednym pliku CSV złożonym z sekcji: nagłówek sekcji <c>[nazwa]</c>, pary
 /// klucz–wartość albo tabela. Separator <c>,</c> i kropka dziesiętna niezależnie od ustawień
-/// regionalnych — jak w pozostałych plikach CSV aplikacji. Zapis jest opróżniany na dysk po każdej
-/// sekcji, więc przerwana procedura zostawia dane zebrane do tej chwili.
+/// regionalnych — jak w pozostałych plikach CSV aplikacji. <see cref="Flush"/> utrwala zapis na dysku
+/// (także przy zamknięciu), więc długie tabele mogą być utrwalane częściami.
 /// </summary>
 public sealed class CsvReportWriter : IDisposable
 {
     private readonly StreamWriter _writer;
+    private bool _hasSections;
     public string FilePath { get; }
 
     public CsvReportWriter(string filePath)
@@ -23,7 +24,8 @@ public sealed class CsvReportWriter : IDisposable
 
     public void Section(string title)
     {
-        _writer.WriteLine();
+        if (_hasSections) _writer.WriteLine();
+        _hasSections = true;
         _writer.WriteLine(Escape($"[{title}]"));
     }
 
