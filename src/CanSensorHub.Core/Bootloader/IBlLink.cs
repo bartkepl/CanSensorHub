@@ -10,7 +10,8 @@ public static class BlOpcodes
     public const byte ProgEnd = 0x74;
     public const byte Verify = 0x75;
     public const byte Go = 0x76;
-    public const byte ProgBlockUart = 0x78;
+    // 0x78 (dawniej PROG_BLOCK transportu UART) jest wycofany na stałe w rewizji 2.1
+    // warstwy wspólnej (CanBusCommon ADR 0006) — bootloader pracuje wyłącznie po CAN.
 }
 
 public enum BlStatus : byte

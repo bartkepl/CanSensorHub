@@ -51,7 +51,9 @@ public class DeviceCapabilityNamesTests
     [Fact]
     public void Bit_spoza_wyliczenia_jest_wypisany_nie_pominiety()
     {
-        Assert.Equal("TELEMETRY, bit20", DeviceCapabilityNames.Describe(0x00100001u));
+        // Bit 20 (TIME_SOURCE) jest znany od rewizji 2.1 warstwy wspólnej — pierwszym
+        // nieprzydzielonym jest bit 22.
+        Assert.Equal("TELEMETRY, bit22", DeviceCapabilityNames.Describe(0x00400001u));
     }
 
     [Fact]

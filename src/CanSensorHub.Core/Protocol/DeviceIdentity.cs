@@ -142,6 +142,9 @@ public enum DeviceCapability : uint
     Gnss = 1u << 17,
     Radiometry = 1u << 18,
     Lightning = 1u << 19,
+    // Od rewizji 2.1 warstwy wspólnej (CanBusCommon ADR 0007).
+    TimeSource = 1u << 20,
+    TimeSyncPrecise = 1u << 21,
 }
 
 /// <summary>
